@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alpha Club</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: #0f2038;
+      --panel2: #132b4d;
+      --text: #eef6ff;
+      --muted: #9fb5cf;
+      --gold: #ffd166;
+      --green: #35d07f;
+      --red: #ff5c77;
+      --blue: #5ab3ff;
+      --purple: #b46dff;
+      --border: rgba(255,255,255,0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #17345d, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(7,17,31,.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    h1 { margin: 0; font-size: 26px; color: var(--gold); }
+    h2, h3 { margin-top: 0; }
+    nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    button, input, select, textarea {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #102744;
+      color: var(--text);
+      padding: 10px 12px;
+      font-weight: 700;
+    }
+    input, select { min-height: 42px; }
+    button { cursor: pointer; transition: .15s; }
+    button:hover { transform: translateY(-1px); background: #173a67; }
+    button.primary { background: linear-gradient(135deg, #1f8fff, #35d07f); color: #04101d; }
+    button.gold { background: var(--gold); color: #1b1300; }
+    button.danger { background: #562032; color: #ffdce4; }
+    main { max-width: 1180px; margin: 0 auto; padding: 20px; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .stat, .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    }
+    .stat b { display: block; color: var(--muted); font-size: 13px; }
+    .stat span { font-size: 23px; font-weight: 900; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+    .tab.active { background: var(--gold); color: #1b1300; }
+    .grid { display: grid; grid-template-columns: 1.4fr .9fr; gap: 16px; }
+    .account-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 16px; }
+    .hidden { display: none !important; }
+    .game-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .game-btn.active { background: var(--blue); color: #00182d; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+    .big { font-size: 42px; font-weight: 900; text-align: center; padding: 18px; }
+    .message { color: var(--gold); font-weight: 800; min-height: 24px; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .shop { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border-bottom: 1px solid var(--border); text-align: left; }
+    .pill { border: 1px solid var(--border); border-radius: 999px; padding: 5px 9px; color: var(--muted); }
+    .snake-board, .mines-board, .cross-board {
+      display: grid;
+      gap: 6px;
+      justify-content: center;
+      margin: 14px auto;
+    }
+    .snake-board { grid-template-columns: repeat(10, 26px); }
+    .mines-board { grid-template-columns: repeat(5, 54px); }
+    .cross-board { grid-template-columns: repeat(3, 70px); }
+    .cell {
+      height: 26px;
+      border-radius: 7px;
+      background: rgba(255,255,255,.08);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+    .mines-board .cell { height: 54px; cursor: pointer; }
+    .cross-board .cell { height: 70px; cursor: pointer; }
+    .good { background: rgba(53,208,127,.55) !important; }
+    .bad { background: rgba(255,92,119,.55) !important; }
+    .player { background: var(--blue) !important; }
+    .food { background: var(--gold) !important; }
+
+    .profile-card {
+      position: relative;
+      overflow: hidden;
+      padding: 0;
+    }
+    .profile-banner {
+      height: 115px;
+      background: linear-gradient(135deg, var(--blue), var(--purple), var(--gold));
+      opacity: .95;
+    }
+    .profile-body { padding: 0 18px 18px; }
+    .avatar {
+      width: 92px;
+      height: 92px;
+      border-radius: 26px;
+      background: linear-gradient(135deg, var(--gold), var(--green));
+      border: 6px solid #0b1a2e;
+      display: grid;
+      place-items: center;
+      font-size: 42px;
+      font-weight: 900;
+      color: #06101d;
+      margin-top: -46px;
+      box-shadow: 0 15px 35px rgba(0,0,0,.35);
+    }
+    .account-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(53,208,127,.12);
+      color: var(--green);
+      border: 1px solid rgba(53,208,127,.25);
+      font-weight: 900;
+    }
+    .account-status.offline {
+      background: rgba(255,92,119,.12);
+      color: var(--red);
+      border-color: rgba(255,92,119,.25);
+    }
+    .auth-form {
+      display: grid;
+      gap: 10px;
+    }
+    .auth-form input { width: 100%; }
+    .mini-stats { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-top: 14px; }
+    .mini-stat { border: 1px solid var(--border); border-radius: 16px; padding: 12px; background: rgba(255,255,255,.04); }
+    .mini-stat b { display:block; color: var(--muted); font-size: 12px; }
+    .mini-stat span { font-size: 20px; font-weight: 900; }
+    .warning {
+      border: 1px solid rgba(255,209,102,.35);
+      background: rgba(255,209,102,.09);
+      color: #ffe6a3;
+      border-radius: 16px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+    @media (max-width: 850px) {
+      .grid, .stats, .shop, .account-grid { grid-template-columns: 1fr; }
+      .big { font-size: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Alpha Club</h1>
+    <nav>
+      <button class="tab active" onclick="showPage('home', this)">Home</button>
+      <button class="tab" onclick="showPage('leaderboard', this)">Leaderboard</button>
+      <button class="tab" onclick="showPage('shop', this)">Shop</button>
+      <button class="tab" onclick="showPage('account', this)">Account</button>
+      <button class="tab" onclick="showPage('rebirth', this)">Rebirth</button>
+      <button class="tab" onclick="showPage('admin', this)">Admin</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="stats">
+      <div class="stat"><b>Player</b><span id="playerName">Guest</span></div>
+      <div class="stat"><b>Balance</b><span id="balance">$100</span></div>
+      <div class="stat"><b>Bonus</b><span id="bonus">1.0x</span></div>
+      <div class="stat"><b>Rebirths</b><span id="rebirths">0</span></div>
+    </section>
+
+    <section id="home" class="page">
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <h2>Game Hub <span class="pill">v1.1 Online Accounts</span></h2>
+          <button onclick="resetGameUI()">Refresh Game</button>
+        </div>
+        <div class="game-buttons" id="gameButtons"></div>
+        <div class="grid">
+          <div class="card">
+            <h2 id="gameTitle">Dice</h2>
+            <div class="controls">
+              <label>Bet <input id="bet" type="number" min="1" value="25" /></label>
+              <select id="mode">
+                <option>Easy</option>
+                <option selected>Normal</option>
+                <option>Hard</option>
+              </select>
+            </div>
+            <div id="gameArea"></div>
+            <p class="message" id="message">Choose a game and start earning.</p>
+          </div>
+          <div class="card">
+            <h2>Run Panel</h2>
+            <p id="helpText">Pick a game to see controls.</p>
+            <div class="controls" id="actionButtons"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="leaderboard" class="page hidden">
+      <div class="card">
+        <h2>Leaderboards</h2>
+        <button onclick="saveScore()">Refresh Leaderboards</button>
+        <h3>Richest Players</h3>
+        <table><thead><tr><th>#</th><th>Player</th><th>Cash</th><th>Best Win</th></tr></thead><tbody id="leaderBody"></tbody></table>
+      </div>
+    </section>
+
+    <section id="shop" class="page hidden">
+      <div class="card">
+        <h2>Shop</h2>
+        <p>Cosmetics and unlocks. If Firebase is connected, items sync to your account.</p>
+        <div class="shop" id="shopItems"></div>
+      </div>
+    </section>
+
+    <section id="account" class="page hidden">
+      <div class="account-grid">
+        <div class="card profile-card">
+          <div class="profile-banner"></div>
+          <div class="profile-body">
+            <div class="row" style="justify-content:space-between;align-items:flex-end">
+              <div class="avatar" id="avatarLetter">G</div>
+              <span id="onlineStatus" class="account-status offline">Offline Save</span>
+            </div>
+            <h2 id="profileName">Guest</h2>
+            <p id="profileSub" style="color:var(--muted)">Local browser save only.</p>
+            <div class="mini-stats">
+              <div class="mini-stat"><b>Balance</b><span id="profileCash">$100</span></div>
+              <div class="mini-stat"><b>Best Win</b><span id="profileBest">$0</span></div>
+              <div class="mini-stat"><b>Rebirths</b><span id="profileRebirths">0</span></div>
+              <div class="mini-stat"><b>Items</b><span id="profileItems">0</span></div>
+            </div>
+            <div class="controls">
+              <button onclick="syncSaveNow()">Sync Save</button>
+              <button onclick="logoutAccount()">Log Out</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Online Login</h2>
+          <div class="warning">
+            For login across multiple devices, make a free Firebase project and paste your config into <b>firebaseConfig</b> in the code.
+          </div>
+          <div class="auth-form">
+            <input id="loginUsername" placeholder="Username" autocomplete="username" />
+            <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" />
+            <div class="controls">
+              <button class="primary" onclick="loginAccount()">Log In</button>
+              <button class="gold" onclick="createAccount()">Create Account</button>
+            </div>
+          </div>
+          <p class="message" id="accountMessage">Use a username and password to save progress online.</p>
+          <hr style="border-color:var(--border)">
+          <h3>Local Backup</h3>
+          <div class="controls">
+            <button onclick="exportSave()">Export Save</button>
+            <button class="danger" onclick="hardReset()">Reset My Save</button>
+          </div>
+          <textarea id="saveBox" style="width:100%;height:100px;border-radius:14px;background:#06101d;color:white;padding:10px" placeholder="Exported save appears here"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section id="rebirth" class="page hidden">
+      <div class="card">
+        <h2>Rebirth</h2>
+        <p>Rebirthing resets balance to $100 and gives a permanent earning bonus.</p>
+        <p>Next Cost: <b id="rebirthCost">$100,000</b></p>
+        <p>After Rebirth: <b id="afterRebirth">1.1x</b></p>
+        <button class="primary" onclick="rebirth()">Rebirth</button>
+      </div>
+    </section>
+
+    <section id="admin" class="page hidden">
+      <div class="card">
+        <h2>Admin Access</h2>
+        <p>Status: <b id="adminStatus">Locked</b></p>
+        <div class="controls">
+          <input id="adminPass" type="password" placeholder="Admin passcode" />
+          <button class="primary" onclick="unlockAdmin()">Unlock</button>
+          <button onclick="lockAdmin()">Lock</button>
+        </div>
+        <div id="adminPanel" class="hidden">
+          <h2>Admin Panel</h2>
+          <div class="controls">
+            <button onclick="adminAdd(500)">Add $500</button>
+            <button onclick="adminAdd(10000)">Add $10,000</button>
+            <button onclick="adminSet(10000)">Set $10,000</button>
+            <button onclick="adminSet(100)">Reset Balance</button>
+            <input id="customAmount" type="number" placeholder="Custom Amount" />
+            <button onclick="adminAdd(Number(customAmount.value || 0))">Add Custom</button>
+            <button onclick="adminSet(Number(customAmount.value || 0))">Set Custom</button>
+          </div>
+          <hr style="border-color:var(--border)">
+          <button class="danger" onclick="hardReset()">Wipe My Save</button>
+          <p><b>Important:</b> Front-end admin passcodes are not fully secure. Use Firebase security rules for proper admin accounts.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // STEP 1: Create a Firebase project.
+    // STEP 2: Enable Firestore Database.
+    // STEP 3: Paste your Firebase web app config here.
+    // Until you do that, the game still works locally but not across devices.
+    const firebaseConfig = {
+      apiKey: "AIzaSyCRNcuH4zAtMAlsVcs_cFBJGbGxYeNEfhA",
+      authDomain: "alpha-club-5d7ab.firebaseapp.com",
+      projectId: "alpha-club-5d7ab",
+      storageBucket: "alpha-club-5d7ab.firebasestorage.app",
+      messagingSenderId: "380018844483",
+      appId: "1:380018844483:web:00bcfb72d329e9b4f385f6"
+    };
+
+    const firebaseReady = !firebaseConfig.apiKey.includes("PASTE");
+    let db = null;
+    if (firebaseReady) {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+    }
+
+    // Change this admin passcode whenever you want.
+    const ADMIN_PASSCODE = "quintillion";
+
+    const games = ["Snake", "Mines", "Slots", "Hi-Lo", "Dice", "21", "Hold'em Duel", "Safe Cracker", "Roll Battle", "Perfect Stop", "Cross Path", "High Card", "Crash", "Roulette"];
+    const shop = [
+      { id: "goldName", name: "Gold Name", price: 500, desc: "Makes your name look rich." },
+      { id: "vipBadge", name: "VIP Badge", price: 1500, desc: "Shows VIP next to your name." },
+      { id: "luckyCharm", name: "Lucky Charm", price: 5000, desc: "+0.05x earning bonus." }
+    ];
+
+    let state = JSON.parse(localStorage.getItem("anteSave") || "null") || {
+      name: "Guest",
+      balance: 100,
+      rebirths: 0,
+      bestWin: 0,
+      items: [],
+      currentGame: "Dice",
+      admin: false,
+      onlineUser: null
+    };
+
+    let snakeTimer = null;
+    let snake = [], food = {}, dir = {x:1,y:0}, snakeRunning = false, snakeBet = 25;
+    let minesBombs = new Set(), minesPicks = 0, minesActive = false, minesBet = 25;
+    let crashActive = false, crashMult = 1, crashTimer = null, crashBet = 25;
+    let stopTimer = null, stopPos = 0, stopBet = 25;
+
+    function cleanUsername(username) {
+      return username.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 20);
+    }
+    async function hashPassword(password) {
+      const data = new TextEncoder().encode(password);
+      const hash = await crypto.subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+    function onlineDoc(username = state.onlineUser) {
+      return doc(db, "players", username);
+    }
+    function money(n) { return "$" + Math.floor(n).toLocaleString(); }
+    function bonusMult() { return +(1 + state.rebirths * 0.1 + (state.items.includes("luckyCharm") ? 0.05 : 0)).toFixed(2); }
+    async function save(sync = true) {
+      localStorage.setItem("anteSave", JSON.stringify(state));
+      updateStats();
+      if (sync && firebaseReady && state.onlineUser) await syncSaveNow(false);
+    }
+    function updateStats() {
+      playerName.textContent = state.name + (state.items.includes("vipBadge") ? " 👑" : "");
+      playerName.style.color = state.items.includes("goldName") ? "var(--gold)" : "var(--text)";
+      balance.textContent = money(state.balance);
+      bonus.textContent = bonusMult().toFixed(1) + "x";
+      rebirths.textContent = state.rebirths;
+      rebirthCost.textContent = money(rebirthCostValue());
+      afterRebirth.textContent = (1 + (state.rebirths + 1) * 0.1).toFixed(1) + "x";
+      adminStatus.textContent = state.admin ? "Unlocked" : "Locked";
+      adminPanel.classList.toggle("hidden", !state.admin);
+      profileName.textContent = state.name;
+      profileSub.textContent = state.onlineUser ? `Logged in as @${state.onlineUser}` : "Local browser save only.";
+      avatarLetter.textContent = (state.name || "G")[0].toUpperCase();
+      profileCash.textContent = money(state.balance);
+      profileBest.textContent = money(state.bestWin);
+      profileRebirths.textContent = state.rebirths;
+      profileItems.textContent = state.items.length;
+      onlineStatus.textContent = state.onlineUser ? "Online Account" : "Offline Save";
+      onlineStatus.classList.toggle("offline", !state.onlineUser);
+      if (!firebaseReady) accountMessage.textContent = "Firebase is not connected yet. Paste your config into the code to enable online accounts.";
+    }
+    function getBet() {
+      const b = Math.max(1, Math.floor(Number(bet.value || 1)));
+      if (state.balance < b) { msg("Not enough money."); return null; }
+      return b;
+    }
+    async function win(amount) {
+      const payout = Math.floor(amount * bonusMult());
+      state.balance += payout;
+      state.bestWin = Math.max(state.bestWin, payout);
+      msg("You won " + money(payout) + "!");
+      saveScore(); await save();
+    }
+    async function lose(amount) { state.balance -= amount; msg("You lost " + money(amount) + "."); await save(); }
+    function msg(t) { message.textContent = t; }
+    function accountMsg(t) { accountMessage.textContent = t; }
+    function rand(n) { return Math.floor(Math.random() * n); }
+
+    async function createAccount() {
+      if (!firebaseReady) return accountMsg("Firebase is not connected yet. Paste your Firebase config into the code first.");
+      const username = cleanUsername(loginUsername.value);
+      const password = loginPassword.value;
+      if (username.length < 3) return accountMsg("Username must be at least 3 characters.");
+      if (password.length < 4) return accountMsg("Password must be at least 4 characters.");
+      const ref = onlineDoc(username);
+      const existing = await getDoc(ref);
+      if (existing.exists()) return accountMsg("That username is already taken.");
+      const passwordHash = await hashPassword(password);
+      state.name = username;
+      state.onlineUser = username;
+      await setDoc(ref, { ...state, passwordHash, updatedAt: serverTimestamp() });
+      await save(false);
+      accountMsg("Account created and save uploaded online.");
+    }
+
+    async function loginAccount() {
+      if (!firebaseReady) return accountMsg("Firebase is not connected yet. Paste your Firebase config into the code first.");
+      const username = cleanUsername(loginUsername.value);
+      const password = loginPassword.value;
+      const ref = onlineDoc(username);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return accountMsg("No account found with that username.");
+      const data = snap.data();
+      const passwordHash = await hashPassword(password);
+      if (data.passwordHash !== passwordHash) return accountMsg("Wrong password.");
+      state = {
+        name: data.name || username,
+        balance: Number(data.balance ?? 100),
+        rebirths: Number(data.rebirths ?? 0),
+        bestWin: Number(data.bestWin ?? 0),
+        items: Array.isArray(data.items) ? data.items : [],
+        currentGame: data.currentGame || "Dice",
+        admin: false,
+        onlineUser: username
+      };
+      await save(false);
+      renderGameButtons();
+      renderGame();
+      renderShop();
+      accountMsg("Logged in. Your online save has loaded.");
+    }
+
+    async function syncSaveNow(showMessage = true) {
+      if (!firebaseReady) return accountMsg("Firebase is not connected yet.");
+      if (!state.onlineUser) return accountMsg("Log in first to sync your save.");
+      const ref = onlineDoc();
+      await updateDoc(ref, {
+        name: state.name,
+        balance: state.balance,
+        rebirths: state.rebirths,
+        bestWin: state.bestWin,
+        items: state.items,
+        currentGame: state.currentGame,
+        updatedAt: serverTimestamp()
+      });
+      if (showMessage) accountMsg("Save synced online.");
+    }
+
+    async function logoutAccount() {
+      state.onlineUser = null;
+      await save(false);
+      accountMsg("Logged out. This browser still has your local save.");
+    }
+
+    function showPage(id, btn) {
+      document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+      document.getElementById(id).classList.remove("hidden");
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      btn.classList.add("active");
+      if (id === "leaderboard") renderLeaderboard();
+      if (id === "shop") renderShop();
+      updateStats();
+    }
+
+    function renderGameButtons() {
+      gameButtons.innerHTML = games.map(g => `<button class="game-btn ${g===state.currentGame?'active':''}" onclick="selectGame('${g}')">${g}</button>`).join("");
+    }
+    async function selectGame(g) { state.currentGame = g; await save(); renderGameButtons(); renderGame(); }
+
+    function renderGame() {
+      clearTimers();
+      gameTitle.textContent = state.currentGame;
+      const g = state.currentGame;
+      if (g === "Dice") return diceUI();
+      if (g === "Slots") return slotsUI();
+      if (g === "Hi-Lo") return hiloUI();
+      if (g === "High Card") return highCardUI();
+      if (g === "21") return twentyOneUI();
+      if (g === "Roulette") return rouletteUI();
+      if (g === "Mines") return minesUI();
+      if (g === "Snake") return snakeUI();
+      if (g === "Crash") return crashUI();
+      if (g === "Safe Cracker") return safeUI();
+      if (g === "Roll Battle") return rollBattleUI();
+      if (g === "Perfect Stop") return perfectStopUI();
+      if (g === "Cross Path") return crossPathUI();
+      if (g === "Hold'em Duel") return holdemUI();
+    }
+    function setActions(html, help) { actionButtons.innerHTML = html; helpText.textContent = help; }
+    function resetGameUI(){ renderGame(); msg("Game refreshed."); }
+    function clearTimers(){ clearInterval(snakeTimer); clearInterval(crashTimer); clearInterval(stopTimer); }
+
+    function diceUI(){
+      gameArea.innerHTML = `<div class="big" id="diceFace">-</div><p>Choose under 4 or over 3. Payout 2x.</p>`;
+      setActions(`<button onclick="rollDice('under')">Under</button><button onclick="rollDice('over')">Over</button>`, "Bet Amount → choose Under or Over.");
+    }
+    async function rollDice(choice){ const b=getBet(); if(!b)return; const r=rand(6)+1; diceFace.textContent=r; const ok=choice==='under'?r<4:r>3; ok?await win(b*2):await lose(b); }
+
+    function slotsUI(){
+      gameArea.innerHTML = `<div class="big" id="slots">🍒 🍋 🔔</div><p>Three matching symbols pays 5x, two matching pays 2x.</p>`;
+      setActions(`<button onclick="spinSlots()">Start Slots</button>`, "Bet Amount → spin.");
+    }
+    async function spinSlots(){ const b=getBet(); if(!b)return; const s=['🍒','🍋','🔔','💎','7️⃣']; const a=[s[rand(s.length)],s[rand(s.length)],s[rand(s.length)]]; slots.textContent=a.join(' '); const unique=new Set(a).size; unique===1?await win(b*5):unique===2?await win(b*2):await lose(b); }
+
+    let hiloCard = 7;
+    function hiloUI(){
+      hiloCard = rand(13)+1;
+      gameArea.innerHTML = `<div class="big" id="hiloFace">${hiloCard}</div><p>Guess if the next card is higher or lower.</p>`;
+      setActions(`<button onclick="hilo('high')">Higher ▲</button><button onclick="hilo('low')">Lower ▼</button>`, "Bet Amount → guess higher/lower.");
+    }
+    async function hilo(choice){ const b=getBet(); if(!b)return; const next=rand(13)+1; hiloFace.textContent = hiloCard + " → " + next; const ok=choice==='high'?next>hiloCard:next<hiloCard; ok?await win(b*2):await lose(b); hiloCard=next; }
+
+    function highCardUI(){
+      gameArea.innerHTML = `<div class="big" id="cards">? vs ?</div><p>Higher card wins. Ace is 1.</p>`;
+      setActions(`<button onclick="highCard()">Play High Card</button>`, "Bet Amount → draw cards.");
+    }
+    async function highCard(){ const b=getBet(); if(!b)return; const you=rand(13)+1, dealer=rand(13)+1; cards.textContent = `You ${you} vs Dealer ${dealer}`; you>dealer?await win(b*2):you===dealer?msg("Tie. No money lost."):await lose(b); }
+
+    function twentyOneUI(){
+      gameArea.innerHTML = `<div class="big" id="twenty">0 vs 0</div><p>Get closer to 21 than the dealer without going over.</p>`;
+      setActions(`<button onclick="play21()">Start 21</button>`, "Bet Amount → start hand.");
+    }
+    async function play21(){ const b=getBet(); if(!b)return; let you=rand(10)+12, dealer=rand(10)+12; twenty.textContent=`You ${you} vs Dealer ${dealer}`; (you<=21 && (dealer>21 || you>dealer))?await win(b*2):you===dealer?msg("Push. No money lost."):await lose(b); }
+
+    function rouletteUI(){
+      gameArea.innerHTML = `<div class="big" id="roulette">⚫</div><p>Pick red or black. Green zero loses.</p>`;
+      setActions(`<button onclick="roulette('red')">Red</button><button onclick="roulette('black')">Black</button>`, "Bet Amount → pick colour.");
+    }
+    async function roulette(c){ const b=getBet(); if(!b)return; const r=rand(37); const colour=r===0?'green':r%2?'red':'black'; roulette.textContent = `${r} ${colour}`; colour===c?await win(b*2):await lose(b); }
+
+    function minesUI(){
+      minesPicks=0; minesActive=false;
+      gameArea.innerHTML = `<p>Start mines, then pick safe tiles. Cash out before hitting a bomb.</p><div class="mines-board" id="minesBoard"></div><p id="minesInfo">Multiplier 1.00x | Safe Picks 0</p>`;
+      setActions(`<button onclick="startMines()">Start Mines</button><button onclick="cashMines()">Cash Out</button>`, "Bet Amount + Mode → Start Mines → click tiles.");
+      drawMines(false);
+    }
+    async function startMines(){ const b=getBet(); if(!b)return; minesBet=b; state.balance-=b; minesActive=true; minesPicks=0; minesBombs=new Set(); const bombs=mode.value==='Easy'?1:mode.value==='Hard'?3:2; while(minesBombs.size<bombs) minesBombs.add(rand(25)); await save(); drawMines(false); msg("Mines started."); }
+    function drawMines(reveal){ minesBoard.innerHTML=''; for(let i=0;i<25;i++){ const d=document.createElement('div'); d.className='cell'; d.onclick=()=>pickMine(i,d); d.textContent=reveal&&minesBombs.has(i)?'💣':''; minesBoard.appendChild(d); } }
+    async function pickMine(i,d){ if(!minesActive)return; if(minesBombs.has(i)){ d.classList.add('bad'); minesActive=false; drawMines(true); msg("Boom! You lost your bet."); await save(); return; } d.classList.add('good'); d.onclick=null; minesPicks++; minesInfo.textContent=`Multiplier ${(1+minesPicks*.35).toFixed(2)}x | Safe Picks ${minesPicks}`; }
+    async function cashMines(){ if(!minesActive)return; minesActive=false; await win(minesBet*(1+minesPicks*.35)); drawMines(true); }
+
+    function safeUI(){
+      gameArea.innerHTML = `<div class="big" id="safeResult">🔐</div><p>Pick the safe code. Hard mode pays more.</p>`;
+      setActions(`<button onclick="safePick(1)">1</button><button onclick="safePick(2)">2</button><button onclick="safePick(3)">3</button><button onclick="safePick(4)">4</button><button onclick="safePick(5)">5</button><button onclick="safePick(6)">6</button>`, "Bet Amount + Mode → choose a number.");
+    }
+    async function safePick(n){ const b=getBet(); if(!b)return; const max=mode.value==='Easy'?6:mode.value==='Hard'?3:4; const code=rand(max)+1; safeResult.textContent=`Code ${code}`; n===code?await win(b*max):await lose(b); }
+
+    function rollBattleUI(){
+      gameArea.innerHTML = `<div class="big" id="battle">-- vs --</div><p>Beat the bot roll. Pays 2x.</p>`;
+      setActions(`<button onclick="rollBattle()">Spin</button>`, "Bet Amount → roll against bot.");
+    }
+    async function rollBattle(){ const b=getBet(); if(!b)return; const you=rand(100)+1, bot=rand(100)+1; battle.textContent=`You ${you} vs Bot ${bot}`; you>bot?await win(b*2):you===bot?msg("Tie. No money lost."):await lose(b); }
+
+    function perfectStopUI(){
+      stopPos=0;
+      gameArea.innerHTML = `<div class="big" id="stopFace">0%</div><p>Stop between 45% and 55% for 4x.</p>`;
+      setActions(`<button onclick="startStop()">Start Perfect Stop</button><button onclick="stopNow()">Stop</button>`, "Bet Amount → start → stop inside green zone.");
+    }
+    async function startStop(){ const b=getBet(); if(!b)return; stopBet=b; state.balance-=b; await save(); clearInterval(stopTimer); stopTimer=setInterval(()=>{stopPos=(stopPos+3)%101; stopFace.textContent=stopPos+'%';},50); }
+    async function stopNow(){ clearInterval(stopTimer); if(stopPos>=45&&stopPos<=55) await win(stopBet*4); else msg("Missed! You lost your bet."); await save(); }
+
+    let crossRow=0, crossBet=25;
+    function crossPathUI(){
+      crossRow=0;
+      gameArea.innerHTML = `<p>Pick the safe tile each row. 5 rows pays bigger.</p><div class="cross-board" id="crossBoard"></div><p id="crossInfo">Round 0 | Multiplier 1.00x</p>`;
+      setActions(`<button onclick="startCross()">Start Cross Path</button><button onclick="cashCross()">Cash Out</button>`, "Bet Amount → start → click safe path.");
+      drawCross();
+    }
+    function drawCross(){ crossBoard.innerHTML=''; for(let i=0;i<3;i++){ const d=document.createElement('div'); d.className='cell'; d.textContent='?'; d.onclick=()=>pickCross(i,d); crossBoard.appendChild(d);} }
+    let safeCross=0, crossActive=false;
+    async function startCross(){ const b=getBet(); if(!b)return; crossBet=b; state.balance-=b; crossRow=0; crossActive=true; safeCross=rand(3); await save(); drawCross(); msg("Cross started."); }
+    async function pickCross(i,d){ if(!crossActive)return; if(i===safeCross){ d.classList.add('good'); crossRow++; crossInfo.textContent=`Round ${crossRow} | Multiplier ${(1+crossRow*.6).toFixed(2)}x`; if(crossRow>=5){ crossActive=false; await win(crossBet*4); } else { safeCross=rand(3); setTimeout(drawCross,350); } } else { d.classList.add('bad'); crossActive=false; msg("You fell! Bet lost."); await save(); } }
+    async function cashCross(){ if(!crossActive)return; crossActive=false; await win(crossBet*(1+crossRow*.6)); }
+
+    function crashUI(){
+      crashActive=false; crashMult=1;
+      gameArea.innerHTML = `<div class="big" id="crashFace">1.00x</div><p>Cash out before it crashes.</p>`;
+      setActions(`<button onclick="startCrash()">Start Crash</button><button onclick="cashCrash()">Cash Out</button>`, "Bet Amount → start → cash out before crash.");
+    }
+    async function startCrash(){ const b=getBet(); if(!b)return; crashBet=b; state.balance-=b; await save(); crashActive=true; crashMult=1; const crashAt=1+Math.random()*4; clearInterval(crashTimer); crashTimer=setInterval(async ()=>{ crashMult+=.05; crashFace.textContent=crashMult.toFixed(2)+'x'; if(crashMult>=crashAt){ clearInterval(crashTimer); crashActive=false; msg("Crashed at " + crashMult.toFixed(2) + "x. Bet lost."); await save(); } },120); }
+    async function cashCrash(){ if(!crashActive)return; clearInterval(crashTimer); crashActive=false; await win(crashBet*crashMult); }
+
+    function snakeUI(){
+      gameArea.innerHTML = `<p>Use arrow keys/WASD. Eat apples, then cash out.</p><div class="snake-board" id="snakeBoard"></div><p id="snakeInfo">Apples 0 | Potential $0</p>`;
+      setActions(`<button onclick="startSnake()">Start Run</button><button onclick="cashSnake()">Cash Out</button>`, "WASD / Arrows. Eat apples and cash out.");
+      drawSnake();
+    }
+    async function startSnake(){ const b=getBet(); if(!b)return; snakeBet=b; state.balance-=b; await save(); snake=[{x:5,y:5}]; dir={x:1,y:0}; food={x:rand(10),y:rand(10)}; snakeRunning=true; clearInterval(snakeTimer); snakeTimer=setInterval(stepSnake,180); }
+    function drawSnake(){ snakeBoard.innerHTML=''; for(let y=0;y<10;y++) for(let x=0;x<10;x++){ const d=document.createElement('div'); d.className='cell'; if(snake.some(s=>s.x===x&&s.y===y)) d.classList.add('player'); if(food.x===x&&food.y===y) d.classList.add('food'); snakeBoard.appendChild(d); } }
+    async function stepSnake(){ if(!snakeRunning)return; const h={x:(snake[0].x+dir.x+10)%10,y:(snake[0].y+dir.y+10)%10}; if(snake.some(s=>s.x===h.x&&s.y===h.y)){ clearInterval(snakeTimer); snakeRunning=false; msg("Snake crashed. Bet lost."); await save(); return; } snake.unshift(h); if(h.x===food.x&&h.y===food.y){ food={x:rand(10),y:rand(10)}; snakeInfo.textContent=`Apples ${snake.length-1} | Potential ${money(snakeBet*(1+(snake.length-1)*.4))}`; } else snake.pop(); drawSnake(); }
+    async function cashSnake(){ if(!snakeRunning)return; clearInterval(snakeTimer); snakeRunning=false; await win(snakeBet*(1+(snake.length-1)*.4)); }
+    document.addEventListener('keydown', e=>{ const k=e.key.toLowerCase(); if(k==='arrowup'||k==='w')dir={x:0,y:-1}; if(k==='arrowdown'||k==='s')dir={x:0,y:1}; if(k==='arrowleft'||k==='a')dir={x:-1,y:0}; if(k==='arrowright'||k==='d')dir={x:1,y:0}; });
+
+    function holdemUI(){
+      gameArea.innerHTML = `<div class="big" id="holdem">🂠 🂠</div><p>Simplified Hold'em Duel: your 2-card score vs dealer. Pays 2x.</p>`;
+      setActions(`<button onclick="playHoldem()">Deal Hold'em</button>`, "Ante Amount → deal.");
+    }
+    async function playHoldem(){ const b=getBet(); if(!b)return; const you=rand(100)+1, dealer=rand(100)+1; holdem.textContent=`You ${you} vs Dealer ${dealer}`; you>dealer?await win(b*2):you===dealer?msg("Split pot. No money lost."):await lose(b); }
+
+    function saveScore(){
+      const scores = JSON.parse(localStorage.getItem("anteScores") || "[]");
+      scores.push({ name: state.name, balance: state.balance, bestWin: state.bestWin, date: Date.now() });
+      scores.sort((a,b)=>b.balance-a.balance);
+      localStorage.setItem("anteScores", JSON.stringify(scores.slice(0,10)));
+      renderLeaderboard();
+    }
+    function renderLeaderboard(){
+      const scores = JSON.parse(localStorage.getItem("anteScores") || "[]");
+      leaderBody.innerHTML = scores.map((s,i)=>`<tr><td>${i+1}</td><td>${s.name}</td><td>${money(s.balance)}</td><td>${money(s.bestWin)}</td></tr>`).join("") || `<tr><td colspan="4">No scores yet.</td></tr>`;
+    }
+    function renderShop(){
+      shopItems.innerHTML = shop.map(item => `<div class="card"><h3>${item.name}</h3><p>${item.desc}</p><p><b>${money(item.price)}</b></p><button onclick="buyItem('${item.id}')">${state.items.includes(item.id)?'Owned':'Buy'}</button></div>`).join("");
+    }
+    async function buyItem(id){ const item=shop.find(x=>x.id===id); if(state.items.includes(id))return msg("Already owned."); if(state.balance<item.price)return msg("Not enough money."); state.balance-=item.price; state.items.push(id); msg("Bought " + item.name + "."); await save(); renderShop(); }
+    function rebirthCostValue(){ return 100000 * Math.pow(2, state.rebirths); }
+    async function rebirth(){ const cost=rebirthCostValue(); if(state.balance<cost)return msg("You need " + money(cost) + " to rebirth."); state.balance=100; state.rebirths++; msg("Rebirth complete! Bonus increased."); await save(); }
+    async function unlockAdmin(){ if(adminPass.value === ADMIN_PASSCODE){ state.admin=true; await save(false); msg("Admin unlocked."); } else msg("Wrong passcode."); }
+    async function lockAdmin(){ state.admin=false; await save(false); }
+    async function adminAdd(n){ if(!state.admin)return; state.balance += n; await save(); msg("Admin added " + money(n)); }
+    async function adminSet(n){ if(!state.admin)return; state.balance = Math.max(0,n); await save(); msg("Admin set balance to " + money(n)); }
+    function exportSave(){ saveBox.value = JSON.stringify(state, null, 2); }
+    function hardReset(){ if(confirm("Reset this browser save?")){ localStorage.removeItem("anteSave"); location.reload(); } }
+
+    window.showPage = showPage;
+    window.selectGame = selectGame;
+    window.resetGameUI = resetGameUI;
+    window.rollDice = rollDice;
+    window.spinSlots = spinSlots;
+    window.hilo = hilo;
+    window.highCard = highCard;
+    window.play21 = play21;
+    window.roulette = roulette;
+    window.startMines = startMines;
+    window.cashMines = cashMines;
+    window.safePick = safePick;
+    window.rollBattle = rollBattle;
+    window.startStop = startStop;
+    window.stopNow = stopNow;
+    window.startCross = startCross;
+    window.cashCross = cashCross;
+    window.startCrash = startCrash;
+    window.cashCrash = cashCrash;
+    window.startSnake = startSnake;
+    window.cashSnake = cashSnake;
+    window.playHoldem = playHoldem;
+    window.saveScore = saveScore;
+    window.buyItem = buyItem;
+    window.rebirth = rebirth;
+    window.unlockAdmin = unlockAdmin;
+    window.lockAdmin = lockAdmin;
+    window.adminAdd = adminAdd;
+    window.adminSet = adminSet;
+    window.exportSave = exportSave;
+    window.hardReset = hardReset;
+    window.createAccount = createAccount;
+    window.loginAccount = loginAccount;
+    window.logoutAccount = logoutAccount;
+    window.syncSaveNow = syncSaveNow;
+
+    renderGameButtons(); renderGame(); renderShop(); saveScore(); updateStats();
+  </script>
+</body>
+</html>
