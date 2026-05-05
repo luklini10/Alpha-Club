@@ -265,9 +265,7 @@
 
         <div class="card">
           <h2>Online Login</h2>
-          <div class="warning">
-            For login across multiple devices, make a free Firebase project and paste your config into <b>firebaseConfig</b> in the code.
-          </div>
+          
           <div class="auth-form">
             <input id="loginUsername" placeholder="Username" autocomplete="username" />
             <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" />
@@ -350,8 +348,14 @@
       db = getFirestore(app);
     }
 
-    // Change this admin passcode whenever you want.
+    // Owner/admin settings.
+    // Only this online username can use the admin panel.
+    const OWNER_USERNAME = "luklini10";
     const ADMIN_PASSCODE = "quintillion";
+
+    const STARTING_BALANCE = 100;
+    const MAX_SINGLE_WIN = 1000000;
+    const MAX_BALANCE = 1000000000;
 
     const games = ["Snake", "Mines", "Slots", "Hi-Lo", "Dice", "21", "Hold'em Duel", "Safe Cracker", "Roll Battle", "Perfect Stop", "Cross Path", "High Card", "Crash", "Roulette"];
     const shop = [
@@ -391,6 +395,9 @@
     function money(n) { return "$" + Math.floor(n).toLocaleString(); }
     function bonusMult() { return +(1 + state.rebirths * 0.1 + (state.items.includes("luckyCharm") ? 0.05 : 0)).toFixed(2); }
     async function save(sync = true) {
+      state.balance = Math.max(0, Math.min(Number(state.balance || STARTING_BALANCE), MAX_BALANCE));
+      state.rebirths = Math.max(0, Math.min(Number(state.rebirths || 0), 100));
+      state.bestWin = Math.max(0, Math.min(Number(state.bestWin || 0), MAX_SINGLE_WIN));
       localStorage.setItem("anteSave", JSON.stringify(state));
       updateStats();
       if (sync && firebaseReady && state.onlineUser) await syncSaveNow(false);
@@ -422,13 +429,19 @@
       return b;
     }
     async function win(amount) {
-      const payout = Math.floor(amount * bonusMult());
-      state.balance += payout;
+      const safeAmount = Math.max(0, Math.min(Number(amount || 0), MAX_SINGLE_WIN));
+      const payout = Math.min(Math.floor(safeAmount * bonusMult()), MAX_SINGLE_WIN);
+      state.balance = Math.min(state.balance + payout, MAX_BALANCE);
       state.bestWin = Math.max(state.bestWin, payout);
       msg("You won " + money(payout) + "!");
-      saveScore(); await save();
+      await saveScore(); await save();
     }
-    async function lose(amount) { state.balance -= amount; msg("You lost " + money(amount) + "."); await save(); }
+    async function lose(amount) {
+      const safeLoss = Math.max(0, Math.min(Number(amount || 0), state.balance));
+      state.balance -= safeLoss;
+      msg("You lost " + money(safeLoss) + ".");
+      await save();
+    }
     function msg(t) { message.textContent = t; }
     function accountMsg(t) { accountMessage.textContent = t; }
     function rand(n) { return Math.floor(Math.random() * n); }
@@ -483,11 +496,12 @@
       const ref = onlineDoc();
       await updateDoc(ref, {
         name: state.name,
-        balance: state.balance,
-        rebirths: state.rebirths,
-        bestWin: state.bestWin,
+        balance: Math.max(0, Math.min(Number(state.balance || STARTING_BALANCE), MAX_BALANCE)),
+        rebirths: Math.max(0, Math.min(Number(state.rebirths || 0), 100)),
+        bestWin: Math.max(0, Math.min(Number(state.bestWin || 0), MAX_SINGLE_WIN)),
         items: state.items,
         currentGame: state.currentGame,
+        isOwner: state.onlineUser === OWNER_USERNAME,
         updatedAt: serverTimestamp()
       });
       if (showMessage) accountMsg("Save synced online.");
@@ -644,14 +658,39 @@
     }
     async function playHoldem(){ const b=getBet(); if(!b)return; const you=rand(100)+1, dealer=rand(100)+1; holdem.textContent=`You ${you} vs Dealer ${dealer}`; you>dealer?await win(b*2):you===dealer?msg("Split pot. No money lost."):await lose(b); }
 
-    function saveScore(){
+    async function saveScore(){
+      const score = {
+        name: state.name,
+        username: state.onlineUser || "offline",
+        balance: Math.max(0, Math.min(Number(state.balance || STARTING_BALANCE), MAX_BALANCE)),
+        bestWin: Math.max(0, Math.min(Number(state.bestWin || 0), MAX_SINGLE_WIN)),
+        rebirths: Math.max(0, Math.min(Number(state.rebirths || 0), 100)),
+        updatedAt: firebaseReady ? serverTimestamp() : Date.now()
+      };
+
+      if (firebaseReady && state.onlineUser) {
+        await setDoc(doc(db, "leaderboard", state.onlineUser), score, { merge: true });
+      }
+
       const scores = JSON.parse(localStorage.getItem("anteScores") || "[]");
-      scores.push({ name: state.name, balance: state.balance, bestWin: state.bestWin, date: Date.now() });
+      scores.push({ ...score, updatedAt: Date.now() });
       scores.sort((a,b)=>b.balance-a.balance);
       localStorage.setItem("anteScores", JSON.stringify(scores.slice(0,10)));
       renderLeaderboard();
     }
-    function renderLeaderboard(){
+    async function renderLeaderboard(){
+      if (firebaseReady) {
+        try {
+          const { collection, getDocs, query, orderBy, limit } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+          const q = query(collection(db, "leaderboard"), orderBy("balance", "desc"), limit(10));
+          const snap = await getDocs(q);
+          const scores = snap.docs.map(d => d.data());
+          leaderBody.innerHTML = scores.map((s,i)=>`<tr><td>${i+1}</td><td>${s.name || s.username}</td><td>${money(s.balance || 0)}</td><td>${money(s.bestWin || 0)}</td></tr>`).join("") || `<tr><td colspan="4">No online scores yet.</td></tr>`;
+          return;
+        } catch (err) {
+          console.warn("Online leaderboard failed, using local leaderboard", err);
+        }
+      }
       const scores = JSON.parse(localStorage.getItem("anteScores") || "[]");
       leaderBody.innerHTML = scores.map((s,i)=>`<tr><td>${i+1}</td><td>${s.name}</td><td>${money(s.balance)}</td><td>${money(s.bestWin)}</td></tr>`).join("") || `<tr><td colspan="4">No scores yet.</td></tr>`;
     }
@@ -661,10 +700,27 @@
     async function buyItem(id){ const item=shop.find(x=>x.id===id); if(state.items.includes(id))return msg("Already owned."); if(state.balance<item.price)return msg("Not enough money."); state.balance-=item.price; state.items.push(id); msg("Bought " + item.name + "."); await save(); renderShop(); }
     function rebirthCostValue(){ return 100000 * Math.pow(2, state.rebirths); }
     async function rebirth(){ const cost=rebirthCostValue(); if(state.balance<cost)return msg("You need " + money(cost) + " to rebirth."); state.balance=100; state.rebirths++; msg("Rebirth complete! Bonus increased."); await save(); }
-    async function unlockAdmin(){ if(adminPass.value === ADMIN_PASSCODE){ state.admin=true; await save(false); msg("Admin unlocked."); } else msg("Wrong passcode."); }
+    async function unlockAdmin(){
+      if (!state.onlineUser) return msg("Log in first to use admin.");
+      if (state.onlineUser !== OWNER_USERNAME) return msg("Admin is locked to the owner account only.");
+      if(adminPass.value === ADMIN_PASSCODE){ state.admin=true; await save(false); msg("Admin unlocked."); }
+      else msg("Wrong passcode.");
+    }
     async function lockAdmin(){ state.admin=false; await save(false); }
-    async function adminAdd(n){ if(!state.admin)return; state.balance += n; await save(); msg("Admin added " + money(n)); }
-    async function adminSet(n){ if(!state.admin)return; state.balance = Math.max(0,n); await save(); msg("Admin set balance to " + money(n)); }
+    async function adminAdd(n){
+      if(!state.admin || state.onlineUser !== OWNER_USERNAME)return msg("Owner admin only.");
+      const safe = Math.max(0, Math.min(Number(n || 0), MAX_SINGLE_WIN));
+      state.balance = Math.min(state.balance + safe, MAX_BALANCE);
+      await save();
+      msg("Admin added " + money(safe));
+    }
+    async function adminSet(n){
+      if(!state.admin || state.onlineUser !== OWNER_USERNAME)return msg("Owner admin only.");
+      const safe = Math.max(0, Math.min(Number(n || 0), MAX_BALANCE));
+      state.balance = safe;
+      await save();
+      msg("Admin set balance to " + money(safe));
+    }
     function exportSave(){ saveBox.value = JSON.stringify(state, null, 2); }
     function hardReset(){ if(confirm("Reset this browser save?")){ localStorage.removeItem("anteSave"); location.reload(); } }
 
