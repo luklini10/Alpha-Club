@@ -165,6 +165,46 @@
       padding: 12px;
       margin: 12px 0;
     }
+    .podium {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr 1fr;
+      gap: 14px;
+      align-items: end;
+      margin: 20px 0;
+    }
+    .podium-card {
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 20px 45px rgba(0,0,0,.3);
+    }
+    .podium-card.first {
+      min-height: 230px;
+      border-color: rgba(255,209,102,.5);
+    }
+    .podium-card.second { min-height: 190px; }
+    .podium-card.third { min-height: 165px; }
+    .podium-rank {
+      font-size: 38px;
+      font-weight: 900;
+    }
+    .podium-name {
+      font-size: 20px;
+      font-weight: 900;
+      margin-top: 8px;
+      word-break: break-word;
+    }
+    .podium-money {
+      color: var(--gold);
+      font-weight: 900;
+      margin-top: 8px;
+    }
+    @media (max-width: 700px) {
+      .podium { grid-template-columns: 1fr; }
+      .podium-card.first, .podium-card.second, .podium-card.third { min-height: auto; }
+    }
     @media (max-width: 850px) {
       .grid, .stats, .shop, .account-grid { grid-template-columns: 1fr; }
       .big { font-size: 30px; }
@@ -224,9 +264,10 @@
 
     <section id="leaderboard" class="page hidden">
       <div class="card">
-        <h2>Leaderboards</h2>
-        <button onclick="saveScore()">Refresh Leaderboards</button>
-        <h3>Richest Players</h3>
+        <h2>Leaderboard Podium</h2>
+        <button onclick="saveScore()">Refresh Leaderboard</button>
+        <div class="podium" id="podiumBoard"></div>
+        <h3>Top Players</h3>
         <table><thead><tr><th>#</th><th>Player</th><th>Cash</th><th>Best Win</th></tr></thead><tbody id="leaderBody"></tbody></table>
       </div>
     </section>
@@ -356,6 +397,9 @@
     const STARTING_BALANCE = 100;
     const MAX_SINGLE_WIN = 1000000;
     const MAX_BALANCE = 1000000000;
+    // New collection name = fresh wiped leaderboard.
+    // Each username writes to one document, so users can only have one leaderboard entry.
+    const LEADERBOARD_COLLECTION = "leaderboard_v2";
 
     const games = ["Snake", "Mines", "Slots", "Hi-Lo", "Dice", "21", "Hold'em Duel", "Safe Cracker", "Roll Battle", "Perfect Stop", "Cross Path", "High Card", "Crash", "Roulette"];
     const shop = [
@@ -669,7 +713,7 @@
       };
 
       if (firebaseReady && state.onlineUser) {
-        await setDoc(doc(db, "leaderboard", state.onlineUser), score, { merge: true });
+        await setDoc(doc(db, LEADERBOARD_COLLECTION, state.onlineUser), score, { merge: true });
       }
 
       const scores = JSON.parse(localStorage.getItem("anteScores") || "[]");
@@ -682,9 +726,10 @@
       if (firebaseReady) {
         try {
           const { collection, getDocs, query, orderBy, limit } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-          const q = query(collection(db, "leaderboard"), orderBy("balance", "desc"), limit(10));
+          const q = query(collection(db, LEADERBOARD_COLLECTION), orderBy("balance", "desc"), limit(10));
           const snap = await getDocs(q);
           const scores = snap.docs.map(d => d.data());
+          renderPodium(scores);
           leaderBody.innerHTML = scores.map((s,i)=>`<tr><td>${i+1}</td><td>${s.name || s.username}</td><td>${money(s.balance || 0)}</td><td>${money(s.bestWin || 0)}</td></tr>`).join("") || `<tr><td colspan="4">No online scores yet.</td></tr>`;
           return;
         } catch (err) {
@@ -692,7 +737,18 @@
         }
       }
       const scores = JSON.parse(localStorage.getItem("anteScores") || "[]");
+      renderPodium(scores);
       leaderBody.innerHTML = scores.map((s,i)=>`<tr><td>${i+1}</td><td>${s.name}</td><td>${money(s.balance)}</td><td>${money(s.bestWin)}</td></tr>`).join("") || `<tr><td colspan="4">No scores yet.</td></tr>`;
+    }
+
+    function renderPodium(scores){
+      const top = [scores[1], scores[0], scores[2]];
+      const labels = ["🥈", "🥇", "🥉"];
+      const classes = ["second", "first", "third"];
+      podiumBoard.innerHTML = top.map((s, i) => {
+        if (!s) return `<div class="podium-card ${classes[i]}"><div class="podium-rank">${labels[i]}</div><div class="podium-name">Empty</div><div class="podium-money">No score yet</div></div>`;
+        return `<div class="podium-card ${classes[i]}"><div class="podium-rank">${labels[i]}</div><div class="podium-name">${s.name || s.username || "Player"}</div><div class="podium-money">${money(s.balance || 0)}</div><p>Best win: ${money(s.bestWin || 0)}</p></div>`;
+      }).join("");
     }
     function renderShop(){
       shopItems.innerHTML = shop.map(item => `<div class="card"><h3>${item.name}</h3><p>${item.desc}</p><p><b>${money(item.price)}</b></p><button onclick="buyItem('${item.id}')">${state.items.includes(item.id)?'Owned':'Buy'}</button></div>`).join("");
