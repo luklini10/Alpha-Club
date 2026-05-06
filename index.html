@@ -65,6 +65,72 @@
       border-radius: 18px;
       box-shadow: 0 0 24px rgba(25,195,125,.35);
     }
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(255,255,255,.035);
+      margin: 10px 0;
+    }
+    .chip {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle, var(--gold) 0 42%, #7b1717 43% 68%, var(--gold) 69% 72%, #2a0f0f 73%);
+      color: #1b0707;
+      font-weight: 900;
+      border: 3px dashed rgba(255,255,255,.75);
+      box-shadow: 0 8px 18px rgba(0,0,0,.35);
+      cursor: pointer;
+      transition: .15s;
+      padding: 0;
+    }
+    .chip:hover { transform: translateY(-4px) scale(1.05); }
+    .chip.active {
+      outline: 4px solid #19c37d;
+      box-shadow: 0 0 22px rgba(25,195,125,.55);
+    }
+    .sound-toggle.active { background: var(--gold); color: #1b0707; }
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(255,255,255,.035);
+      margin: 10px 0;
+    }
+    .chip {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle, var(--gold) 0 42%, #7b1717 43% 68%, var(--gold) 69% 72%, #2a0f0f 73%);
+      color: #1b0707;
+      font-weight: 900;
+      border: 3px dashed rgba(255,255,255,.75);
+      box-shadow: 0 8px 18px rgba(0,0,0,.35);
+      cursor: pointer;
+      transition: .15s;
+      padding: 0;
+    }
+    .chip:hover { transform: translateY(-4px) scale(1.05); }
+    .chip.active {
+      outline: 4px solid #19c37d;
+      box-shadow: 0 0 22px rgba(25,195,125,.55);
+    }
+    .sound-toggle.active { background: var(--gold); color: #1b0707; }
     .roulette-layout {
       display: grid;
       grid-template-columns: 1fr 1.15fr;
@@ -359,13 +425,19 @@
       <button class="tab" onclick="showPage('leaderboard', this)">Leaderboard</button>
       <button class="tab" onclick="showPage('shop', this)">Shop</button>
       <button class="tab" onclick="showPage('account', this)">Account</button>
-      <button class="tab" onclick="showPage('rebirth', this)">Rebirth</button>
-      <button class="tab" onclick="showPage('admin', this)">Admin</button>
-    </nav>
-  </header>
-
-  <main>
-    <section class="stats">
+      <button class="t<div id="gameArea"></div>
+            <div class="chip-row">
+              <span class="pill">Chips</span>
+              <button class="chip" onclick="setChipBet(10)">$10</button>
+              <button class="chip" onclick="setChipBet(25)">$25</button>
+              <button class="chip" onclick="setChipBet(50)">$50</button>
+              <button class="chip" onclick="setChipBet(100)">$100</button>
+              <button class="chip" onclick="setChipBet(500)">$500</button>
+              <button class="chip" onclick="setChipBet(1000)">$1K</button>
+              <button class="sound-toggle" id="soundToggle" onclick="toggleSounds()">🔊 Sound On</button>
+            </div>
+            <div class="controls" style="justify-content:center">
+              <label>Bet <input id="bet" type="number" min="1" value="25" onchange="highlightChip()" /></label>n class="stats">
       <div class="stat"><b>Player</b><span id="playerName">Guest</span></div>
       <div class="stat"><b>Balance</b><span id="balance">$100</span></div>
       <div class="stat"><b>Bonus</b><span id="bonus">1.0x</span></div>
@@ -383,8 +455,18 @@
           <div class="card">
             <h2 id="gameTitle">Dice</h2>
             <div id="gameArea"></div>
+            <div class="chip-row">
+              <span class="pill">Chips</span>
+              <button class="chip" onclick="setChipBet(10)">$10</button>
+              <button class="chip" onclick="setChipBet(25)">$25</button>
+              <button class="chip" onclick="setChipBet(50)">$50</button>
+              <button class="chip" onclick="setChipBet(100)">$100</button>
+              <button class="chip" onclick="setChipBet(500)">$500</button>
+              <button class="chip" onclick="setChipBet(1000)">$1K</button>
+              <button class="sound-toggle" id="soundToggle" onclick="toggleSounds()">🔊 Sound On</button>
+            </div>
             <div class="controls" style="justify-content:center">
-              <label>Bet <input id="bet" type="number" min="1" value="25" /></label>
+              <label>Bet <input id="bet" type="number" min="1" value="25" onchange="highlightChip()" /></label>
               <select id="mode">
                 <option>Easy</option>
                 <option selected>Normal</option>
@@ -511,12 +593,17 @@
 
     // STEP 1: Create a Firebase project.
     // STEP 2: Enable Firestore Database.
-    // STEP 3: Paste your Firebase web app config here.
-    // Until you do that, the game still works locally but not across devices.
-    const firebaseConfig = {
-      apiKey: "AIzaSyCRNcuH4zAtMAlsVcs_cFBJGbGxYeNEfhA",
-      authDomain: "alpha-club-5d7ab.firebaseapp.com",
-      projectId: "alpha-club-5d7ab",
+    // STEP 3: Paste your Firebase web app conflet state = JSON.parse(localStorage.getItem("anteSave") || "null") || {
+      name: "Guest",
+      balance: 100,
+      rebirths: 0,
+      bestWin: 0,
+      items: [],
+      currentGame: "Dice",
+      admin: false,
+      onlineUser: null,
+      sounds: true
+    };: "alpha-club-5d7ab",
       storageBucket: "alpha-club-5d7ab.firebasestorage.app",
       messagingSenderId: "380018844483",
       appId: "1:380018844483:web:00bcfb72d329e9b4f385f6"
@@ -539,9 +626,10 @@
     const MAX_BALANCE = 1000000000;
     // New collection name = fresh wiped leaderboard.
     // Each username writes to one document, so users can only have one leaderboard entry.
-    const LEADERBOARD_COLLECTION = "leaderboard_v2";
-
-    const games = ["Snake", "Mines", "Slots", "Hi-Lo", "Dice", "21", "Hold'em Duel", "Safe Cracker", "Roll Battle", "Perfect Stop", "Cross Path", "High Card", "Crash", "Roulette", "Coin Flip", "Treasure", "Lucky Wheel", "Blackjack Rush"];
+    const LEADERBOARD_COLLfunction money(n) { return "$" + Math.floor(n).toLocaleString(); }
+    let audioCtx = null;
+    function playSound(type){
+      if(state.soundSlots", "Hi-Lo", "Dice", "21", "Hold'em Duel", "Safe Cracker", "Roll Battle", "Perfect Stop", "Cross Path", "High Card", "Crash", "Roulette", "Coin Flip", "Treasure", "Lucky Wheel", "Blackjack Rush"];
     const shop = [
       { id: "goldName", name: "Gold Name", price: 500, desc: "Makes your name look rich." },
       { id: "vipBadge", name: "VIP Badge", price: 1500, desc: "Shows VIP next to your name." },
@@ -556,7 +644,8 @@
       items: [],
       currentGame: "Dice",
       admin: false,
-      onlineUser: null
+      onlineUser: null,
+      sounds: true
     };
 
     let snakeTimer = null;
@@ -577,9 +666,26 @@
       return doc(db, "players", username);
     }
     function money(n) { return "$" + Math.floor(n).toLocaleString(); }
-    function bonusMult() { return +(1 + state.rebirths * 0.1 + (state.items.includes("luckyCharm") ? 0.05 : 0)).toFixed(2); }
-    async function save(sync = true) {
-      state.balance = Math.max(0, Math.min(Number(state.balance || STARTING_BALANCE), MAX_BALANCE));
+    let audioCtx = null;
+    function playSound(type){
+      if(state.sounds === false) return;
+      try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+        const settings = {
+          click: [420, .04, .04],
+          chip: [620, .06, .05],
+          win: [880, .18, .08],
+          lose: [160, .22, .07],
+          spin: [320, .12, .035],
+          cashout: [740, .16, .075]
+        }[type] || [440,.08,.04];
+        osc.type = type === 'lose' ? 'sawtooth' : 'sine';
+        osc.frequency.setValueAtTime(settings[0], now);
+        if(type ==ANCE), MAX_BALANCE));
       state.rebirths = Math.max(0, Math.min(Number(state.rebirths || 0), 100));
       state.bestWin = Math.max(0, Math.min(Number(state.bestWin || 0), MAX_SINGLE_WIN));
       localStorage.setItem("anteSave", JSON.stringify(state));
@@ -605,28 +711,20 @@
       profileItems.textContent = state.items.length;
       onlineStatus.textContent = state.onlineUser ? "Online Account" : "Offline Save";
       onlineStatus.classList.toggle("offline", !state.onlineUser);
-      if (!firebaseReady) accountMessage.textContent = "Firebase is not connected yet. Paste your config into the code to enable online accounts.";
-    }
-    function getBet() {
-      const b = Math.max(1, Math.floor(Number(bet.value || 1)));
-      if (state.balance < b) { msg("Not enough money."); return null; }
-      return b;
-    }
-    async function win(amount) {
-      const safeAmount = Math.max(0, Math.min(Number(amount || 0), MAX_SINGLE_WIN));
+      if (typeof soundToggle !== 'undefined' && soundToggle) {
+        soundToggle.textContent = state.sounds === false ? '🔇 Sound Off' : '🔊 Sound On';
+        soundToggle.classList.toggle('active', state.sounds !== false);
+      }
+      if (typeof bet !== 'undefined' &&unt = Math.max(0, Math.min(Number(amount || 0), MAX_SINGLE_WIN));
       const payout = Math.min(Math.floor(safeAmount * bonusMult()), MAX_SINGLE_WIN);
       state.balance = Math.min(state.balance + payout, MAX_BALANCE);
       state.bestWin = Math.max(state.bestWin, payout);
       msg("You won " + money(payout) + "!");
+      playSound('win');
       await saveScore(); await save();
     }
     async function lose(amount) {
-      const safeLoss = Math.max(0, Math.min(Number(amount || 0), state.balance));
-      state.balance -= safeLoss;
-      msg("You lost " + money(safeLoss) + ".");
-      await save();
-    }
-    function msg(t) { message.textContent = t; }
+      const safeLomessage.textContent = t; }
     function accountMsg(t) { accountMessage.textContent = t; }
     function rand(n) { return Math.floor(Math.random() * n); }
 
@@ -754,10 +852,10 @@
     async function rollDice(choice){ const b=getBet(); if(!b)return; diceFace.className='big spin-anim'; const r=rand(6)+1; setTimeout(async()=>{ diceFace.textContent=r; const ok=choice==='under'?r<4:r>3; diceFace.className='big pop-anim'; ok?await win(b*2):await lose(b); },350); }
 
     function slotsUI(){
-      gameArea.innerHTML = `<div class="big" id="slots">🍒 🍋 🔔</div><p>Three matching symbols pays 5x, two matching pays 2x.</p>`;
+      gameArea.innerHTML = 🔔</div><p>Three matching symbols pays 5x, two matching pays 2x.</p>`;
       setActions(`<button onclick="spinSlots()">Start Slots</button>`, "Bet Amount → spin.");
     }
-    async function spinSlots(){ const b=getBet(); if(!b)return; const s=['🍒','🍋','🔔','💎','7️⃣']; slots.className='big pulse-anim'; let ticks=0; const spin=setInterval(()=>{ slots.textContent=[s[rand(s.length)],s[rand(s.length)],s[rand(s.length)]].join(' '); if(++ticks>10){ clearInterval(spin); const a=[s[rand(s.length)],s[rand(s.length)],s[rand(s.length)]]; slots.textContent=a.join(' '); slots.className='big pop-anim'; const unique=new Set(a).size; unique===1?win(b*5):unique===2?win(b*2):lose(b); } },80); }
+    async function spinSlots(){ const b=getBet(); if(!b)return; const s=['🍒','🍋','🔔','💎','7️⃣']; slots.className='big pulse-anim'; let ticks=0; const spin=setInterval(()=>{ slots.textContent=[s[rand(s.length)],s[rand(s.length)],s[rand(s.length)]].join(' '); if(++ticks>10){ clearInterval(spin); const a=[s[rand(s.length)],s[rand(s.length)],s[rand(s.length)]]; slots.textContent=a.join(' '); slots.className='big pop-ae; unique===1?win(b*5):unique===2?win(b*2):lose(b); } },80); }
 
     let hiloCard = 7;
     function hiloUI(){
@@ -877,6 +975,7 @@
       await save();
 
       rouletteResult.textContent = 'Spinning...';
+      playSound('spin');
       rouletteResult.className = 'big pulse-anim';
       const result = rand(37);
       const slotAngle = result * (360 / 37);
@@ -905,11 +1004,10 @@
     async function startMines(){ const b=getBet(); if(!b)return; minesBet=b; state.balance-=b; minesActive=true; minesPicks=0; minesBombs=new Set(); const bombs=mode.value==='Easy'?1:mode.value==='Hard'?3:2; while(minesBombs.size<bombs) minesBombs.add(rand(25)); await save(); drawMines(false); msg("Mines started."); }
     function drawMines(reveal){ minesBoard.innerHTML=''; for(let i=0;i<25;i++){ const d=document.createElement('div'); d.className='cell'; d.onclick=()=>pickMine(i,d); d.textContent=reveal&&minesBombs.has(i)?'💣':''; minesBoard.appendChild(d); } }
     async function pickMine(i,d){ if(!minesActive)return; if(minesBombs.has(i)){ d.classList.add('bad'); minesActive=false; drawMines(true); msg("Boom! You lost your bet."); await save(); return; } d.classList.add('good'); d.onclick=null; minesPicks++; minesInfo.textContent=`Multiplier ${(1+minesPicks*.35).toFixed(2)}x | Safe Picks ${minesPicks}`; }
-    async function cashMines(){ if(!minesActive)return; minesActive=false; await win(minesBet*(1+minesPicks*.35)); drawMines(true); }
+    async function cashMines(){ if(!minesActive)return; minesActive=false; playSound('cashout'); await win(minesBet*(1+minesPicks*.35)); drawMines(true); }
 
     function safeUI(){
-      gameArea.innerHTML = `<div class="big" id="safeResult">🔐</div><p>Pick the safe code. Hard mode pays more.</p>`;
-      setActions(`<button onclick="safePick(1)">1</button><button onclick="safePick(2)">2</button><button onclick="safePick(3)">3</button><button onclick="safePick(4)">4</button><button onclick="safePick(5)">5</button><button onclick="safePick(6)">6</button>`, "Bet Amount + Mode → choose a number.");
+      gameArea.innerHTML = `<div class="big" id="safeResult">🔐</safePick(2)">2</button><button onclick="safePick(3)">3</button><button onclick="safePick(4)">4</button><button onclick="safePick(5)">5</button><button onclick="safePick(6)">6</button>`, "Bet Amount + Mode → choose a number.");
     }
     async function safePick(n){ const b=getBet(); if(!b)return; const max=mode.value==='Easy'?6:mode.value==='Hard'?3:4; const code=rand(max)+1; safeResult.textContent=`Code ${code}`; n===code?await win(b*max):await lose(b); }
 
@@ -962,32 +1060,27 @@
     let safeCross=[], crossActive=false;
     async function startCross(){ const b=getBet(); if(!b)return; crossBet=b; state.balance-=b; crossRow=0; crossActive=true; safeCross=[rand(3)]; if(mode.value!=='Hard'){ let extra; do { extra=rand(3); } while(extra===safeCross[0]); safeCross.push(extra); } await save(); drawCross(); msg("Cross started. Easier mode gives 2 safe tiles per row."); }
     async function pickCross(i,d){ if(!crossActive)return; if(safeCross.includes(i)){ d.classList.add('good'); d.classList.add('pop-anim'); crossRow++; crossInfo.textContent=`Round ${crossRow} | Multiplier ${(1+crossRow*.45).toFixed(2)}x`; if(crossRow>=5){ crossActive=false; await win(crossBet*3.25); } else { safeCross=[rand(3)]; if(mode.value!=='Hard'){ let extra; do { extra=rand(3); } while(extra===safeCross[0]); safeCross.push(extra); } setTimeout(drawCross,350); } } else { d.classList.add('bad'); d.classList.add('shake-anim'); crossActive=false; msg("You fell! Bet lost."); await save(); } }
-    async function cashCross(){ if(!crossActive)return; crossActive=false; await win(crossBet*(1+crossRow*.45)); }
+    async function cashCross(){ if(!crossActive)return; crossActive=false; playSound('cashout'); await win(crossBet*(1+crossRow*.45)); }
 
     function crashUI(){
       crashActive=false; crashMult=1;
       gameArea.innerHTML = `<div class="big" id="crashFace">1.00x</div><p>Cash out before it crashes.</p>`;
-      setActions(`<button onclick="startCrash()">Start Crash</button><button class="cashout" onclick="cashCrash()">Cash Out</button>`, "Bet Amount → start → cash out before crash.");
+      setActions(`<button onclick="startCrash()">Start Crash</buttsh.");
     }
     async function startCrash(){ const b=getBet(); if(!b)return; crashBet=b; state.balance-=b; await save(); crashActive=true; crashMult=1; const crashAt=1+Math.random()*4; clearInterval(crashTimer); crashTimer=setInterval(async ()=>{ crashMult+=.05; crashFace.textContent=crashMult.toFixed(2)+'x'; if(crashMult>=crashAt){ clearInterval(crashTimer); crashActive=false; msg("Crashed at " + crashMult.toFixed(2) + "x. Bet lost."); await save(); } },120); }
-    async function cashCrash(){ if(!crashActive)return; clearInterval(crashTimer); crashActive=false; await win(crashBet*crashMult); }
+    async function cashCrash(){ if(!crashActive)return; clearInterval(crashTimer); crashActive=false; playSound('cashout'); await win(crashBet*crashMult); }
 
     function snakeUI(){
       gameArea.innerHTML = `<p>Use arrow keys/WASD. Eat apples, then cash out.</p><div class="snake-board" id="snakeBoard"></div><p id="snakeInfo">Apples 0 | Potential $0</p>`;
-      setActions(`<button onclick="startSnake()">Start Run</button><button class="cashout" onclick="cashSnake()">Cash Out</button>`, "WASD / Arrows. Eat apples and cash out.");
-      drawSnake();
-    }
-    async function startSnake(){ const b=getBet(); if(!b)return; snakeBet=b; state.balance-=b; await save(); snake=[{x:5,y:5}]; dir={x:1,y:0}; food={x:rand(10),y:rand(10)}; snakeRunning=true; clearInterval(snakeTimer); snakeTimer=setInterval(stepSnake,180); }
+      setActions(`<button onclick="startSnake()">Start Run</button><button class="cashout" onclick="cashSnake()">Cash Out</bu(!b)return; snakeBet=b; state.balance-=b; await save(); snake=[{x:5,y:5}]; dir={x:1,y:0}; food={x:rand(10),y:rand(10)}; snakeRunning=true; clearInterval(snakeTimer); snakeTimer=setInterval(stepSnake,180); }
     function drawSnake(){ snakeBoard.innerHTML=''; for(let y=0;y<10;y++) for(let x=0;x<10;x++){ const d=document.createElement('div'); d.className='cell'; if(snake.some(s=>s.x===x&&s.y===y)) d.classList.add('player'); if(food.x===x&&food.y===y) d.classList.add('food'); snakeBoard.appendChild(d); } }
     async function stepSnake(){ if(!snakeRunning)return; const h={x:(snake[0].x+dir.x+10)%10,y:(snake[0].y+dir.y+10)%10}; if(snake.some(s=>s.x===h.x&&s.y===h.y)){ clearInterval(snakeTimer); snakeRunning=false; msg("Snake crashed. Bet lost."); await save(); return; } snake.unshift(h); if(h.x===food.x&&h.y===food.y){ food={x:rand(10),y:rand(10)}; snakeInfo.textContent=`Apples ${snake.length-1} | Potential ${money(snakeBet*(1+(snake.length-1)*.4))}`; } else snake.pop(); drawSnake(); }
-    async function cashSnake(){ if(!snakeRunning)return; clearInterval(snakeTimer); snakeRunning=false; await win(snakeBet*(1+(snake.length-1)*.4)); }
+    async function cashSnake(){ if(!snakeRunning)return; clearInterval(snakeTimer); snakeRunning=false; playSound('cashout'); await win(snakeBet*(1+(snake.length-1)*.4)); }
     document.addEventListener('keydown', e=>{ const k=e.key.toLowerCase(); if(k==='arrowup'||k==='w')dir={x:0,y:-1}; if(k==='arrowdown'||k==='s')dir={x:0,y:1}; if(k==='arrowleft'||k==='a')dir={x:-1,y:0}; if(k==='arrowright'||k==='d')dir={x:1,y:0}; });
 
     function holdemUI(){
       gameArea.innerHTML = `<div class="big" id="holdem">🂠 🂠</div><p>Simplified Hold'em Duel: your 2-card score vs dealer. Pays 2x.</p>`;
-      setActions(`<button onclick="playHoldem()">Deal Hold'em</button>`, "Ante Amount → deal.");
-    }
-    async function playHoldem(){ const b=getBet(); if(!b)return; const you=rand(100)+1, dealer=rand(100)+1; holdem.textContent=`You ${you} vs Dealer ${dealer}`; you>dealer?await win(b*2):you===dealer?msg("Split pot. No money lost."):await lose(b); }
+      setActions(`<buttonst you=rand(100)+1, dealer=rand(100)+1; holdem.textContent=`You ${you} vs Dealer ${dealer}`; you>dealer?await win(b*2):you===dealer?msg("Split pot. No money lost."):await lose(b); }
 
     async function saveScore(){
       const score = {
@@ -1108,6 +1201,9 @@
     window.loginAccount = loginAccount;
     window.logoutAccount = logoutAccount;
     window.syncSaveNow = syncSaveNow;
+    window.setChipBet = setChipBet;
+    window.toggleSounds = toggleSounds;
+    window.highlightChip = highlightChip;
 
     renderGameButtons(); renderGame(); renderShop(); saveScore(); updateStats();
   </script>
