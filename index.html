@@ -153,35 +153,6 @@
     .player { background: var(--blue) !important; }
     .food { background: var(--gold) !important; }
 
-    .fullscreen-game {
-      position: fixed;
-      inset: 0;
-      z-index: 100;
-      background: radial-gradient(circle at top, #5a1a1a, #140505);
-      padding: 22px;
-      overflow: auto;
-    }
-    .fullscreen-game .grid {
-      grid-template-columns: 1fr;
-      max-width: 980px;
-      margin: 0 auto;
-    }
-    .fullscreen-game .game-buttons,
-    .fullscreen-game .stats,
-    .fullscreen-game .hub-title {
-      display: none;
-    }
-    .fullscreen-topbar {
-      display: none;
-      max-width: 980px;
-      margin: 0 auto 14px;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-    .fullscreen-game .fullscreen-topbar { display: flex; }
-    .fullscreen-game #gameArea { min-height: 50vh; display: grid; align-content: center; }
-    .fullscreen-game .big { font-size: clamp(44px, 9vw, 96px); }
     .profile-card {
       position: relative;
       overflow: hidden;
@@ -314,10 +285,6 @@
 
     <section id="home" class="page">
       <div class="card" id="gameShell">
-        <div class="fullscreen-topbar">
-          <h2 id="fullscreenTitle">Game</h2>
-          <button class="gold" onclick="exitFullScreenGame()">Exit Full Screen</button>
-        </div>
         <div class="row hub-title" style="justify-content:space-between">
           <h2>Game Hub <span class="pill">v1.1 Online Accounts</span></h2>
           <button onclick="resetGameUI()">Refresh Game</button>
@@ -326,21 +293,21 @@
         <div class="grid">
           <div class="card">
             <h2 id="gameTitle">Dice</h2>
-            <div class="controls">
+            <div id="gameArea"></div>
+            <div class="controls" style="justify-content:center">
               <label>Bet <input id="bet" type="number" min="1" value="25" /></label>
               <select id="mode">
                 <option>Easy</option>
                 <option selected>Normal</option>
                 <option>Hard</option>
               </select>
+              <div class="controls" id="actionButtons" style="margin:0"></div>
             </div>
-            <div id="gameArea"></div>
             <p class="message" id="message">Choose a game and start earning.</p>
           </div>
           <div class="card">
-            <h2>Run Panel</h2>
+            <h2>How to Play</h2>
             <p id="helpText">Pick a game to see controls.</p>
-            <div class="controls" id="actionButtons"></div>
           </div>
         </div>
       </div>
@@ -652,24 +619,16 @@
     }
 
     function renderGameButtons() {
-      gameButtons.innerHTML = games.map(g => `<button class="game-btn game-card-btn ${g===state.currentGame?'active':''}" onclick="selectGame('${g}', true)">${gameLabel(g)}</button>`).join("");
+      gameButtons.innerHTML = games.map(g => `<button class="game-btn game-card-btn ${g===state.currentGame?'active':''}" onclick="selectGame('${g}')">${gameLabel(g)}</button>`).join("");
     }
     function gameLabel(g) {
       return g === "Hold'em Duel" ? "♣️ Hold'em Duel" : g;
     }
-    async function selectGame(g, full = false) {
+    async function selectGame(g) {
       state.currentGame = g;
       await save();
       renderGameButtons();
       renderGame();
-      if (full) enterFullScreenGame();
-    }
-    function enterFullScreenGame(){
-      gameShell.classList.add("fullscreen-game");
-      fullscreenTitle.textContent = state.currentGame;
-    }
-    function exitFullScreenGame(){
-      gameShell.classList.remove("fullscreen-game");
     }
 
     function renderGame() {
@@ -910,7 +869,6 @@
 
     window.showPage = showPage;
     window.selectGame = selectGame;
-    window.exitFullScreenGame = exitFullScreenGame;
     window.resetGameUI = resetGameUI;
     window.rollDice = rollDice;
     window.spinSlots = spinSlots;
@@ -953,6 +911,3 @@
   </script>
 </body>
 </html>
-
-
-
