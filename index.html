@@ -57,6 +57,22 @@
     button.primary { background: linear-gradient(135deg, var(--red), var(--gold)); color: #1b0707; }
     button.gold { background: var(--gold); color: #1b1300; }
     button.danger { background: #562032; color: #ffdce4; }
+    button.cashout {
+      background: linear-gradient(135deg, #19c37d, #8cffc1) !important;
+      color: #04120b !important;
+      font-size: 18px;
+      padding: 14px 20px;
+      border-radius: 18px;
+      box-shadow: 0 0 24px rgba(25,195,125,.35);
+    }
+    .pop-anim { animation: pop .35s ease; }
+    .spin-anim { animation: spin .75s ease; }
+    .shake-anim { animation: shake .35s ease; }
+    .pulse-anim { animation: pulse 1s infinite ease-in-out; }
+    @keyframes pop { 0%{transform:scale(.75);opacity:.5} 70%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }
+    @keyframes spin { from{transform:rotate(0deg) scale(.9)} to{transform:rotate(360deg) scale(1)} }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
     main { max-width: 1180px; margin: 0 auto; padding: 20px; }
     .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
     .stat, .card {
@@ -469,7 +485,7 @@
     // Each username writes to one document, so users can only have one leaderboard entry.
     const LEADERBOARD_COLLECTION = "leaderboard_v2";
 
-    const games = ["Snake", "Mines", "Slots", "Hi-Lo", "Dice", "21", "Hold'em Duel", "Safe Cracker", "Roll Battle", "Perfect Stop", "Cross Path", "High Card", "Crash", "Roulette"];
+    const games = ["Snake", "Mines", "Slots", "Hi-Lo", "Dice", "21", "Hold'em Duel", "Safe Cracker", "Roll Battle", "Perfect Stop", "Cross Path", "High Card", "Crash", "Roulette", "Coin Flip", "Treasure", "Lucky Wheel", "Blackjack Rush"];
     const shop = [
       { id: "goldName", name: "Gold Name", price: 500, desc: "Makes your name look rich." },
       { id: "vipBadge", name: "VIP Badge", price: 1500, desc: "Shows VIP next to your name." },
@@ -666,6 +682,10 @@
       if (g === "High Card") return highCardUI();
       if (g === "21") return twentyOneUI();
       if (g === "Roulette") return rouletteUI();
+      if (g === "Coin Flip") return coinFlipUI();
+      if (g === "Treasure") return treasureUI();
+      if (g === "Lucky Wheel") return luckyWheelUI();
+      if (g === "Blackjack Rush") return blackjackRushUI();
       if (g === "Mines") return minesUI();
       if (g === "Snake") return snakeUI();
       if (g === "Crash") return crashUI();
@@ -683,13 +703,13 @@
       gameArea.innerHTML = `<div class="big" id="diceFace">-</div><p>Choose under 4 or over 3. Payout 2x.</p>`;
       setActions(`<button onclick="rollDice('under')">Under</button><button onclick="rollDice('over')">Over</button>`, "Bet Amount → choose Under or Over.");
     }
-    async function rollDice(choice){ const b=getBet(); if(!b)return; const r=rand(6)+1; diceFace.textContent=r; const ok=choice==='under'?r<4:r>3; ok?await win(b*2):await lose(b); }
+    async function rollDice(choice){ const b=getBet(); if(!b)return; diceFace.className='big spin-anim'; const r=rand(6)+1; setTimeout(async()=>{ diceFace.textContent=r; const ok=choice==='under'?r<4:r>3; diceFace.className='big pop-anim'; ok?await win(b*2):await lose(b); },350); }
 
     function slotsUI(){
       gameArea.innerHTML = `<div class="big" id="slots">🍒 🍋 🔔</div><p>Three matching symbols pays 5x, two matching pays 2x.</p>`;
       setActions(`<button onclick="spinSlots()">Start Slots</button>`, "Bet Amount → spin.");
     }
-    async function spinSlots(){ const b=getBet(); if(!b)return; const s=['🍒','🍋','🔔','💎','7️⃣']; const a=[s[rand(s.length)],s[rand(s.length)],s[rand(s.length)]]; slots.textContent=a.join(' '); const unique=new Set(a).size; unique===1?await win(b*5):unique===2?await win(b*2):await lose(b); }
+    async function spinSlots(){ const b=getBet(); if(!b)return; const s=['🍒','🍋','🔔','💎','7️⃣']; slots.className='big pulse-anim'; let ticks=0; const spin=setInterval(()=>{ slots.textContent=[s[rand(s.length)],s[rand(s.length)],s[rand(s.length)]].join(' '); if(++ticks>10){ clearInterval(spin); const a=[s[rand(s.length)],s[rand(s.length)],s[rand(s.length)]]; slots.textContent=a.join(' '); slots.className='big pop-anim'; const unique=new Set(a).size; unique===1?win(b*5):unique===2?win(b*2):lose(b); } },80); }
 
     let hiloCard = 7;
     function hiloUI(){
@@ -697,30 +717,30 @@
       gameArea.innerHTML = `<div class="big" id="hiloFace">${hiloCard}</div><p>Guess if the next card is higher or lower.</p>`;
       setActions(`<button onclick="hilo('high')">Higher ▲</button><button onclick="hilo('low')">Lower ▼</button>`, "Bet Amount → guess higher/lower.");
     }
-    async function hilo(choice){ const b=getBet(); if(!b)return; const next=rand(13)+1; hiloFace.textContent = hiloCard + " → " + next; const ok=choice==='high'?next>hiloCard:next<hiloCard; ok?await win(b*2):await lose(b); hiloCard=next; }
+    async function hilo(choice){ const b=getBet(); if(!b)return; hiloFace.className='big pop-anim'; const next=rand(13)+1; hiloFace.textContent = hiloCard + " → " + next; const ok=choice==='high'?next>hiloCard:next<hiloCard; ok?await win(b*2):await lose(b); hiloCard=next; }
 
     function highCardUI(){
       gameArea.innerHTML = `<div class="big" id="cards">? vs ?</div><p>Higher card wins. Ace is 1.</p>`;
       setActions(`<button onclick="highCard()">Play High Card</button>`, "Bet Amount → draw cards.");
     }
-    async function highCard(){ const b=getBet(); if(!b)return; const you=rand(13)+1, dealer=rand(13)+1; cards.textContent = `You ${you} vs Dealer ${dealer}`; you>dealer?await win(b*2):you===dealer?msg("Tie. No money lost."):await lose(b); }
+    async function highCard(){ const b=getBet(); if(!b)return; cards.className='big pop-anim'; const you=rand(13)+1, dealer=rand(13)+1; cards.textContent = `You ${you} vs Dealer ${dealer}`; you>dealer?await win(b*2):you===dealer?msg("Tie. No money lost."):await lose(b); }
 
     function twentyOneUI(){
       gameArea.innerHTML = `<div class="big" id="twenty">0 vs 0</div><p>Get closer to 21 than the dealer without going over.</p>`;
       setActions(`<button onclick="play21()">Start 21</button>`, "Bet Amount → start hand.");
     }
-    async function play21(){ const b=getBet(); if(!b)return; let you=rand(10)+12, dealer=rand(10)+12; twenty.textContent=`You ${you} vs Dealer ${dealer}`; (you<=21 && (dealer>21 || you>dealer))?await win(b*2):you===dealer?msg("Push. No money lost."):await lose(b); }
+    async function play21(){ const b=getBet(); if(!b)return; twenty.className='big pop-anim'; let you=rand(10)+12, dealer=rand(10)+12; twenty.textContent=`You ${you} vs Dealer ${dealer}`; (you<=21 && (dealer>21 || you>dealer))?await win(b*2):you===dealer?msg("Push. No money lost."):await lose(b); }
 
     function rouletteUI(){
       gameArea.innerHTML = `<div class="big" id="roulette">⚫</div><p>Pick red or black. Green zero loses.</p>`;
       setActions(`<button onclick="roulette('red')">Red</button><button onclick="roulette('black')">Black</button>`, "Bet Amount → pick colour.");
     }
-    async function roulette(c){ const b=getBet(); if(!b)return; const r=rand(37); const colour=r===0?'green':r%2?'red':'black'; roulette.textContent = `${r} ${colour}`; colour===c?await win(b*2):await lose(b); }
+    async function roulette(c){ const b=getBet(); if(!b)return; roulette.className='big spin-anim'; setTimeout(async()=>{ const r=rand(37); const colour=r===0?'green':r%2?'red':'black'; roulette.textContent = `${r} ${colour}`; roulette.className='big pop-anim'; colour===c?await win(b*2):await lose(b); },650); }
 
     function minesUI(){
       minesPicks=0; minesActive=false;
       gameArea.innerHTML = `<p>Start mines, then pick safe tiles. Cash out before hitting a bomb.</p><div class="mines-board" id="minesBoard"></div><p id="minesInfo">Multiplier 1.00x | Safe Picks 0</p>`;
-      setActions(`<button onclick="startMines()">Start Mines</button><button onclick="cashMines()">Cash Out</button>`, "Bet Amount + Mode → Start Mines → click tiles.");
+      setActions(`<button onclick="startMines()">Start Mines</button><button class="cashout" onclick="cashMines()">Cash Out</button>`, "Bet Amount + Mode → Start Mines → click tiles.");
       drawMines(false);
     }
     async function startMines(){ const b=getBet(); if(!b)return; minesBet=b; state.balance-=b; minesActive=true; minesPicks=0; minesBombs=new Set(); const bombs=mode.value==='Easy'?1:mode.value==='Hard'?3:2; while(minesBombs.size<bombs) minesBombs.add(rand(25)); await save(); drawMines(false); msg("Mines started."); }
@@ -738,7 +758,31 @@
       gameArea.innerHTML = `<div class="big" id="battle">-- vs --</div><p>Beat the bot roll. Pays 2x.</p>`;
       setActions(`<button onclick="rollBattle()">Spin</button>`, "Bet Amount → roll against bot.");
     }
-    async function rollBattle(){ const b=getBet(); if(!b)return; const you=rand(100)+1, bot=rand(100)+1; battle.textContent=`You ${you} vs Bot ${bot}`; you>bot?await win(b*2):you===bot?msg("Tie. No money lost."):await lose(b); }
+    async function rollBattle(){ const b=getBet(); if(!b)return; battle.className='big pop-anim'; const you=rand(100)+1, bot=rand(100)+1; battle.textContent=`You ${you} vs Bot ${bot}`; you>bot?await win(b*2):you===bot?msg("Tie. No money lost."):await lose(b); }
+
+    function coinFlipUI(){
+      gameArea.innerHTML = `<div class="big" id="coinFace">🪙</div><p>Pick heads or tails. Simple 2x payout.</p>`;
+      setActions(`<button onclick="coinFlip('Heads')">Heads</button><button onclick="coinFlip('Tails')">Tails</button>`, "Bet Amount → choose heads or tails.");
+    }
+    async function coinFlip(choice){ const b=getBet(); if(!b)return; coinFace.className='big spin-anim'; setTimeout(async()=>{ const result=rand(2)?'Heads':'Tails'; coinFace.textContent=result==='Heads'?'🟡 Heads':'🔴 Tails'; coinFace.className='big pop-anim'; result===choice?await win(b*2):await lose(b); },600); }
+
+    function treasureUI(){
+      gameArea.innerHTML = `<div class="big" id="treasureFace">🧰</div><p>Open a chest. Small prize is common, jackpot is rare.</p>`;
+      setActions(`<button onclick="openTreasure()">Open Treasure</button>`, "Bet Amount → open chest.");
+    }
+    async function openTreasure(){ const b=getBet(); if(!b)return; treasureFace.className='big pulse-anim'; setTimeout(async()=>{ const r=rand(100); treasureFace.className='big pop-anim'; if(r<55){ treasureFace.textContent='💰'; await win(b*1.5); } else if(r<85){ treasureFace.textContent='💎'; await win(b*2.5); } else if(r<95){ treasureFace.textContent='👑'; await win(b*5); } else { treasureFace.textContent='🪨'; await lose(b); } },450); }
+
+    function luckyWheelUI(){
+      gameArea.innerHTML = `<div class="big" id="wheelFace">🎡</div><p>Spin the wheel for a random multiplier.</p>`;
+      setActions(`<button onclick="spinWheel()">Spin Wheel</button>`, "Bet Amount → spin.");
+    }
+    async function spinWheel(){ const b=getBet(); if(!b)return; wheelFace.className='big spin-anim'; setTimeout(async()=>{ const mults=[0,0.5,1.2,1.5,2,3,5]; const m=mults[rand(mults.length)]; wheelFace.textContent=m===0?'Bust':m+'x'; wheelFace.className='big pop-anim'; m>0?await win(b*m):await lose(b); },800); }
+
+    function blackjackRushUI(){
+      gameArea.innerHTML = `<div class="big" id="rushFace">🃏</div><p>Fast blackjack-style round. 20 or 21 pays extra.</p>`;
+      setActions(`<button onclick="playBlackjackRush()">Play Rush</button>`, "Bet Amount → instant round.");
+    }
+    async function playBlackjackRush(){ const b=getBet(); if(!b)return; rushFace.className='big pop-anim'; const you=rand(11)+11; const dealer=rand(11)+11; rushFace.textContent=`${you} vs ${dealer}`; if(you===21) await win(b*3); else if(you>=20 && you>dealer) await win(b*2.5); else if(you>dealer || dealer>21) await win(b*2); else if(you===dealer) msg('Push. No money lost.'); else await lose(b); }
 
     function perfectStopUI(){
       stopPos=0;
@@ -752,26 +796,26 @@
     function crossPathUI(){
       crossRow=0;
       gameArea.innerHTML = `<p>Pick the safe tile each row. 5 rows pays bigger.</p><div class="cross-board" id="crossBoard"></div><p id="crossInfo">Round 0 | Multiplier 1.00x</p>`;
-      setActions(`<button onclick="startCross()">Start Cross Path</button><button onclick="cashCross()">Cash Out</button>`, "Bet Amount → start → click safe path.");
+      setActions(`<button onclick="startCross()">Start Cross Path</button><button class="cashout" onclick="cashCross()">Cash Out</button>`, "Bet Amount → start → click safe path.");
       drawCross();
     }
     function drawCross(){ crossBoard.innerHTML=''; for(let i=0;i<3;i++){ const d=document.createElement('div'); d.className='cell'; d.textContent='?'; d.onclick=()=>pickCross(i,d); crossBoard.appendChild(d);} }
-    let safeCross=0, crossActive=false;
-    async function startCross(){ const b=getBet(); if(!b)return; crossBet=b; state.balance-=b; crossRow=0; crossActive=true; safeCross=rand(3); await save(); drawCross(); msg("Cross started."); }
-    async function pickCross(i,d){ if(!crossActive)return; if(i===safeCross){ d.classList.add('good'); crossRow++; crossInfo.textContent=`Round ${crossRow} | Multiplier ${(1+crossRow*.6).toFixed(2)}x`; if(crossRow>=5){ crossActive=false; await win(crossBet*4); } else { safeCross=rand(3); setTimeout(drawCross,350); } } else { d.classList.add('bad'); crossActive=false; msg("You fell! Bet lost."); await save(); } }
-    async function cashCross(){ if(!crossActive)return; crossActive=false; await win(crossBet*(1+crossRow*.6)); }
+    let safeCross=[], crossActive=false;
+    async function startCross(){ const b=getBet(); if(!b)return; crossBet=b; state.balance-=b; crossRow=0; crossActive=true; safeCross=[rand(3)]; if(mode.value!=='Hard'){ let extra; do { extra=rand(3); } while(extra===safeCross[0]); safeCross.push(extra); } await save(); drawCross(); msg("Cross started. Easier mode gives 2 safe tiles per row."); }
+    async function pickCross(i,d){ if(!crossActive)return; if(safeCross.includes(i)){ d.classList.add('good'); d.classList.add('pop-anim'); crossRow++; crossInfo.textContent=`Round ${crossRow} | Multiplier ${(1+crossRow*.45).toFixed(2)}x`; if(crossRow>=5){ crossActive=false; await win(crossBet*3.25); } else { safeCross=[rand(3)]; if(mode.value!=='Hard'){ let extra; do { extra=rand(3); } while(extra===safeCross[0]); safeCross.push(extra); } setTimeout(drawCross,350); } } else { d.classList.add('bad'); d.classList.add('shake-anim'); crossActive=false; msg("You fell! Bet lost."); await save(); } }
+    async function cashCross(){ if(!crossActive)return; crossActive=false; await win(crossBet*(1+crossRow*.45)); }
 
     function crashUI(){
       crashActive=false; crashMult=1;
       gameArea.innerHTML = `<div class="big" id="crashFace">1.00x</div><p>Cash out before it crashes.</p>`;
-      setActions(`<button onclick="startCrash()">Start Crash</button><button onclick="cashCrash()">Cash Out</button>`, "Bet Amount → start → cash out before crash.");
+      setActions(`<button onclick="startCrash()">Start Crash</button><button class="cashout" onclick="cashCrash()">Cash Out</button>`, "Bet Amount → start → cash out before crash.");
     }
     async function startCrash(){ const b=getBet(); if(!b)return; crashBet=b; state.balance-=b; await save(); crashActive=true; crashMult=1; const crashAt=1+Math.random()*4; clearInterval(crashTimer); crashTimer=setInterval(async ()=>{ crashMult+=.05; crashFace.textContent=crashMult.toFixed(2)+'x'; if(crashMult>=crashAt){ clearInterval(crashTimer); crashActive=false; msg("Crashed at " + crashMult.toFixed(2) + "x. Bet lost."); await save(); } },120); }
     async function cashCrash(){ if(!crashActive)return; clearInterval(crashTimer); crashActive=false; await win(crashBet*crashMult); }
 
     function snakeUI(){
       gameArea.innerHTML = `<p>Use arrow keys/WASD. Eat apples, then cash out.</p><div class="snake-board" id="snakeBoard"></div><p id="snakeInfo">Apples 0 | Potential $0</p>`;
-      setActions(`<button onclick="startSnake()">Start Run</button><button onclick="cashSnake()">Cash Out</button>`, "WASD / Arrows. Eat apples and cash out.");
+      setActions(`<button onclick="startSnake()">Start Run</button><button class="cashout" onclick="cashSnake()">Cash Out</button>`, "WASD / Arrows. Eat apples and cash out.");
       drawSnake();
     }
     async function startSnake(){ const b=getBet(); if(!b)return; snakeBet=b; state.balance-=b; await save(); snake=[{x:5,y:5}]; dir={x:1,y:0}; food={x:rand(10),y:rand(10)}; snakeRunning=true; clearInterval(snakeTimer); snakeTimer=setInterval(stepSnake,180); }
@@ -887,6 +931,10 @@
     window.startSnake = startSnake;
     window.cashSnake = cashSnake;
     window.playHoldem = playHoldem;
+    window.coinFlip = coinFlip;
+    window.openTreasure = openTreasure;
+    window.spinWheel = spinWheel;
+    window.playBlackjackRush = playBlackjackRush;
     window.saveScore = saveScore;
     window.buyItem = buyItem;
     window.rebirth = rebirth;
@@ -905,5 +953,6 @@
   </script>
 </body>
 </html>
+
 
 
