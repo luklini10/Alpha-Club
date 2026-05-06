@@ -5,61 +5,1111 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Alpha Club</title>
   <style>
-    :root{--bg:#160606;--panel:#260c0c;--panel2:#351111;--text:#fff3e6;--muted:#d9bfa3;--gold:#ffd166;--red:#d62828;--green:#19c37d;--border:rgba(255,209,102,.24)}
-    *{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;background:radial-gradient(circle at top,#5a1a1a,var(--bg));color:var(--text);min-height:100vh} button,input,select,textarea{border:1px solid var(--border);border-radius:12px;background:#351111;color:var(--text);padding:10px 12px;font-weight:800} button{cursor:pointer;transition:.15s}button:hover{transform:translateY(-1px);filter:brightness(1.12)}
-    header{position:sticky;top:0;z-index:50;background:rgba(22,6,6,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:14px 18px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap} h1{margin:0;color:var(--gold);font-size:30px} nav{display:flex;gap:8px;flex-wrap:wrap}.tab.active,.gold{background:var(--gold);color:#1b0707}.primary{background:linear-gradient(135deg,var(--red),var(--gold));color:#1b0707}.danger{background:#5a1724}.cashout{background:linear-gradient(135deg,#19c37d,#8cffc1)!important;color:#04120b!important;font-size:18px;padding:14px 20px;border-radius:18px;box-shadow:0 0 24px rgba(25,195,125,.35)}
-    main{max-width:1180px;margin:0 auto;padding:20px}.hidden{display:none!important}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.stat,.card{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025));border:1px solid var(--border);border-radius:20px;padding:16px;box-shadow:0 20px 50px rgba(0,0,0,.25)}.stat b{display:block;color:var(--muted);font-size:13px}.stat span{font-size:23px;font-weight:900}.grid{display:grid;grid-template-columns:1.35fr .85fr;gap:16px}.row,.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.controls{margin:12px 0}.game-buttons{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px;padding:10px;border:1px solid var(--border);border-radius:18px;background:rgba(255,255,255,.035)}.game-btn{border-radius:999px;background:rgba(214,40,40,.25);white-space:nowrap}.game-btn.active{background:var(--gold);color:#1b0707}.big{font-size:42px;font-weight:900;text-align:center;padding:18px}.message{color:var(--gold);font-weight:900;min-height:24px}.pill{border:1px solid var(--border);border-radius:999px;padding:5px 9px;color:var(--muted)}
-    .chip-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;padding:10px;border:1px solid var(--border);border-radius:18px;background:rgba(255,255,255,.035);margin:10px 0}.chip{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,var(--gold) 0 42%,#7b1717 43% 68%,var(--gold) 69% 72%,#2a0f0f 73%);color:#1b0707;border:3px dashed rgba(255,255,255,.75);box-shadow:0 8px 18px rgba(0,0,0,.35);padding:0}.chip.active{outline:4px solid var(--green);box-shadow:0 0 22px rgba(25,195,125,.55)}.sound-toggle.active{background:var(--gold);color:#1b0707}
-    .shop,.account-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.account-grid{grid-template-columns:.9fr 1.1fr}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left}.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:14px;align-items:end;margin:20px 0}.podium-card{border:1px solid var(--border);border-radius:22px;background:rgba(255,255,255,.05);padding:16px;text-align:center}.first{min-height:230px}.second{min-height:190px}.third{min-height:165px}.podium-rank{font-size:38px;font-weight:900}.podium-money{color:var(--gold);font-weight:900}
-    .snake-board,.mines-board,.cross-board{display:grid;gap:6px;justify-content:center;margin:14px auto}.snake-board{grid-template-columns:repeat(10,26px)}.mines-board{grid-template-columns:repeat(5,54px)}.cross-board{grid-template-columns:repeat(3,70px)}.cell{height:26px;border-radius:7px;background:rgba(255,255,255,.08);display:grid;place-items:center;font-weight:900}.mines-board .cell{height:54px;cursor:pointer}.cross-board .cell{height:70px;cursor:pointer}.good{background:rgba(25,195,125,.55)!important}.bad{background:rgba(255,92,119,.55)!important}.player{background:#ffd166!important}.food{background:#19c37d!important}
-    .roulette-layout{display:grid;grid-template-columns:1fr 1.15fr;gap:16px;align-items:start;margin-top:12px}.roulette-wheel-wrap{display:grid;place-items:center;gap:12px}.roulette-wheel{width:min(320px,80vw);height:min(320px,80vw);border-radius:50%;border:10px solid var(--gold);position:relative;background:conic-gradient(#d62828 0deg 10deg,#111 10deg 20deg,#d62828 20deg 30deg,#111 30deg 40deg,#d62828 40deg 50deg,#111 50deg 60deg,#d62828 60deg 70deg,#111 70deg 80deg,#d62828 80deg 90deg,#111 90deg 100deg,#d62828 100deg 110deg,#111 110deg 120deg,#d62828 120deg 130deg,#111 130deg 140deg,#d62828 140deg 150deg,#111 150deg 160deg,#d62828 160deg 170deg,#111 170deg 180deg,#d62828 180deg 190deg,#111 190deg 200deg,#d62828 200deg 210deg,#111 210deg 220deg,#d62828 220deg 230deg,#111 230deg 240deg,#d62828 240deg 250deg,#111 250deg 260deg,#d62828 260deg 270deg,#111 270deg 280deg,#d62828 280deg 290deg,#111 290deg 300deg,#d62828 300deg 310deg,#111 310deg 320deg,#d62828 320deg 330deg,#111 330deg 340deg,#d62828 340deg 350deg,#0b8f3a 350deg 360deg);box-shadow:inset 0 0 45px rgba(0,0,0,.65),0 25px 55px rgba(0,0,0,.45);transition:transform 3.4s cubic-bezier(.08,.75,.12,1)}.roulette-wheel:after{content:"";position:absolute;inset:38px;border-radius:50%;background:radial-gradient(circle,#6d1b1b,#260909);border:4px solid rgba(255,209,102,.65)}.roulette-ball{width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:3;box-shadow:0 0 16px white}.roulette-pointer{width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:24px solid var(--gold)}.roulette-board{display:grid;grid-template-columns:56px repeat(12,minmax(34px,1fr));gap:5px}.roulette-num,.roulette-bet-option{min-height:42px;border-radius:10px}.red-num{background:rgba(214,40,40,.75)}.black-num{background:rgba(0,0,0,.55)}.green-num{background:rgba(25,195,125,.65);grid-row:span 3}.selected{outline:3px solid var(--gold);box-shadow:0 0 16px rgba(255,209,102,.45)}.roulette-options{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.roulette-bets-list{font-size:13px;color:var(--muted);min-height:28px}
-    .pop-anim{animation:pop .35s ease}.spin-anim{animation:spin .75s ease}.shake-anim{animation:shake .35s ease}.pulse-anim{animation:pulse 1s infinite ease-in-out}@keyframes pop{0%{transform:scale(.75);opacity:.5}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}@keyframes spin{from{transform:rotate(0) scale(.9)}to{transform:rotate(360deg) scale(1)}}@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-    @media(max-width:850px){.grid,.stats,.shop,.account-grid,.podium,.roulette-layout{grid-template-columns:1fr}.game-buttons{overflow-x:auto;flex-wrap:nowrap}.big{font-size:30px}main{padding:14px}.roulette-board{grid-template-columns:44px repeat(12,minmax(26px,1fr));gap:4px}.roulette-num,.roulette-bet-option{font-size:12px;padding:6px}}
+    :root {
+      --bg: #1a0707;
+      --panel: #2a0f0f;
+      --panel2: #3a1515;
+      --text: #fff3e6;
+      --muted: #d9bfa3;
+      --gold: #ffd166;
+      --green: #35d07f;
+      --red: #d62828;
+      --blue: #d62828;
+      --purple: #ffd166;
+      --border: rgba(255,209,102,0.25);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #5a1a1a, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(26,7,7,.94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    h1 { margin: 0; font-size: 28px; color: var(--gold); letter-spacing: .5px; }
+    h2, h3 { margin-top: 0; }
+    nav { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    button, input, select, textarea {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #102744;
+      color: var(--text);
+      padding: 10px 12px;
+      font-weight: 700;
+    }
+    input, select { min-height: 42px; }
+    button { cursor: pointer; transition: .15s; }
+    button:hover { transform: translateY(-1px); background: #173a67; }
+    button.primary { background: linear-gradient(135deg, var(--red), var(--gold)); color: #1b0707; }
+    button.gold { background: var(--gold); color: #1b1300; }
+    button.danger { background: #562032; color: #ffdce4; }
+    button.cashout {
+      background: linear-gradient(135deg, #19c37d, #8cffc1) !important;
+      color: #04120b !important;
+      font-size: 18px;
+      padding: 14px 20px;
+      border-radius: 18px;
+      box-shadow: 0 0 24px rgba(25,195,125,.35);
+    }
+    .roulette-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 16px;
+      align-items: start;
+      margin-top: 12px;
+    }
+    .roulette-wheel-wrap {
+      display: grid;
+      place-items: center;
+      gap: 12px;
+    }
+    .roulette-wheel {
+      width: min(320px, 80vw);
+      height: min(320px, 80vw);
+      border-radius: 50%;
+      border: 10px solid var(--gold);
+      position: relative;
+      background: conic-gradient(#d62828 0deg 10deg,#111 10deg 20deg,#d62828 20deg 30deg,#111 30deg 40deg,#d62828 40deg 50deg,#111 50deg 60deg,#d62828 60deg 70deg,#111 70deg 80deg,#d62828 80deg 90deg,#111 90deg 100deg,#d62828 100deg 110deg,#111 110deg 120deg,#d62828 120deg 130deg,#111 130deg 140deg,#d62828 140deg 150deg,#111 150deg 160deg,#d62828 160deg 170deg,#111 170deg 180deg,#d62828 180deg 190deg,#111 190deg 200deg,#d62828 200deg 210deg,#111 210deg 220deg,#d62828 220deg 230deg,#111 230deg 240deg,#d62828 240deg 250deg,#111 250deg 260deg,#d62828 260deg 270deg,#111 270deg 280deg,#d62828 280deg 290deg,#111 290deg 300deg,#d62828 300deg 310deg,#111 310deg 320deg,#d62828 320deg 330deg,#111 330deg 340deg,#d62828 340deg 350deg,#0b8f3a 350deg 360deg);
+      box-shadow: inset 0 0 45px rgba(0,0,0,.65), 0 25px 55px rgba(0,0,0,.45);
+      transition: transform 3.4s cubic-bezier(.08,.75,.12,1);
+    }
+    .roulette-wheel::after {
+      content: "";
+      position: absolute;
+      inset: 38px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #6d1b1b, #260909);
+      border: 4px solid rgba(255,209,102,.65);
+    }
+    .roulette-ball {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      position: absolute;
+      left: 50%;
+      top: 10px;
+      transform: translateX(-50%);
+      z-index: 3;
+      box-shadow: 0 0 16px white;
+    }
+    .roulette-pointer {
+      width: 0;
+      height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-top: 24px solid var(--gold);
+      filter: drop-shadow(0 0 10px rgba(255,209,102,.8));
+    }
+    .roulette-board {
+      display: grid;
+      grid-template-columns: 56px repeat(12, minmax(34px, 1fr));
+      gap: 5px;
+      align-items: stretch;
+    }
+    .roulette-num, .roulette-bet-option {
+      min-height: 42px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .roulette-num.red-num { background: rgba(214,40,40,.75); }
+    .roulette-num.black-num { background: rgba(0,0,0,.55); }
+    .roulette-num.green-num { background: rgba(25,195,125,.65); grid-row: span 3; }
+    .roulette-num.selected, .roulette-bet-option.selected {
+      outline: 3px solid var(--gold);
+      box-shadow: 0 0 16px rgba(255,209,102,.45);
+      transform: translateY(-2px);
+    }
+    .roulette-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .roulette-bets-list {
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 28px;
+    }
+    @media (max-width: 900px) {
+      .roulette-layout { grid-template-columns: 1fr; }
+      .roulette-board { grid-template-columns: 44px repeat(12, minmax(26px, 1fr)); gap: 4px; }
+      .roulette-num, .roulette-bet-option { min-height: 36px; font-size: 12px; padding: 6px; }
+    }
+    .pop-anim { animation: pop .35s ease; }
+    .spin-anim { animation: spin .75s ease; }
+    .shake-anim { animation: shake .35s ease; }
+    .pulse-anim { animation: pulse 1s infinite ease-in-out; }
+    @keyframes pop { 0%{transform:scale(.75);opacity:.5} 70%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }
+    @keyframes spin { from{transform:rotate(0deg) scale(.9)} to{transform:rotate(360deg) scale(1)} }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+    main { max-width: 1180px; margin: 0 auto; padding: 20px; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .stat, .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    }
+    .stat b { display: block; color: var(--muted); font-size: 13px; }
+    .stat span { font-size: 23px; font-weight: 900; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+    .tab {
+      width: auto;
+      font-size: 14px;
+      padding: 10px 13px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.06);
+    }
+    .tab::before { content: none !important; }
+    .tab.active { background: var(--gold); color: #1b1300; box-shadow: 0 0 20px rgba(255,209,102,.35); }
+    .grid { display: grid; grid-template-columns: 1.4fr .9fr; gap: 16px; }
+    .account-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 16px; }
+    .hidden { display: none !important; }
+    .game-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 14px 0 18px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(255,255,255,.035);
+    }
+    .game-card-btn {
+      min-height: auto;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: rgba(214,40,40,.22);
+      border: 1px solid var(--border);
+      font-size: 14px;
+      padding: 10px 13px;
+      white-space: nowrap;
+    }
+    .game-btn.active { background: var(--gold); color: #1b0707; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+    .big { font-size: 42px; font-weight: 900; text-align: center; padding: 18px; }
+    .message { color: var(--gold); font-weight: 800; min-height: 24px; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .shop { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border-bottom: 1px solid var(--border); text-align: left; }
+    .pill { border: 1px solid var(--border); border-radius: 999px; padding: 5px 9px; color: var(--muted); }
+    .snake-board, .mines-board, .cross-board {
+      display: grid;
+      gap: 6px;
+      justify-content: center;
+      margin: 14px auto;
+    }
+    .snake-board { grid-template-columns: repeat(10, 26px); }
+    .mines-board { grid-template-columns: repeat(5, 54px); }
+    .cross-board { grid-template-columns: repeat(3, 70px); }
+    .cell {
+      height: 26px;
+      border-radius: 7px;
+      background: rgba(255,255,255,.08);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+    .mines-board .cell { height: 54px; cursor: pointer; }
+    .cross-board .cell { height: 70px; cursor: pointer; }
+    .good { background: rgba(53,208,127,.55) !important; }
+    .bad { background: rgba(255,92,119,.55) !important; }
+    .player { background: var(--blue) !important; }
+    .food { background: var(--gold) !important; }
+
+    .profile-card {
+      position: relative;
+      overflow: hidden;
+      padding: 0;
+    }
+    .profile-banner {
+      height: 115px;
+      background: linear-gradient(135deg, var(--red), var(--gold));
+      opacity: .95;
+    }
+    .profile-body { padding: 0 18px 18px; }
+    .avatar {
+      width: 92px;
+      height: 92px;
+      border-radius: 26px;
+      background: linear-gradient(135deg, var(--gold), var(--green));
+      border: 6px solid #0b1a2e;
+      display: grid;
+      place-items: center;
+      font-size: 42px;
+      font-weight: 900;
+      color: #06101d;
+      margin-top: -46px;
+      box-shadow: 0 15px 35px rgba(0,0,0,.35);
+    }
+    .account-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(53,208,127,.12);
+      color: var(--green);
+      border: 1px solid rgba(53,208,127,.25);
+      font-weight: 900;
+    }
+    .account-status.offline {
+      background: rgba(255,92,119,.12);
+      color: var(--red);
+      border-color: rgba(255,92,119,.25);
+    }
+    .auth-form {
+      display: grid;
+      gap: 10px;
+    }
+    .auth-form input { width: 100%; }
+    .mini-stats { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-top: 14px; }
+    .mini-stat { border: 1px solid var(--border); border-radius: 16px; padding: 12px; background: rgba(255,255,255,.04); }
+    .mini-stat b { display:block; color: var(--muted); font-size: 12px; }
+    .mini-stat span { font-size: 20px; font-weight: 900; }
+    .warning {
+      border: 1px solid rgba(255,209,102,.35);
+      background: rgba(255,209,102,.09);
+      color: #ffe6a3;
+      border-radius: 16px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+    .podium {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr 1fr;
+      gap: 14px;
+      align-items: end;
+      margin: 20px 0;
+    }
+    .podium-card {
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 20px 45px rgba(0,0,0,.3);
+    }
+    .podium-card.first {
+      min-height: 230px;
+      border-color: rgba(255,209,102,.5);
+    }
+    .podium-card.second { min-height: 190px; }
+    .podium-card.third { min-height: 165px; }
+    .podium-rank {
+      font-size: 38px;
+      font-weight: 900;
+    }
+    .podium-name {
+      font-size: 20px;
+      font-weight: 900;
+      margin-top: 8px;
+      word-break: break-word;
+    }
+    .podium-money {
+      color: var(--gold);
+      font-weight: 900;
+      margin-top: 8px;
+    }
+    @media (max-width: 700px) {
+      .podium { grid-template-columns: 1fr; }
+      .podium-card.first, .podium-card.second, .podium-card.third { min-height: auto; }
+    }
+    @media (max-width: 850px) {
+      .grid, .stats, .shop, .account-grid { grid-template-columns: 1fr; }
+      .big { font-size: 30px; }
+      .tab { font-size: 12px; padding: 8px 9px; }
+      main { padding: 14px; }
+      header { position: sticky; align-items: flex-start; }
+      nav { width: 100%; }
+      .game-buttons { overflow-x: auto; flex-wrap: nowrap; }
+    }
   </style>
 </head>
 <body>
-<header><h1>Alpha Club</h1><nav><button class="tab active" onclick="showPage('home',this)">Home</button><button class="tab" onclick="showPage('leaderboard',this)">Leaderboard</button><button class="tab" onclick="showPage('shop',this)">Shop</button><button class="tab" onclick="showPage('account',this)">Account</button><button class="tab" onclick="showPage('rebirth',this)">Rebirth</button><button class="tab" onclick="showPage('admin',this)">Admin</button></nav></header>
-<main>
-<section class="stats"><div class="stat"><b>Player</b><span id="playerName">Guest</span></div><div class="stat"><b>Balance</b><span id="balance">$100</span></div><div class="stat"><b>Bonus</b><span id="bonus">1.0x</span></div><div class="stat"><b>Rebirths</b><span id="rebirths">0</span></div></section>
-<section id="home" class="page"><div class="card"><div class="row" style="justify-content:space-between"><h2>Game Hub <span class="pill">Alpha Club</span></h2><button onclick="resetGameUI()">Refresh Game</button></div><div class="game-buttons" id="gameButtons"></div><div class="grid"><div class="card"><h2 id="gameTitle">Dice</h2><div id="gameArea"></div><div class="chip-row"><span class="pill">Chips</span><button class="chip" onclick="setChipBet(10)">$10</button><button class="chip" onclick="setChipBet(25)">$25</button><button class="chip" onclick="setChipBet(50)">$50</button><button class="chip" onclick="setChipBet(100)">$100</button><button class="chip" onclick="setChipBet(500)">$500</button><button class="chip" onclick="setChipBet(1000)">$1K</button><button class="sound-toggle" id="soundToggle" onclick="toggleSounds()">🔊 Sound On</button></div><div class="controls" style="justify-content:center"><label>Bet <input id="bet" type="number" min="1" value="25" onchange="highlightChip()"></label><select id="mode"><option>Easy</option><option selected>Normal</option><option>Hard</option></select><div class="controls" id="actionButtons" style="margin:0"></div></div><p class="message" id="message">Choose a game and start earning.</p></div><div class="card"><h2>How to Play</h2><p id="helpText">Pick a game to see controls.</p></div></div></div></section>
-<section id="leaderboard" class="page hidden"><div class="card"><h2>Leaderboard Podium</h2><button onclick="saveScore()">Refresh Leaderboard</button><div class="podium" id="podiumBoard"></div><h3>Top Players</h3><table><thead><tr><th>#</th><th>Player</th><th>Cash</th><th>Best Win</th></tr></thead><tbody id="leaderBody"></tbody></table></div></section>
-<section id="shop" class="page hidden"><div class="card"><h2>Shop</h2><p>Cosmetics and unlocks.</p><div class="shop" id="shopItems"></div></div></section>
-<section id="account" class="page hidden"><div class="account-grid"><div class="card"><h2 id="profileName">Guest</h2><p id="profileSub">Local browser save only.</p><p>Status: <b id="onlineStatus">Offline Save</b></p><p>Cash: <b id="profileCash">$100</b></p><p>Best Win: <b id="profileBest">$0</b></p><p>Rebirths: <b id="profileRebirths">0</b></p><p>Items: <b id="profileItems">0</b></p><button onclick="syncSaveNow()">Sync Save</button> <button onclick="logoutAccount()">Log Out</button></div><div class="card"><h2>Online Login</h2><div class="controls"><input id="loginUsername" placeholder="Username"><input id="loginPassword" type="password" placeholder="Password"><button class="primary" onclick="loginAccount()">Log In</button><button class="gold" onclick="createAccount()">Create Account</button></div><p class="message" id="accountMessage">Use username and password to save progress online.</p><hr><h3>Local Backup</h3><button onclick="exportSave()">Export Save</button> <button class="danger" onclick="hardReset()">Reset My Save</button><textarea id="saveBox" style="width:100%;height:90px;margin-top:10px"></textarea></div></div></section>
-<section id="rebirth" class="page hidden"><div class="card"><h2>Rebirth</h2><p>Rebirthing resets balance to $100 and gives permanent bonus.</p><p>Next Cost: <b id="rebirthCost">$100,000</b></p><p>After Rebirth: <b id="afterRebirth">1.1x</b></p><button class="primary" onclick="rebirth()">Rebirth</button></div></section>
-<section id="admin" class="page hidden"><div class="card"><h2>Admin Access</h2><p>Status: <b id="adminStatus">Locked</b></p><div class="controls"><input id="adminPass" type="password" placeholder="Admin passcode"><button class="primary" onclick="unlockAdmin()">Unlock</button><button onclick="lockAdmin()">Lock</button></div><div id="adminPanel" class="hidden"><h2>Admin Panel</h2><button onclick="adminAdd(500)">Add $500</button> <button onclick="adminAdd(10000)">Add $10,000</button> <button onclick="adminSet(10000)">Set $10,000</button> <button onclick="adminSet(100)">Reset Balance</button><input id="customAmount" type="number" placeholder="Custom Amount"><button onclick="adminAdd(Number(customAmount.value||0))">Add Custom</button><button onclick="adminSet(Number(customAmount.value||0))">Set Custom</button><hr><button class="danger" onclick="hardReset()">Wipe My Save</button></div></div></section>
-</main>
-<script type="module">
-import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";import{getFirestore,doc,getDoc,setDoc,updateDoc,serverTimestamp,collection,getDocs,query,orderBy,limit}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const firebaseConfig={apiKey:"AIzaSyCRNcuH4zAtMAlsVcs_cFBJGbGxYeNEfhA",authDomain:"alpha-club-5d7ab.firebaseapp.com",projectId:"alpha-club-5d7ab",storageBucket:"alpha-club-5d7ab.firebasestorage.app",messagingSenderId:"380018844483",appId:"1:380018844483:web:00bcfb72d329e9b4f385f6"};const app=initializeApp(firebaseConfig),db=getFirestore(app),firebaseReady=true;
-const OWNER_USERNAME="luklini10",ADMIN_PASSCODE="quintillion",STARTING_BALANCE=100,MAX_SINGLE_WIN=1000000,MAX_BALANCE=1000000000,LEADERBOARD_COLLECTION="leaderboard_v2";
-const games=["Snake","Mines","Slots","Hi-Lo","Dice","21","Hold'em Duel","Safe Cracker","Roll Battle","Perfect Stop","Cross Path","High Card","Crash","Roulette","Coin Flip","Treasure","Lucky Wheel","Blackjack Rush"];
-const shop=[{id:"goldName",name:"Gold Name",price:500,desc:"Makes your name gold."},{id:"vipBadge",name:"VIP Badge",price:1500,desc:"Adds a crown badge."},{id:"luckyCharm",name:"Lucky Charm",price:5000,desc:"+0.05x earning bonus."}];
-let state=JSON.parse(localStorage.getItem("anteSave")||"null")||{name:"Guest",balance:100,rebirths:0,bestWin:0,items:[],currentGame:"Dice",admin:false,onlineUser:null,sounds:true};let snakeTimer=null,snake=[],food={},dir={x:1,y:0},snakeRunning=false,snakeBet=25,minesBombs=new Set(),minesPicks=0,minesActive=false,minesBet=25,crashActive=false,crashMult=1,crashTimer=null,crashBet=25,stopTimer=null,stopPos=0,stopBet=25,crossRow=0,crossBet=25,safeCross=[],crossActive=false,rouletteBets=[],rouletteSpinAngle=0;
-const redNums=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);let audioCtx=null;function money(n){return"$"+Math.floor(n||0).toLocaleString()}function rand(n){return Math.floor(Math.random()*n)}function bonusMult(){return +(1+state.rebirths*.1+(state.items.includes("luckyCharm")?.05:0)).toFixed(2)}function cleanUsername(u){return u.trim().toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,20)}async function hashPassword(p){const d=new TextEncoder().encode(p),h=await crypto.subtle.digest("SHA-256",d);return[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,"0")).join("")}function onlineDoc(u=state.onlineUser){return doc(db,"players",u)}
-function playSound(t){if(state.sounds===false)return;try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();let o=audioCtx.createOscillator(),g=audioCtx.createGain(),now=audioCtx.currentTime,s={chip:[620,.06,.05],win:[880,.18,.08],lose:[160,.22,.07],spin:[320,.12,.035],cashout:[740,.16,.075],click:[420,.04,.04]}[t]||[440,.08,.04];o.connect(g);g.connect(audioCtx.destination);o.type=t==='lose'?'sawtooth':'sine';o.frequency.setValueAtTime(s[0],now);if(t==='win'||t==='cashout')o.frequency.exponentialRampToValueAtTime(s[0]*1.6,now+s[1]);if(t==='lose')o.frequency.exponentialRampToValueAtTime(80,now+s[1]);g.gain.setValueAtTime(s[2],now);g.gain.exponentialRampToValueAtTime(.001,now+s[1]);o.start(now);o.stop(now+s[1])}catch(e){}}
-async function save(sync=true){state.balance=Math.max(0,Math.min(Number(state.balance||100),MAX_BALANCE));state.bestWin=Math.max(0,Math.min(Number(state.bestWin||0),MAX_SINGLE_WIN));localStorage.setItem("anteSave",JSON.stringify(state));updateStats();if(sync&&state.onlineUser)await syncSaveNow(false)}function msg(t){message.textContent=t}function accountMsg(t){accountMessage.textContent=t}function getBet(){let b=Math.max(1,Math.floor(Number(bet.value||1)));if(state.balance<b){msg("Not enough money.");return null}return b}async function win(a){let p=Math.min(Math.floor(Math.max(0,Number(a||0))*bonusMult()),MAX_SINGLE_WIN);state.balance=Math.min(state.balance+p,MAX_BALANCE);state.bestWin=Math.max(state.bestWin,p);msg("You won "+money(p)+"!");playSound('win');await saveScore();await save()}async function lose(a){let l=Math.max(0,Math.min(Number(a||0),state.balance));state.balance-=l;msg("You lost "+money(l)+".");playSound('lose');await save()}
-function updateStats(){playerName.textContent=state.name+(state.items.includes("vipBadge")?" 👑":"");playerName.style.color=state.items.includes("goldName")?"var(--gold)":"var(--text)";balance.textContent=money(state.balance);bonus.textContent=bonusMult().toFixed(1)+"x";rebirths.textContent=state.rebirths;rebirthCost.textContent=money(rebirthCostValue());afterRebirth.textContent=(1+(state.rebirths+1)*.1).toFixed(1)+"x";adminStatus.textContent=state.admin?"Unlocked":"Locked";adminPanel.classList.toggle("hidden",!state.admin);profileName.textContent=state.name;profileSub.textContent=state.onlineUser?`Logged in as @${state.onlineUser}`:"Local browser save only.";onlineStatus.textContent=state.onlineUser?"Online Account":"Offline Save";profileCash.textContent=money(state.balance);profileBest.textContent=money(state.bestWin);profileRebirths.textContent=state.rebirths;profileItems.textContent=state.items.length;if(window.soundToggle){soundToggle.textContent=state.sounds===false?'🔇 Sound Off':'🔊 Sound On';soundToggle.classList.toggle('active',state.sounds!==false)}highlightChip()}
-function setChipBet(a){bet.value=a;highlightChip();playSound('chip')}function highlightChip(){document.querySelectorAll('.chip').forEach(c=>{c.classList.remove('active');let v=Number(c.textContent.replace('$','').replace('K','000'));if(v===Number(bet.value))c.classList.add('active')})}async function toggleSounds(){state.sounds=state.sounds===false;soundToggle.textContent=state.sounds?'🔊 Sound On':'🔇 Sound Off';soundToggle.classList.toggle('active',state.sounds);await save(false);playSound('click')}
-function showPage(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');if(id==='leaderboard')renderLeaderboard();if(id==='shop')renderShop();updateStats()}
-function renderGameButtons(){gameButtons.innerHTML=games.map(g=>`<button class="game-btn ${g===state.currentGame?'active':''}" onclick="selectGame('${g}')">${g==="Hold'em Duel"?"♣️ Hold'em Duel":g}</button>`).join('')}async function selectGame(g){state.currentGame=g;await save();renderGameButtons();renderGame()}function setActions(html,help){actionButtons.innerHTML=html;helpText.textContent=help}function resetGameUI(){renderGame();msg('Game refreshed.')}function clearTimers(){clearInterval(snakeTimer);clearInterval(crashTimer);clearInterval(stopTimer)}
-function renderGame(){clearTimers();gameTitle.textContent=state.currentGame;let g=state.currentGame;if(g==='Dice')return diceUI();if(g==='Slots')return slotsUI();if(g==='Hi-Lo')return hiloUI();if(g==='High Card')return highCardUI();if(g==='21')return twentyOneUI();if(g==='Roulette')return rouletteUI();if(g==='Mines')return minesUI();if(g==='Snake')return snakeUI();if(g==='Crash')return crashUI();if(g==='Safe Cracker')return safeUI();if(g==='Roll Battle')return rollBattleUI();if(g==='Perfect Stop')return perfectStopUI();if(g==='Cross Path')return crossPathUI();if(g==="Hold'em Duel")return holdemUI();if(g==='Coin Flip')return coinFlipUI();if(g==='Treasure')return treasureUI();if(g==='Lucky Wheel')return luckyWheelUI();if(g==='Blackjack Rush')return blackjackRushUI()}
-function diceUI(){gameArea.innerHTML=`<div class="big" id="diceFace">-</div><p>Choose under 4 or over 3. Payout 2x.</p>`;setActions(`<button onclick="rollDice('under')">Under</button><button onclick="rollDice('over')">Over</button>`,`Bet Amount → choose Under or Over.`)}async function rollDice(c){let b=getBet();if(!b)return;playSound('spin');diceFace.className='big spin-anim';setTimeout(async()=>{let r=rand(6)+1;diceFace.textContent=r;diceFace.className='big pop-anim';(c==='under'?r<4:r>3)?await win(b*2):await lose(b)},350)}
-function slotsUI(){gameArea.innerHTML=`<div class="big" id="slots">🍒 🍋 🔔</div><p>Three matching pays 5x, two matching pays 2x.</p>`;setActions(`<button onclick="spinSlots()">Start Slots</button>`,`Bet Amount → spin.`)}async function spinSlots(){let b=getBet();if(!b)return;playSound('spin');let s=['🍒','🍋','🔔','💎','7️⃣'],ticks=0;slots.className='big pulse-anim';let int=setInterval(()=>{slots.textContent=[s[rand(s.length)],s[rand(s.length)],s[rand(s.length)]].join(' ');if(++ticks>10){clearInterval(int);let a=[s[rand(s.length)],s[rand(s.length)],s[rand(s.length)]];slots.textContent=a.join(' ');slots.className='big pop-anim';let u=new Set(a).size;u===1?win(b*5):u===2?win(b*2):lose(b)}},80)}
-let hiloCard=7;function hiloUI(){hiloCard=rand(13)+1;gameArea.innerHTML=`<div class="big" id="hiloFace">${hiloCard}</div><p>Guess next card higher or lower.</p>`;setActions(`<button onclick="hilo('high')">Higher ▲</button><button onclick="hilo('low')">Lower ▼</button>`,`Bet Amount → guess.`)}async function hilo(c){let b=getBet();if(!b)return;let n=rand(13)+1;hiloFace.textContent=hiloCard+' → '+n;hiloFace.className='big pop-anim';(c==='high'?n>hiloCard:n<hiloCard)?await win(b*2):await lose(b);hiloCard=n}
-function highCardUI(){gameArea.innerHTML=`<div class="big" id="cards">? vs ?</div><p>Higher card wins.</p>`;setActions(`<button onclick="highCard()">Play High Card</button>`,`Bet Amount → draw.`)}async function highCard(){let b=getBet();if(!b)return;let y=rand(13)+1,d=rand(13)+1;cards.textContent=`You ${y} vs Dealer ${d}`;cards.className='big pop-anim';y>d?await win(b*2):y===d?msg('Tie. No money lost.'):await lose(b)}
-function twentyOneUI(){gameArea.innerHTML=`<div class="big" id="twenty">0 vs 0</div><p>Get closer to 21.</p>`;setActions(`<button onclick="play21()">Start 21</button>`,`Bet Amount → play.`)}async function play21(){let b=getBet();if(!b)return;let y=rand(10)+12,d=rand(10)+12;twenty.textContent=`You ${y} vs Dealer ${d}`;twenty.className='big pop-anim';(y<=21&&(d>21||y>d))?await win(b*2):y===d?msg('Push. No money lost.'):await lose(b)}
-function rouletteUI(){rouletteBets=[];gameArea.innerHTML=`<div class="roulette-layout"><div class="roulette-wheel-wrap"><div class="roulette-pointer"></div><div class="roulette-wheel" id="rouletteWheel"><div class="roulette-ball" id="rouletteBall"></div></div><div class="big" id="rouletteResult">Place Bets</div><p class="roulette-bets-list" id="rouletteBetsList">No bets selected.</p></div><div><h3>Number Board</h3><div class="roulette-board" id="rouletteBoard"></div><div class="roulette-options"><button class="roulette-bet-option" onclick="toggleRouletteBet('red','Red',2)">Red 2x</button><button class="roulette-bet-option" onclick="toggleRouletteBet('black','Black',2)">Black 2x</button><button class="roulette-bet-option" onclick="toggleRouletteBet('even','Even',2)">Even 2x</button><button class="roulette-bet-option" onclick="toggleRouletteBet('odd','Odd',2)">Odd 2x</button><button class="roulette-bet-option" onclick="toggleRouletteBet('low','1-18',2)">1-18 2x</button><button class="roulette-bet-option" onclick="toggleRouletteBet('high','19-36',2)">19-36 2x</button><button class="roulette-bet-option" onclick="toggleRouletteBet('dozen1','1st 12',3)">1st 12 3x</button><button class="roulette-bet-option" onclick="toggleRouletteBet('dozen2','2nd 12',3)">2nd 12 3x</button><button class="roulette-bet-option" onclick="toggleRouletteBet('dozen3','3rd 12',3)">3rd 12 3x</button><button class="roulette-bet-option" onclick="toggleRouletteBet('row0','Top Row',3)">Top Row 3x</button><button class="roulette-bet-option" onclick="toggleRouletteBet('row1','Middle Row',3)">Middle Row 3x</button><button class="roulette-bet-option" onclick="toggleRouletteBet('row2','Bottom Row',3)">Bottom Row 3x</button></div></div></div>`;drawRouletteBoard();setActions(`<button onclick="clearRouletteBets()">Clear Bets</button><button class="cashout" onclick="finaliseRouletteBets()">Finalise Bets</button>`,`Choose bets, then finalise.`)}
-function drawRouletteBoard(){rouletteBoard.innerHTML=`<button class="roulette-num green-num" onclick="toggleRouletteBet('num0','0',36)">0</button>`;for(let c=0;c<12;c++)for(let r=0;r<3;r++){let n=c*3+(3-r),col=redNums.has(n)?'red-num':'black-num';rouletteBoard.innerHTML+=`<button class="roulette-num ${col}" onclick="toggleRouletteBet('num${n}','${n}',36)">${n}</button>`}}function toggleRouletteBet(type,label,payout){let i=rouletteBets.findIndex(b=>b.type===type);i>=0?rouletteBets.splice(i,1):rouletteBets.push({type,label,payout});updateRouletteBetUI()}function clearRouletteBets(){rouletteBets=[];updateRouletteBetUI();rouletteResult.textContent='Bets Cleared'}function updateRouletteBetUI(){document.querySelectorAll('.roulette-num,.roulette-bet-option').forEach(b=>b.classList.remove('selected'));rouletteBets.forEach(b=>document.querySelectorAll(`[onclick*="'${b.type}'"]`).forEach(x=>x.classList.add('selected')));rouletteBetsList.textContent=rouletteBets.length?'Selected: '+rouletteBets.map(b=>b.label).join(', '):'No bets selected.'}function rouletteBetWins(b,n){if(b.type.startsWith('num'))return Number(b.type.replace('num',''))===n;if(n===0)return false;if(b.type==='red')return redNums.has(n);if(b.type==='black')return !redNums.has(n);if(b.type==='even')return n%2===0;if(b.type==='odd')return n%2===1;if(b.type==='low')return n>=1&&n<=18;if(b.type==='high')return n>=19;if(b.type==='dozen1')return n<=12;if(b.type==='dozen2')return n>=13&&n<=24;if(b.type==='dozen3')return n>=25;if(b.type==='row0')return n%3===0;if(b.type==='row1')return n%3===2;if(b.type==='row2')return n%3===1;return false}async function finaliseRouletteBets(){if(!rouletteBets.length)return msg('Select at least one roulette bet first.');let b=getBet();if(!b)return;let cost=b*rouletteBets.length;if(state.balance<cost)return msg(`You need ${money(cost)} for ${rouletteBets.length} bets.`);state.balance-=cost;await save();rouletteResult.textContent='Spinning...';playSound('spin');rouletteResult.className='big pulse-anim';let result=rand(37),slot=result*(360/37);rouletteSpinAngle+=1440+slot+rand(20);rouletteWheel.style.transform=`rotate(${rouletteSpinAngle}deg)`;rouletteBall.style.animation='spin 1s linear infinite';setTimeout(async()=>{rouletteBall.style.animation='';let colour=result===0?'Green':redNums.has(result)?'Red':'Black';rouletteResult.textContent=`${result} ${colour}`;rouletteResult.className='big pop-anim';let wins=rouletteBets.filter(x=>rouletteBetWins(x,result));if(wins.length){let total=0;wins.forEach(x=>total+=b*x.payout);await win(total)}else{msg(`Roulette landed on ${result}. No winning bets.`);await save()}rouletteBets=[];updateRouletteBetUI()},3500)}
-function minesUI(){minesPicks=0;minesActive=false;gameArea.innerHTML=`<p>Pick safe tiles and cash out.</p><div class="mines-board" id="minesBoard"></div><p id="minesInfo">Multiplier 1.00x | Safe Picks 0</p>`;setActions(`<button onclick="startMines()">Start Mines</button><button class="cashout" onclick="cashMines()">Cash Out</button>`,`Start, pick tiles, cash out.`);drawMines(false)}async function startMines(){let b=getBet();if(!b)return;minesBet=b;state.balance-=b;minesActive=true;minesPicks=0;minesBombs=new Set();let bombs=mode.value==='Easy'?1:mode.value==='Hard'?3:2;while(minesBombs.size<bombs)minesBombs.add(rand(25));await save();drawMines(false)}function drawMines(reveal){minesBoard.innerHTML='';for(let i=0;i<25;i++){let d=document.createElement('div');d.className='cell';d.onclick=()=>pickMine(i,d);d.textContent=reveal&&minesBombs.has(i)?'💣':'';minesBoard.appendChild(d)}}async function pickMine(i,d){if(!minesActive)return;if(minesBombs.has(i)){d.classList.add('bad');minesActive=false;drawMines(true);msg('Boom! Bet lost.');await save();return}d.classList.add('good');d.onclick=null;minesPicks++;minesInfo.textContent=`Multiplier ${(1+minesPicks*.35).toFixed(2)}x | Safe Picks ${minesPicks}`}async function cashMines(){if(!minesActive)return;minesActive=false;playSound('cashout');await win(minesBet*(1+minesPicks*.35));drawMines(true)}
-function safeUI(){gameArea.innerHTML=`<div class="big" id="safeResult">🔐</div><p>Pick the safe code.</p>`;setActions(`<button onclick="safePick(1)">1</button><button onclick="safePick(2)">2</button><button onclick="safePick(3)">3</button><button onclick="safePick(4)">4</button><button onclick="safePick(5)">5</button><button onclick="safePick(6)">6</button>`,`Choose a number.`)}async function safePick(n){let b=getBet();if(!b)return;let max=mode.value==='Easy'?6:mode.value==='Hard'?3:4,code=rand(max)+1;safeResult.textContent=`Code ${code}`;n===code?await win(b*max):await lose(b)}
-function rollBattleUI(){gameArea.innerHTML=`<div class="big" id="battle">-- vs --</div><p>Beat the bot roll.</p>`;setActions(`<button onclick="rollBattle()">Spin</button>`,`Roll against bot.`)}async function rollBattle(){let b=getBet();if(!b)return;let y=rand(100)+1,bot=rand(100)+1;battle.textContent=`You ${y} vs Bot ${bot}`;battle.className='big pop-anim';y>bot?await win(b*2):y===bot?msg('Tie.'):await lose(b)}
-function perfectStopUI(){stopPos=0;gameArea.innerHTML=`<div class="big" id="stopFace">0%</div><p>Stop between 45% and 55% for 4x.</p>`;setActions(`<button onclick="startStop()">Start Perfect Stop</button><button class="cashout" onclick="stopNow()">Stop</button>`,`Start and stop inside green zone.`)}async function startStop(){let b=getBet();if(!b)return;stopBet=b;state.balance-=b;await save();clearInterval(stopTimer);stopTimer=setInterval(()=>{stopPos=(stopPos+3)%101;stopFace.textContent=stopPos+'%'},50)}async function stopNow(){clearInterval(stopTimer);if(stopPos>=45&&stopPos<=55)await win(stopBet*4);else{msg('Missed! Bet lost.');await save()}}
-function crossPathUI(){crossRow=0;gameArea.innerHTML=`<p>Easy/Normal has 2 safe tiles. Hard has 1.</p><div class="cross-board" id="crossBoard"></div><p id="crossInfo">Round 0 | Multiplier 1.00x</p>`;setActions(`<button onclick="startCross()">Start Cross Path</button><button class="cashout" onclick="cashCross()">Cash Out</button>`,`Click a safe path.`);drawCross()}function drawCross(){crossBoard.innerHTML='';for(let i=0;i<3;i++){let d=document.createElement('div');d.className='cell';d.textContent='?';d.onclick=()=>pickCross(i,d);crossBoard.appendChild(d)}}async function startCross(){let b=getBet();if(!b)return;crossBet=b;state.balance-=b;crossRow=0;crossActive=true;safeCross=[rand(3)];if(mode.value!=='Hard'){let e;do{e=rand(3)}while(e===safeCross[0]);safeCross.push(e)}await save();drawCross()}async function pickCross(i,d){if(!crossActive)return;if(safeCross.includes(i)){d.classList.add('good','pop-anim');crossRow++;crossInfo.textContent=`Round ${crossRow} | Multiplier ${(1+crossRow*.45).toFixed(2)}x`;if(crossRow>=5){crossActive=false;await win(crossBet*3.25)}else{safeCross=[rand(3)];if(mode.value!=='Hard'){let e;do{e=rand(3)}while(e===safeCross[0]);safeCross.push(e)}setTimeout(drawCross,350)}}else{d.classList.add('bad','shake-anim');crossActive=false;msg('You fell! Bet lost.');await save()}}async function cashCross(){if(!crossActive)return;crossActive=false;playSound('cashout');await win(crossBet*(1+crossRow*.45))}
-function crashUI(){crashActive=false;crashMult=1;gameArea.innerHTML=`<div class="big" id="crashFace">1.00x</div><p>Cash out before crash.</p>`;setActions(`<button onclick="startCrash()">Start Crash</button><button class="cashout" onclick="cashCrash()">Cash Out</button>`,`Start and cash out.`)}async function startCrash(){let b=getBet();if(!b)return;crashBet=b;state.balance-=b;await save();crashActive=true;crashMult=1;let crashAt=1+Math.random()*4;clearInterval(crashTimer);crashTimer=setInterval(async()=>{crashMult+=.05;crashFace.textContent=crashMult.toFixed(2)+'x';if(crashMult>=crashAt){clearInterval(crashTimer);crashActive=false;msg('Crashed. Bet lost.');await save()}},120)}async function cashCrash(){if(!crashActive)return;clearInterval(crashTimer);crashActive=false;playSound('cashout');await win(crashBet*crashMult)}
-function snakeUI(){gameArea.innerHTML=`<p>Use WASD/Arrows. Eat apples and cash out.</p><div class="snake-board" id="snakeBoard"></div><p id="snakeInfo">Apples 0 | Potential $0</p>`;setActions(`<button onclick="startSnake()">Start Run</button><button class="cashout" onclick="cashSnake()">Cash Out</button>`,`Move snake and cash out.`);drawSnake()}async function startSnake(){let b=getBet();if(!b)return;snakeBet=b;state.balance-=b;await save();snake=[{x:5,y:5}];dir={x:1,y:0};food={x:rand(10),y:rand(10)};snakeRunning=true;clearInterval(snakeTimer);snakeTimer=setInterval(stepSnake,180)}function drawSnake(){snakeBoard.innerHTML='';for(let y=0;y<10;y++)for(let x=0;x<10;x++){let d=document.createElement('div');d.className='cell';if(snake.some(s=>s.x===x&&s.y===y))d.classList.add('player');if(food.x===x&&food.y===y)d.classList.add('food');snakeBoard.appendChild(d)}}async function stepSnake(){if(!snakeRunning)return;let h={x:(snake[0].x+dir.x+10)%10,y:(snake[0].y+dir.y+10)%10};if(snake.some(s=>s.x===h.x&&s.y===h.y)){clearInterval(snakeTimer);snakeRunning=false;msg('Snake crashed. Bet lost.');await save();return}snake.unshift(h);if(h.x===food.x&&h.y===food.y){food={x:rand(10),y:rand(10)};snakeInfo.textContent=`Apples ${snake.length-1} | Potential ${money(snakeBet*(1+(snake.length-1)*.4))}`}else snake.pop();drawSnake()}async function cashSnake(){if(!snakeRunning)return;clearInterval(snakeTimer);snakeRunning=false;playSound('cashout');await win(snakeBet*(1+(snake.length-1)*.4))}document.addEventListener('keydown',e=>{let k=e.key.toLowerCase();if(k==='arrowup'||k==='w')dir={x:0,y:-1};if(k==='arrowdown'||k==='s')dir={x:0,y:1};if(k==='arrowleft'||k==='a')dir={x:-1,y:0};if(k==='arrowright'||k==='d')dir={x:1,y:0}})
-function holdemUI(){gameArea.innerHTML=`<div class="big" id="holdem">🂠 🂠</div><p>Simplified Hold'em Duel.</p>`;setActions(`<button onclick="playHoldem()">Deal Hold'em</button>`,`Deal hand.`)}async function playHoldem(){let b=getBet();if(!b)return;let y=rand(100)+1,d=rand(100)+1;holdem.textContent=`You ${y} vs Dealer ${d}`;y>d?await win(b*2):y===d?msg('Split pot.'):await lose(b)}function coinFlipUI(){gameArea.innerHTML=`<div class="big" id="coinFace">🪙</div><p>Pick heads or tails.</p>`;setActions(`<button onclick="coinFlip('Heads')">Heads</button><button onclick="coinFlip('Tails')">Tails</button>`,`Choose side.`)}async function coinFlip(c){let b=getBet();if(!b)return;playSound('spin');coinFace.className='big spin-anim';setTimeout(async()=>{let r=rand(2)?'Heads':'Tails';coinFace.textContent=r==='Heads'?'🟡 Heads':'🔴 Tails';coinFace.className='big pop-anim';r===c?await win(b*2):await lose(b)},600)}function treasureUI(){gameArea.innerHTML=`<div class="big" id="treasureFace">🧰</div><p>Open a chest.</p>`;setActions(`<button onclick="openTreasure()">Open Treasure</button>`,`Open chest.`)}async function openTreasure(){let b=getBet();if(!b)return;let r=rand(100);if(r<55){treasureFace.textContent='💰';await win(b*1.5)}else if(r<85){treasureFace.textContent='💎';await win(b*2.5)}else if(r<95){treasureFace.textContent='👑';await win(b*5)}else{treasureFace.textContent='🪨';await lose(b)}}function luckyWheelUI(){gameArea.innerHTML=`<div class="big" id="wheelFace">🎡</div><p>Spin for multiplier.</p>`;setActions(`<button onclick="spinWheel()">Spin Wheel</button>`,`Spin.`)}async function spinWheel(){let b=getBet();if(!b)return;playSound('spin');wheelFace.className='big spin-anim';setTimeout(async()=>{let m=[0,.5,1.2,1.5,2,3,5][rand(7)];wheelFace.textContent=m===0?'Bust':m+'x';wheelFace.className='big pop-anim';m>0?await win(b*m):await lose(b)},800)}function blackjackRushUI(){gameArea.innerHTML=`<div class="big" id="rushFace">🃏</div><p>Fast blackjack-style round.</p>`;setActions(`<button onclick="playBlackjackRush()">Play Rush</button>`,`Instant round.`)}async function playBlackjackRush(){let b=getBet();if(!b)return;let y=rand(11)+11,d=rand(11)+11;rushFace.textContent=`${y} vs ${d}`;if(y===21)await win(b*3);else if(y>=20&&y>d)await win(b*2.5);else if(y>d||d>21)await win(b*2);else if(y===d)msg('Push.');else await lose(b)}
-async function createAccount(){let u=cleanUsername(loginUsername.value),p=loginPassword.value;if(u.length<3)return accountMsg('Username must be at least 3 characters.');if(p.length<4)return accountMsg('Password must be at least 4 characters.');let ref=onlineDoc(u),ex=await getDoc(ref);if(ex.exists())return accountMsg('That username is taken.');state.name=u;state.onlineUser=u;await setDoc(ref,{...state,passwordHash:await hashPassword(p),updatedAt:serverTimestamp()});await save(false);accountMsg('Account created.')}async function loginAccount(){let u=cleanUsername(loginUsername.value),p=loginPassword.value,ref=onlineDoc(u),snap=await getDoc(ref);if(!snap.exists())return accountMsg('No account found.');let data=snap.data();if(data.passwordHash!==await hashPassword(p))return accountMsg('Wrong password.');state={name:data.name||u,balance:Number(data.balance??100),rebirths:Number(data.rebirths??0),bestWin:Number(data.bestWin??0),items:Array.isArray(data.items)?data.items:[],currentGame:data.currentGame||'Dice',admin:false,onlineUser:u,sounds:data.sounds??true};await save(false);renderGameButtons();renderGame();renderShop();accountMsg('Logged in.')}async function syncSaveNow(show=true){if(!state.onlineUser)return accountMsg('Log in first.');await updateDoc(onlineDoc(),{name:state.name,balance:state.balance,rebirths:state.rebirths,bestWin:state.bestWin,items:state.items,currentGame:state.currentGame,sounds:state.sounds,isOwner:state.onlineUser===OWNER_USERNAME,updatedAt:serverTimestamp()});if(show)accountMsg('Save synced.')}async function logoutAccount(){state.onlineUser=null;await save(false);accountMsg('Logged out.')}
-async function saveScore(){let score={name:state.name,username:state.onlineUser||'offline',balance:state.balance,bestWin:state.bestWin,rebirths:state.rebirths,updatedAt:serverTimestamp()};if(state.onlineUser)await setDoc(doc(db,LEADERBOARD_COLLECTION,state.onlineUser),score,{merge:true});let scores=JSON.parse(localStorage.getItem('anteScores')||'[]');scores.push({...score,updatedAt:Date.now()});scores.sort((a,b)=>b.balance-a.balance);localStorage.setItem('anteScores',JSON.stringify(scores.slice(0,10)));renderLeaderboard()}async function renderLeaderboard(){try{let q=query(collection(db,LEADERBOARD_COLLECTION),orderBy('balance','desc'),limit(10)),snap=await getDocs(q),scores=snap.docs.map(d=>d.data());renderPodium(scores);leaderBody.innerHTML=scores.map((s,i)=>`<tr><td>${i+1}</td><td>${s.name||s.username}</td><td>${money(s.balance)}</td><td>${money(s.bestWin)}</td></tr>`).join('')||`<tr><td colspan="4">No online scores yet.</td></tr>`}catch(e){let scores=JSON.parse(localStorage.getItem('anteScores')||'[]');renderPodium(scores);leaderBody.innerHTML=scores.map((s,i)=>`<tr><td>${i+1}</td><td>${s.name}</td><td>${money(s.balance)}</td><td>${money(s.bestWin)}</td></tr>`).join('')||`<tr><td colspan="4">No scores yet.</td></tr>`}}function renderPodium(scores){let top=[scores[1],scores[0],scores[2]],labels=['🥈','🥇','🥉'],classes=['second','first','third'];podiumBoard.innerHTML=top.map((s,i)=>s?`<div class="podium-card ${classes[i]}"><div class="podium-rank">${labels[i]}</div><h3>${s.name||s.username}</h3><div class="podium-money">${money(s.balance)}</div><p>Best win: ${money(s.bestWin)}</p></div>`:`<div class="podium-card ${classes[i]}"><div class="podium-rank">${labels[i]}</div><h3>Empty</h3><div class="podium-money">No score yet</div></div>`).join('')}
-function renderShop(){shopItems.innerHTML=shop.map(i=>`<div class="card"><h3>${i.name}</h3><p>${i.desc}</p><p><b>${money(i.price)}</b></p><button onclick="buyItem('${i.id}')">${state.items.includes(i.id)?'Owned':'Buy'}</button></div>`).join('')}async function buyItem(id){let i=shop.find(x=>x.id===id);if(state.items.includes(id))return msg('Already owned.');if(state.balance<i.price)return msg('Not enough money.');state.balance-=i.price;state.items.push(id);msg('Bought '+i.name);await save();renderShop()}function rebirthCostValue(){return 100000*Math.pow(2,state.rebirths)}async function rebirth(){let c=rebirthCostValue();if(state.balance<c)return msg('Need '+money(c));state.balance=100;state.rebirths++;msg('Rebirth complete.');await save()}async function unlockAdmin(){if(!state.onlineUser)return msg('Log in first.');if(state.onlineUser!==OWNER_USERNAME)return msg('Admin is owner only.');if(adminPass.value===ADMIN_PASSCODE){state.admin=true;await save(false);msg('Admin unlocked.')}else msg('Wrong passcode.')}async function lockAdmin(){state.admin=false;await save(false)}async function adminAdd(n){if(!state.admin||state.onlineUser!==OWNER_USERNAME)return msg('Owner admin only.');let safe=Math.max(0,Math.min(Number(n||0),MAX_SINGLE_WIN));state.balance=Math.min(state.balance+safe,MAX_BALANCE);await save();msg('Admin added '+money(safe))}async function adminSet(n){if(!state.admin||state.onlineUser!==OWNER_USERNAME)return msg('Owner admin only.');state.balance=Math.max(0,Math.min(Number(n||0),MAX_BALANCE));await save();msg('Admin set balance.')}function exportSave(){saveBox.value=JSON.stringify(state,null,2)}function hardReset(){if(confirm('Reset this browser save?')){localStorage.removeItem('anteSave');location.reload()}}
-Object.assign(window,{showPage,selectGame,resetGameUI,setChipBet,toggleSounds,highlightChip,rollDice,spinSlots,hilo,highCard,play21,toggleRouletteBet,clearRouletteBets,finaliseRouletteBets,startMines,cashMines,safePick,rollBattle,startStop,stopNow,startCross,cashCross,startCrash,cashCrash,startSnake,cashSnake,playHoldem,coinFlip,openTreasure,spinWheel,playBlackjackRush,createAccount,loginAccount,syncSaveNow,logoutAccount,saveScore,buyItem,rebirth,unlockAdmin,lockAdmin,adminAdd,adminSet,exportSave,hardReset});renderGameButtons();renderGame();renderShop();renderLeaderboard();updateStats();
-</scrip
+  <header>
+    <h1>Alpha Club</h1>
+    <nav>
+      <button class="tab active" onclick="showPage('home', this)">Home</button>
+      <button class="tab" onclick="showPage('leaderboard', this)">Leaderboard</button>
+      <button class="tab" onclick="showPage('shop', this)">Shop</button>
+      <button class="tab" onclick="showPage('account', this)">Account</button>
+      <button class="tab" onclick="showPage('rebirth', this)">Rebirth</button>
+      <button class="tab" onclick="showPage('admin', this)">Admin</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="stats">
+      <div class="stat"><b>Player</b><span id="playerName">Guest</span></div>
+      <div class="stat"><b>Balance</b><span id="balance">$100</span></div>
+      <div class="stat"><b>Bonus</b><span id="bonus">1.0x</span></div>
+      <div class="stat"><b>Rebirths</b><span id="rebirths">0</span></div>
+    </section>
+
+    <section id="home" class="page">
+      <div class="card" id="gameShell">
+        <div class="row hub-title" style="justify-content:space-between">
+          <h2>Game Hub <span class="pill">v1.1 Online Accounts</span></h2>
+          <button onclick="resetGameUI()">Refresh Game</button>
+        </div>
+        <div class="game-buttons" id="gameButtons"></div>
+        <div class="grid">
+          <div class="card">
+            <h2 id="gameTitle">Dice</h2>
+            <div id="gameArea"></div>
+            <div class="controls" style="justify-content:center">
+              <label>Bet <input id="bet" type="number" min="1" value="25" /></label>
+              <select id="mode">
+                <option>Easy</option>
+                <option selected>Normal</option>
+                <option>Hard</option>
+              </select>
+              <div class="controls" id="actionButtons" style="margin:0"></div>
+            </div>
+            <p class="message" id="message">Choose a game and start earning.</p>
+          </div>
+          <div class="card">
+            <h2>How to Play</h2>
+            <p id="helpText">Pick a game to see controls.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="leaderboard" class="page hidden">
+      <div class="card">
+        <h2>Leaderboard Podium</h2>
+        <button onclick="saveScore()">Refresh Leaderboard</button>
+        <div class="podium" id="podiumBoard"></div>
+        <h3>Top Players</h3>
+        <table><thead><tr><th>#</th><th>Player</th><th>Cash</th><th>Best Win</th></tr></thead><tbody id="leaderBody"></tbody></table>
+      </div>
+    </section>
+
+    <section id="shop" class="page hidden">
+      <div class="card">
+        <h2>Shop</h2>
+        <p>Cosmetics and unlocks. If Firebase is connected, items sync to your account.</p>
+        <div class="shop" id="shopItems"></div>
+      </div>
+    </section>
+
+    <section id="account" class="page hidden">
+      <div class="account-grid">
+        <div class="card profile-card">
+          <div class="profile-banner"></div>
+          <div class="profile-body">
+            <div class="row" style="justify-content:space-between;align-items:flex-end">
+              <div class="avatar" id="avatarLetter">G</div>
+              <span id="onlineStatus" class="account-status offline">Offline Save</span>
+            </div>
+            <h2 id="profileName">Guest</h2>
+            <p id="profileSub" style="color:var(--muted)">Local browser save only.</p>
+            <div class="mini-stats">
+              <div class="mini-stat"><b>Balance</b><span id="profileCash">$100</span></div>
+              <div class="mini-stat"><b>Best Win</b><span id="profileBest">$0</span></div>
+              <div class="mini-stat"><b>Rebirths</b><span id="profileRebirths">0</span></div>
+              <div class="mini-stat"><b>Items</b><span id="profileItems">0</span></div>
+            </div>
+            <div class="controls">
+              <button onclick="syncSaveNow()">Sync Save</button>
+              <button onclick="logoutAccount()">Log Out</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Online Login</h2>
+          
+          <div class="auth-form">
+            <input id="loginUsername" placeholder="Username" autocomplete="username" />
+            <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" />
+            <div class="controls">
+              <button class="primary" onclick="loginAccount()">Log In</button>
+              <button class="gold" onclick="createAccount()">Create Account</button>
+            </div>
+          </div>
+          <p class="message" id="accountMessage">Use a username and password to save progress online.</p>
+          <hr style="border-color:var(--border)">
+          <h3>Local Backup</h3>
+          <div class="controls">
+            <button onclick="exportSave()">Export Save</button>
+            <button class="danger" onclick="hardReset()">Reset My Save</button>
+          </div>
+          <textarea id="saveBox" style="width:100%;height:100px;border-radius:14px;background:#06101d;color:white;padding:10px" placeholder="Exported save appears here"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section id="rebirth" class="page hidden">
+      <div class="card">
+        <h2>Rebirth</h2>
+        <p>Rebirthing resets balance to $100 and gives a permanent earning bonus.</p>
+        <p>Next Cost: <b id="rebirthCost">$100,000</b></p>
+        <p>After Rebirth: <b id="afterRebirth">1.1x</b></p>
+        <button class="primary" onclick="rebirth()">Rebirth</button>
+      </div>
+    </section>
+
+    <section id="admin" class="page hidden">
+      <div class="card">
+        <h2>Admin Access</h2>
+        <p>Status: <b id="adminStatus">Locked</b></p>
+        <div class="controls">
+          <input id="adminPass" type="password" placeholder="Admin passcode" />
+          <button class="primary" onclick="unlockAdmin()">Unlock</button>
+          <button onclick="lockAdmin()">Lock</button>
+        </div>
+        <div id="adminPanel" class="hidden">
+          <h2>Admin Panel</h2>
+          <div class="controls">
+            <button onclick="adminAdd(500)">Add $500</button>
+            <button onclick="adminAdd(10000)">Add $10,000</button>
+            <button onclick="adminSet(10000)">Set $10,000</button>
+            <button onclick="adminSet(100)">Reset Balance</button>
+            <input id="customAmount" type="number" placeholder="Custom Amount" />
+            <button onclick="adminAdd(Number(customAmount.value || 0))">Add Custom</button>
+            <button onclick="adminSet(Number(customAmount.value || 0))">Set Custom</button>
+          </div>
+          <hr style="border-color:var(--border)">
+          <button class="danger" onclick="hardReset()">Wipe My Save</button>
+          <p><b>Important:</b> Front-end admin passcodes are not fully secure. Use Firebase security rules for proper admin accounts.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // STEP 1: Create a Firebase project.
+    // STEP 2: Enable Firestore Database.
+    // STEP 3: Paste your Firebase web app config here.
+    // Until you do that, the game still works locally but not across devices.
+    const firebaseConfig = {
+      apiKey: "AIzaSyCRNcuH4zAtMAlsVcs_cFBJGbGxYeNEfhA",
+      authDomain: "alpha-club-5d7ab.firebaseapp.com",
+      projectId: "alpha-club-5d7ab",
+      storageBucket: "alpha-club-5d7ab.firebasestorage.app",
+      messagingSenderId: "380018844483",
+      appId: "1:380018844483:web:00bcfb72d329e9b4f385f6"
+    };
+
+    const firebaseReady = !firebaseConfig.apiKey.includes("PASTE");
+    let db = null;
+    if (firebaseReady) {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+    }
+
+    // Owner/admin settings.
+    // Only this online username can use the admin panel.
+    const OWNER_USERNAME = "luklini10";
+    const ADMIN_PASSCODE = "quintillion";
+
+    const STARTING_BALANCE = 100;
+    const MAX_SINGLE_WIN = 1000000;
+    const MAX_BALANCE = 1000000000;
+    // New collection name = fresh wiped leaderboard.
+    // Each username writes to one document, so users can only have one leaderboard entry.
+    const LEADERBOARD_COLLECTION = "leaderboard_v2";
+
+    const games = ["Snake", "Mines", "Slots", "Hi-Lo", "Dice", "21", "Hold'em Duel", "Safe Cracker", "Roll Battle", "Perfect Stop", "Cross Path", "High Card", "Crash", "Roulette", "Coin Flip", "Treasure", "Lucky Wheel", "Blackjack Rush"];
+    const shop = [
+      { id: "goldName", name: "Gold Name", price: 500, desc: "Makes your name look rich." },
+      { id: "vipBadge", name: "VIP Badge", price: 1500, desc: "Shows VIP next to your name." },
+      { id: "luckyCharm", name: "Lucky Charm", price: 5000, desc: "+0.05x earning bonus." }
+    ];
+
+    let state = JSON.parse(localStorage.getItem("anteSave") || "null") || {
+      name: "Guest",
+      balance: 100,
+      rebirths: 0,
+      bestWin: 0,
+      items: [],
+      currentGame: "Dice",
+      admin: false,
+      onlineUser: null
+    };
+
+    let snakeTimer = null;
+    let snake = [], food = {}, dir = {x:1,y:0}, snakeRunning = false, snakeBet = 25;
+    let minesBombs = new Set(), minesPicks = 0, minesActive = false, minesBet = 25;
+    let crashActive = false, crashMult = 1, crashTimer = null, crashBet = 25;
+    let stopTimer = null, stopPos = 0, stopBet = 25;
+
+    function cleanUsername(username) {
+      return username.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 20);
+    }
+    async function hashPassword(password) {
+      const data = new TextEncoder().encode(password);
+      const hash = await crypto.subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+    function onlineDoc(username = state.onlineUser) {
+      return doc(db, "players", username);
+    }
+    function money(n) { return "$" + Math.floor(n).toLocaleString(); }
+    function bonusMult() { return +(1 + state.rebirths * 0.1 + (state.items.includes("luckyCharm") ? 0.05 : 0)).toFixed(2); }
+    async function save(sync = true) {
+      state.balance = Math.max(0, Math.min(Number(state.balance || STARTING_BALANCE), MAX_BALANCE));
+      state.rebirths = Math.max(0, Math.min(Number(state.rebirths || 0), 100));
+      state.bestWin = Math.max(0, Math.min(Number(state.bestWin || 0), MAX_SINGLE_WIN));
+      localStorage.setItem("anteSave", JSON.stringify(state));
+      updateStats();
+      if (sync && firebaseReady && state.onlineUser) await syncSaveNow(false);
+    }
+    function updateStats() {
+      playerName.textContent = state.name + (state.items.includes("vipBadge") ? " 👑" : "");
+      playerName.style.color = state.items.includes("goldName") ? "var(--gold)" : "var(--text)";
+      balance.textContent = money(state.balance);
+      bonus.textContent = bonusMult().toFixed(1) + "x";
+      rebirths.textContent = state.rebirths;
+      rebirthCost.textContent = money(rebirthCostValue());
+      afterRebirth.textContent = (1 + (state.rebirths + 1) * 0.1).toFixed(1) + "x";
+      adminStatus.textContent = state.admin ? "Unlocked" : "Locked";
+      adminPanel.classList.toggle("hidden", !state.admin);
+      profileName.textContent = state.name;
+      profileSub.textContent = state.onlineUser ? `Logged in as @${state.onlineUser}` : "Local browser save only.";
+      avatarLetter.textContent = (state.name || "G")[0].toUpperCase();
+      profileCash.textContent = money(state.balance);
+      profileBest.textContent = money(state.bestWin);
+      profileRebirths.textContent = state.rebirths;
+      profileItems.textContent = state.items.length;
+      onlineStatus.textContent = state.onlineUser ? "Online Account" : "Offline Save";
+      onlineStatus.classList.toggle("offline", !state.onlineUser);
+      if (!firebaseReady) accountMessage.textContent = "Firebase is not connected yet. Paste your config into the code to enable online accounts.";
+    }
+    function getBet() {
+      const b = Math.max(1, Math.floor(Number(bet.value || 1)));
+      if (state.balance < b) { msg("Not enough money."); return null; }
+      return b;
+    }
+    async function win(amount) {
+      const safeAmount = Math.max(0, Math.min(Number(amount || 0), MAX_SINGLE_WIN));
+      const payout = Math.min(Math.floor(safeAmount * bonusMult()), MAX_SINGLE_WIN);
+      state.balance = Math.min(state.balance + payout, MAX_BALANCE);
+      state.bestWin = Math.max(state.bestWin, payout);
+      msg("You won " + money(payout) + "!");
+      await saveScore(); await save();
+    }
+    async function lose(amount) {
+      const safeLoss = Math.max(0, Math.min(Number(amount || 0), state.balance));
+      state.balance -= safeLoss;
+      msg("You lost " + money(safeLoss) + ".");
+      await save();
+    }
+    function msg(t) { message.textContent = t; }
+    function accountMsg(t) { accountMessage.textContent = t; }
+    function rand(n) { return Math.floor(Math.random() * n); }
+
+    async function createAccount() {
+      if (!firebaseReady) return accountMsg("Firebase is not connected yet. Paste your Firebase config into the code first.");
+      const username = cleanUsername(loginUsername.value);
+      const password = loginPassword.value;
+      if (username.length < 3) return accountMsg("Username must be at least 3 characters.");
+      if (password.length < 4) return accountMsg("Password must be at least 4 characters.");
+      const ref = onlineDoc(username);
+      const existing = await getDoc(ref);
+      if (existing.exists()) return accountMsg("That username is already taken.");
+      const passwordHash = await hashPassword(password);
+      state.name = username;
+      state.onlineUser = username;
+      await setDoc(ref, { ...state, passwordHash, updatedAt: serverTimestamp() });
+      await save(false);
+      accountMsg("Account created and save uploaded online.");
+    }
+
+    async function loginAccount() {
+      if (!firebaseReady) return accountMsg("Firebase is not connected yet. Paste your Firebase config into the code first.");
+      const username = cleanUsername(loginUsername.value);
+      const password = loginPassword.value;
+      const ref = onlineDoc(username);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return accountMsg("No account found with that username.");
+      const data = snap.data();
+      const passwordHash = await hashPassword(password);
+      if (data.passwordHash !== passwordHash) return accountMsg("Wrong password.");
+      state = {
+        name: data.name || username,
+        balance: Number(data.balance ?? 100),
+        rebirths: Number(data.rebirths ?? 0),
+        bestWin: Number(data.bestWin ?? 0),
+        items: Array.isArray(data.items) ? data.items : [],
+        currentGame: data.currentGame || "Dice",
+        admin: false,
+        onlineUser: username
+      };
+      await save(false);
+      renderGameButtons();
+      renderGame();
+      renderShop();
+      accountMsg("Logged in. Your online save has loaded.");
+    }
+
+    async function syncSaveNow(showMessage = true) {
+      if (!firebaseReady) return accountMsg("Firebase is not connected yet.");
+      if (!state.onlineUser) return accountMsg("Log in first to sync your save.");
+      const ref = onlineDoc();
+      await updateDoc(ref, {
+        name: state.name,
+        balance: Math.max(0, Math.min(Number(state.balance || STARTING_BALANCE), MAX_BALANCE)),
+        rebirths: Math.max(0, Math.min(Number(state.rebirths || 0), 100)),
+        bestWin: Math.max(0, Math.min(Number(state.bestWin || 0), MAX_SINGLE_WIN)),
+        items: state.items,
+        currentGame: state.currentGame,
+        isOwner: state.onlineUser === OWNER_USERNAME,
+        updatedAt: serverTimestamp()
+      });
+      if (showMessage) accountMsg("Save synced online.");
+    }
+
+    async function logoutAccount() {
+      state.onlineUser = null;
+      await save(false);
+      accountMsg("Logged out. This browser still has your local save.");
+    }
+
+    function showPage(id, btn) {
+      document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+      document.getElementById(id).classList.remove("hidden");
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      btn.classList.add("active");
+      if (id === "leaderboard") renderLeaderboard();
+      if (id === "shop") renderShop();
+      updateStats();
+    }
+
+    function renderGameButtons() {
+      gameButtons.innerHTML = games.map(g => `<button class="game-btn game-card-btn ${g===state.currentGame?'active':''}" onclick="selectGame('${g}')">${gameLabel(g)}</button>`).join("");
+    }
+    function gameLabel(g) {
+      return g === "Hold'em Duel" ? "♣️ Hold'em Duel" : g;
+    }
+    async function selectGame(g) {
+      state.currentGame = g;
+      await save();
+      renderGameButtons();
+      renderGame();
+    }
+
+    function renderGame() {
+      clearTimers();
+      gameTitle.textContent = state.currentGame;
+      const g = state.currentGame;
+      if (g === "Dice") return diceUI();
+      if (g === "Slots") return slotsUI();
+      if (g === "Hi-Lo") return hiloUI();
+      if (g === "High Card") return highCardUI();
+      if (g === "21") return twentyOneUI();
+      if (g === "Roulette") return rouletteUI();
+      if (g === "Coin Flip") return coinFlipUI();
+      if (g === "Treasure") return treasureUI();
+      if (g === "Lucky Wheel") return luckyWheelUI();
+      if (g === "Blackjack Rush") return blackjackRushUI();
+      if (g === "Mines") return minesUI();
+      if (g === "Snake") return snakeUI();
+      if (g === "Crash") return crashUI();
+      if (g === "Safe Cracker") return safeUI();
+      if (g === "Roll Battle") return rollBattleUI();
+      if (g === "Perfect Stop") return perfectStopUI();
+      if (g === "Cross Path") return crossPathUI();
+      if (g === "Hold'em Duel") return holdemUI();
+    }
+    function setActions(html, help) { actionButtons.innerHTML = html; helpText.textContent = help; }
+    function resetGameUI(){ renderGame(); msg("Game refreshed."); }
+    function clearTimers(){ clearInterval(snakeTimer); clearInterval(crashTimer); clearInterval(stopTimer); }
+
+    function diceUI(){
+      gameArea.innerHTML = `<div class="big" id="diceFace">-</div><p>Choose under 4 or over 3. Payout 2x.</p>`;
+      setActions(`<button onclick="rollDice('under')">Under</button><button onclick="rollDice('over')">Over</button>`, "Bet Amount → choose Under or Over.");
+    }
+    async function rollDice(choice){ const b=getBet(); if(!b)return; diceFace.className='big spin-anim'; const r=rand(6)+1; setTimeout(async()=>{ diceFace.textContent=r; const ok=choice==='under'?r<4:r>3; diceFace.className='big pop-anim'; ok?await win(b*2):await lose(b); },350); }
+
+    function slotsUI(){
+      gameArea.innerHTML = `<div class="big" id="slots">🍒 🍋 🔔</div><p>Three matching symbols pays 5x, two matching pays 2x.</p>`;
+      setActions(`<button onclick="spinSlots()">Start Slots</button>`, "Bet Amount → spin.");
+    }
+    async function spinSlots(){ const b=getBet(); if(!b)return; const s=['🍒','🍋','🔔','💎','7️⃣']; slots.className='big pulse-anim'; let ticks=0; const spin=setInterval(()=>{ slots.textContent=[s[rand(s.length)],s[rand(s.length)],s[rand(s.length)]].join(' '); if(++ticks>10){ clearInterval(spin); const a=[s[rand(s.length)],s[rand(s.length)],s[rand(s.length)]]; slots.textContent=a.join(' '); slots.className='big pop-anim'; const unique=new Set(a).size; unique===1?win(b*5):unique===2?win(b*2):lose(b); } },80); }
+
+    let hiloCard = 7;
+    function hiloUI(){
+      hiloCard = rand(13)+1;
+      gameArea.innerHTML = `<div class="big" id="hiloFace">${hiloCard}</div><p>Guess if the next card is higher or lower.</p>`;
+      setActions(`<button onclick="hilo('high')">Higher ▲</button><button onclick="hilo('low')">Lower ▼</button>`, "Bet Amount → guess higher/lower.");
+    }
+    async function hilo(choice){ const b=getBet(); if(!b)return; hiloFace.className='big pop-anim'; const next=rand(13)+1; hiloFace.textContent = hiloCard + " → " + next; const ok=choice==='high'?next>hiloCard:next<hiloCard; ok?await win(b*2):await lose(b); hiloCard=next; }
+
+    function highCardUI(){
+      gameArea.innerHTML = `<div class="big" id="cards">? vs ?</div><p>Higher card wins. Ace is 1.</p>`;
+      setActions(`<button onclick="highCard()">Play High Card</button>`, "Bet Amount → draw cards.");
+    }
+    async function highCard(){ const b=getBet(); if(!b)return; cards.className='big pop-anim'; const you=rand(13)+1, dealer=rand(13)+1; cards.textContent = `You ${you} vs Dealer ${dealer}`; you>dealer?await win(b*2):you===dealer?msg("Tie. No money lost."):await lose(b); }
+
+    function twentyOneUI(){
+      gameArea.innerHTML = `<div class="big" id="twenty">0 vs 0</div><p>Get closer to 21 than the dealer without going over.</p>`;
+      setActions(`<button onclick="play21()">Start 21</button>`, "Bet Amount → start hand.");
+    }
+    async function play21(){ const b=getBet(); if(!b)return; twenty.className='big pop-anim'; let you=rand(10)+12, dealer=rand(10)+12; twenty.textContent=`You ${you} vs Dealer ${dealer}`; (you<=21 && (dealer>21 || you>dealer))?await win(b*2):you===dealer?msg("Push. No money lost."):await lose(b); }
+
+    let rouletteBets = [];
+    let rouletteSpinAngle = 0;
+    const rouletteRedNumbers = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+
+    function rouletteUI(){
+      rouletteBets = [];
+      gameArea.innerHTML = `
+        <div class="roulette-layout">
+          <div class="roulette-wheel-wrap">
+            <div class="roulette-pointer"></div>
+            <div class="roulette-wheel" id="rouletteWheel"><div class="roulette-ball" id="rouletteBall"></div></div>
+            <div class="big" id="rouletteResult">Place Bets</div>
+            <p class="roulette-bets-list" id="rouletteBetsList">No bets selected.</p>
+          </div>
+          <div>
+            <h3>Number Board</h3>
+            <div class="roulette-board" id="rouletteBoard"></div>
+            <div class="roulette-options">
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('red','Red',2)">Red 2x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('black','Black',2)">Black 2x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('even','Even',2)">Even 2x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('odd','Odd',2)">Odd 2x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('low','1-18',2)">1-18 2x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('high','19-36',2)">19-36 2x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('dozen1','1st 12',3)">1st 12 3x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('dozen2','2nd 12',3)">2nd 12 3x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('dozen3','3rd 12',3)">3rd 12 3x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('row0','Top Row',3)">Top Row 3x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('row1','Middle Row',3)">Middle Row 3x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('row2','Bottom Row',3)">Bottom Row 3x</button>
+            </div>
+          </div>
+        </div>`;
+      drawRouletteBoard();
+      setActions(`<button onclick="clearRouletteBets()">Clear Bets</button><button class="cashout" onclick="finaliseRouletteBets()">Finalise Bets</button>`, "Choose numbers, rows/columns/dozens, then finalise bets. Each selected bet costs your bet amount.");
+    }
+
+    function drawRouletteBoard(){
+      const board = document.getElementById('rouletteBoard');
+      board.innerHTML = `<button class="roulette-num green-num" onclick="toggleRouletteBet('num0','0',36)">0</button>`;
+      for(let col=0; col<12; col++){
+        for(let row=0; row<3; row++){
+          const n = col*3 + (3-row);
+          const colour = rouletteRedNumbers.has(n) ? 'red-num' : 'black-num';
+          board.innerHTML += `<button class="roulette-num ${colour}" onclick="toggleRouletteBet('num${n}','${n}',36)">${n}</button>`;
+        }
+      }
+    }
+
+    function toggleRouletteBet(type, label, payout){
+      const existing = rouletteBets.findIndex(b => b.type === type);
+      if(existing >= 0) rouletteBets.splice(existing, 1);
+      else rouletteBets.push({type, label, payout});
+      updateRouletteBetUI();
+    }
+
+    function clearRouletteBets(){
+      rouletteBets = [];
+      updateRouletteBetUI();
+      rouletteResult.textContent = 'Bets Cleared';
+    }
+
+    function updateRouletteBetUI(){
+      document.querySelectorAll('.roulette-num,.roulette-bet-option').forEach(btn => btn.classList.remove('selected'));
+      rouletteBets.forEach(b => {
+        document.querySelectorAll(`[onclick*="'${b.type}'"]`).forEach(btn => btn.classList.add('selected'));
+      });
+      rouletteBetsList.textContent = rouletteBets.length ? `Selected: ${rouletteBets.map(b=>b.label).join(', ')}` : 'No bets selected.';
+    }
+
+    function rouletteBetWins(bet, n){
+      if(bet.type.startsWith('num')) return Number(bet.type.replace('num','')) === n;
+      if(n === 0) return false;
+      if(bet.type === 'red') return rouletteRedNumbers.has(n);
+      if(bet.type === 'black') return !rouletteRedNumbers.has(n);
+      if(bet.type === 'even') return n % 2 === 0;
+      if(bet.type === 'odd') return n % 2 === 1;
+      if(bet.type === 'low') return n >= 1 && n <= 18;
+      if(bet.type === 'high') return n >= 19 && n <= 36;
+      if(bet.type === 'dozen1') return n >= 1 && n <= 12;
+      if(bet.type === 'dozen2') return n >= 13 && n <= 24;
+      if(bet.type === 'dozen3') return n >= 25 && n <= 36;
+      if(bet.type === 'row0') return n % 3 === 0;
+      if(bet.type === 'row1') return n % 3 === 2;
+      if(bet.type === 'row2') return n % 3 === 1;
+      return false;
+    }
+
+    async function finaliseRouletteBets(){
+      if(!rouletteBets.length) return msg('Select at least one roulette bet first.');
+      const baseBet = getBet();
+      if(!baseBet) return;
+      const totalCost = baseBet * rouletteBets.length;
+      if(state.balance < totalCost) return msg(`You need ${money(totalCost)} for ${rouletteBets.length} bets.`);
+      state.balance -= totalCost;
+      await save();
+
+      rouletteResult.textContent = 'Spinning...';
+      rouletteResult.className = 'big pulse-anim';
+      const result = rand(37);
+      const slotAngle = result * (360 / 37);
+      rouletteSpinAngle += 1440 + slotAngle + rand(20);
+      rouletteWheel.style.transform = `rotate(${rouletteSpinAngle}deg)`;
+      rouletteBall.style.animation = 'spin 1s linear infinite';
+
+      setTimeout(async()=>{
+        rouletteBall.style.animation = '';
+        const colour = result === 0 ? 'Green' : rouletteRedNumbers.has(result) ? 'Red' : 'Black';
+        rouletteResult.textContent = `${result} ${colour}`;
+        rouletteResult.className = 'big pop-anim';
+        const winningBets = rouletteBets.filter(b => rouletteBetWins(b, result));
+        if(winningBets.length){
+          let totalWin = 0;
+          winningBets.forEach(b => totalWin += baseBet * b.payout);
+          await win(totalWin);
+        } else {
+          msg(`Roulette landed on ${result}. No winning bets.`);
+          await save();
+        }
+        rouletteBets = [];
+        updateRouletteBetUI();
+      }, 3500);
+    }
+    async function startMines(){ const b=getBet(); if(!b)return; minesBet=b; state.balance-=b; minesActive=true; minesPicks=0; minesBombs=new Set(); const bombs=mode.value==='Easy'?1:mode.value==='Hard'?3:2; while(minesBombs.size<bombs) minesBombs.add(rand(25)); await save(); drawMines(false); msg("Mines started."); }
+    function drawMines(reveal){ minesBoard.innerHTML=''; for(let i=0;i<25;i++){ const d=document.createElement('div'); d.className='cell'; d.onclick=()=>pickMine(i,d); d.textContent=reveal&&minesBombs.has(i)?'💣':''; minesBoard.appendChild(d); } }
+    async function pickMine(i,d){ if(!minesActive)return; if(minesBombs.has(i)){ d.classList.add('bad'); minesActive=false; drawMines(true); msg("Boom! You lost your bet."); await save(); return; } d.classList.add('good'); d.onclick=null; minesPicks++; minesInfo.textContent=`Multiplier ${(1+minesPicks*.35).toFixed(2)}x | Safe Picks ${minesPicks}`; }
+    async function cashMines(){ if(!minesActive)return; minesActive=false; await win(minesBet*(1+minesPicks*.35)); drawMines(true); }
+
+    function safeUI(){
+      gameArea.innerHTML = `<div class="big" id="safeResult">🔐</div><p>Pick the safe code. Hard mode pays more.</p>`;
+      setActions(`<button onclick="safePick(1)">1</button><button onclick="safePick(2)">2</button><button onclick="safePick(3)">3</button><button onclick="safePick(4)">4</button><button onclick="safePick(5)">5</button><button onclick="safePick(6)">6</button>`, "Bet Amount + Mode → choose a number.");
+    }
+    async function safePick(n){ const b=getBet(); if(!b)return; const max=mode.value==='Easy'?6:mode.value==='Hard'?3:4; const code=rand(max)+1; safeResult.textContent=`Code ${code}`; n===code?await win(b*max):await lose(b); }
+
+    function rollBattleUI(){
+      gameArea.innerHTML = `<div class="big" id="battle">-- vs --</div><p>Beat the bot roll. Pays 2x.</p>`;
+      setActions(`<button onclick="rollBattle()">Spin</button>`, "Bet Amount → roll against bot.");
+    }
+    async function rollBattle(){ const b=getBet(); if(!b)return; battle.className='big pop-anim'; const you=rand(100)+1, bot=rand(100)+1; battle.textContent=`You ${you} vs Bot ${bot}`; you>bot?await win(b*2):you===bot?msg("Tie. No money lost."):await lose(b); }
+
+    function coinFlipUI(){
+      gameArea.innerHTML = `<div class="big" id="coinFace">🪙</div><p>Pick heads or tails. Simple 2x payout.</p>`;
+      setActions(`<button onclick="coinFlip('Heads')">Heads</button><button onclick="coinFlip('Tails')">Tails</button>`, "Bet Amount → choose heads or tails.");
+    }
+    async function coinFlip(choice){ const b=getBet(); if(!b)return; coinFace.className='big spin-anim'; setTimeout(async()=>{ const result=rand(2)?'Heads':'Tails'; coinFace.textContent=result==='Heads'?'🟡 Heads':'🔴 Tails'; coinFace.className='big pop-anim'; result===choice?await win(b*2):await lose(b); },600); }
+
+    function treasureUI(){
+      gameArea.innerHTML = `<div class="big" id="treasureFace">🧰</div><p>Open a chest. Small prize is common, jackpot is rare.</p>`;
+      setActions(`<button onclick="openTreasure()">Open Treasure</button>`, "Bet Amount → open chest.");
+    }
+    async function openTreasure(){ const b=getBet(); if(!b)return; treasureFace.className='big pulse-anim'; setTimeout(async()=>{ const r=rand(100); treasureFace.className='big pop-anim'; if(r<55){ treasureFace.textContent='💰'; await win(b*1.5); } else if(r<85){ treasureFace.textContent='💎'; await win(b*2.5); } else if(r<95){ treasureFace.textContent='👑'; await win(b*5); } else { treasureFace.textContent='🪨'; await lose(b); } },450); }
+
+    function luckyWheelUI(){
+      gameArea.innerHTML = `<div class="big" id="wheelFace">🎡</div><p>Spin the wheel for a random multiplier.</p>`;
+      setActions(`<button onclick="spinWheel()">Spin Wheel</button>`, "Bet Amount → spin.");
+    }
+    async function spinWheel(){ const b=getBet(); if(!b)return; wheelFace.className='big spin-anim'; setTimeout(async()=>{ const mults=[0,0.5,1.2,1.5,2,3,5]; const m=mults[rand(mults.length)]; wheelFace.textContent=m===0?'Bust':m+'x'; wheelFace.className='big pop-anim'; m>0?await win(b*m):await lose(b); },800); }
+
+    function blackjackRushUI(){
+      gameArea.innerHTML = `<div class="big" id="rushFace">🃏</div><p>Fast blackjack-style round. 20 or 21 pays extra.</p>`;
+      setActions(`<button onclick="playBlackjackRush()">Play Rush</button>`, "Bet Amount → instant round.");
+    }
+    async function playBlackjackRush(){ const b=getBet(); if(!b)return; rushFace.className='big pop-anim'; const you=rand(11)+11; const dealer=rand(11)+11; rushFace.textContent=`${you} vs ${dealer}`; if(you===21) await win(b*3); else if(you>=20 && you>dealer) await win(b*2.5); else if(you>dealer || dealer>21) await win(b*2); else if(you===dealer) msg('Push. No money lost.'); else await lose(b); }
+
+    function perfectStopUI(){
+      stopPos=0;
+      gameArea.innerHTML = `<div class="big" id="stopFace">0%</div><p>Stop between 45% and 55% for 4x.</p>`;
+      setActions(`<button onclick="startStop()">Start Perfect Stop</button><button onclick="stopNow()">Stop</button>`, "Bet Amount → start → stop inside green zone.");
+    }
+    async function startStop(){ const b=getBet(); if(!b)return; stopBet=b; state.balance-=b; await save(); clearInterval(stopTimer); stopTimer=setInterval(()=>{stopPos=(stopPos+3)%101; stopFace.textContent=stopPos+'%';},50); }
+    async function stopNow(){ clearInterval(stopTimer); if(stopPos>=45&&stopPos<=55) await win(stopBet*4); else msg("Missed! You lost your bet."); await save(); }
+
+    let crossRow=0, crossBet=25;
+    function crossPathUI(){
+      crossRow=0;
+      gameArea.innerHTML = `<p>Pick the safe tile each row. 5 rows pays bigger.</p><div class="cross-board" id="crossBoard"></div><p id="crossInfo">Round 0 | Multiplier 1.00x</p>`;
+      setActions(`<button onclick="startCross()">Start Cross Path</button><button class="cashout" onclick="cashCross()">Cash Out</button>`, "Bet Amount → start → click safe path.");
+      drawCross();
+    }
+    function drawCross(){ crossBoard.innerHTML=''; for(let i=0;i<3;i++){ const d=document.createElement('div'); d.className='cell'; d.textContent='?'; d.onclick=()=>pickCross(i,d); crossBoard.appendChild(d);} }
+    let safeCross=[], crossActive=false;
+    async function startCross(){ const b=getBet(); if(!b)return; crossBet=b; state.balance-=b; crossRow=0; crossActive=true; safeCross=[rand(3)]; if(mode.value!=='Hard'){ let extra; do { extra=rand(3); } while(extra===safeCross[0]); safeCross.push(extra); } await save(); drawCross(); msg("Cross started. Easier mode gives 2 safe tiles per row."); }
+    async function pickCross(i,d){ if(!crossActive)return; if(safeCross.includes(i)){ d.classList.add('good'); d.classList.add('pop-anim'); crossRow++; crossInfo.textContent=`Round ${crossRow} | Multiplier ${(1+crossRow*.45).toFixed(2)}x`; if(crossRow>=5){ crossActive=false; await win(crossBet*3.25); } else { safeCross=[rand(3)]; if(mode.value!=='Hard'){ let extra; do { extra=rand(3); } while(extra===safeCross[0]); safeCross.push(extra); } setTimeout(drawCross,350); } } else { d.classList.add('bad'); d.classList.add('shake-anim'); crossActive=false; msg("You fell! Bet lost."); await save(); } }
+    async function cashCross(){ if(!crossActive)return; crossActive=false; await win(crossBet*(1+crossRow*.45)); }
+
+    function crashUI(){
+      crashActive=false; crashMult=1;
+      gameArea.innerHTML = `<div class="big" id="crashFace">1.00x</div><p>Cash out before it crashes.</p>`;
+      setActions(`<button onclick="startCrash()">Start Crash</button><button class="cashout" onclick="cashCrash()">Cash Out</button>`, "Bet Amount → start → cash out before crash.");
+    }
+    async function startCrash(){ const b=getBet(); if(!b)return; crashBet=b; state.balance-=b; await save(); crashActive=true; crashMult=1; const crashAt=1+Math.random()*4; clearInterval(crashTimer); crashTimer=setInterval(async ()=>{ crashMult+=.05; crashFace.textContent=crashMult.toFixed(2)+'x'; if(crashMult>=crashAt){ clearInterval(crashTimer); crashActive=false; msg("Crashed at " + crashMult.toFixed(2) + "x. Bet lost."); await save(); } },120); }
+    async function cashCrash(){ if(!crashActive)return; clearInterval(crashTimer); crashActive=false; await win(crashBet*crashMult); }
+
+    function snakeUI(){
+      gameArea.innerHTML = `<p>Use arrow keys/WASD. Eat apples, then cash out.</p><div class="snake-board" id="snakeBoard"></div><p id="snakeInfo">Apples 0 | Potential $0</p>`;
+      setActions(`<button onclick="startSnake()">Start Run</button><button class="cashout" onclick="cashSnake()">Cash Out</button>`, "WASD / Arrows. Eat apples and cash out.");
+      drawSnake();
+    }
+    async function startSnake(){ const b=getBet(); if(!b)return; snakeBet=b; state.balance-=b; await save(); snake=[{x:5,y:5}]; dir={x:1,y:0}; food={x:rand(10),y:rand(10)}; snakeRunning=true; clearInterval(snakeTimer); snakeTimer=setInterval(stepSnake,180); }
+    function drawSnake(){ snakeBoard.innerHTML=''; for(let y=0;y<10;y++) for(let x=0;x<10;x++){ const d=document.createElement('div'); d.className='cell'; if(snake.some(s=>s.x===x&&s.y===y)) d.classList.add('player'); if(food.x===x&&food.y===y) d.classList.add('food'); snakeBoard.appendChild(d); } }
+    async function stepSnake(){ if(!snakeRunning)return; const h={x:(snake[0].x+dir.x+10)%10,y:(snake[0].y+dir.y+10)%10}; if(snake.some(s=>s.x===h.x&&s.y===h.y)){ clearInterval(snakeTimer); snakeRunning=false; msg("Snake crashed. Bet lost."); await save(); return; } snake.unshift(h); if(h.x===food.x&&h.y===food.y){ food={x:rand(10),y:rand(10)}; snakeInfo.textContent=`Apples ${snake.length-1} | Potential ${money(snakeBet*(1+(snake.length-1)*.4))}`; } else snake.pop(); drawSnake(); }
+    async function cashSnake(){ if(!snakeRunning)return; clearInterval(snakeTimer); snakeRunning=false; await win(snakeBet*(1+(snake.length-1)*.4)); }
+    document.addEventListener('keydown', e=>{ const k=e.key.toLowerCase(); if(k==='arrowup'||k==='w')dir={x:0,y:-1}; if(k==='arrowdown'||k==='s')dir={x:0,y:1}; if(k==='arrowleft'||k==='a')dir={x:-1,y:0}; if(k==='arrowright'||k==='d')dir={x:1,y:0}; });
+
+    function holdemUI(){
+      gameArea.innerHTML = `<div class="big" id="holdem">🂠 🂠</div><p>Simplified Hold'em Duel: your 2-card score vs dealer. Pays 2x.</p>`;
+      setActions(`<button onclick="playHoldem()">Deal Hold'em</button>`, "Ante Amount → deal.");
+    }
+    async function playHoldem(){ const b=getBet(); if(!b)return; const you=rand(100)+1, dealer=rand(100)+1; holdem.textContent=`You ${you} vs Dealer ${dealer}`; you>dealer?await win(b*2):you===dealer?msg("Split pot. No money lost."):await lose(b); }
+
+    async function saveScore(){
+      const score = {
+        name: state.name,
+        username: state.onlineUser || "offline",
+        balance: Math.max(0, Math.min(Number(state.balance || STARTING_BALANCE), MAX_BALANCE)),
+        bestWin: Math.max(0, Math.min(Number(state.bestWin || 0), MAX_SINGLE_WIN)),
+        rebirths: Math.max(0, Math.min(Number(state.rebirths || 0), 100)),
+        updatedAt: firebaseReady ? serverTimestamp() : Date.now()
+      };
+
+      if (firebaseReady && state.onlineUser) {
+        await setDoc(doc(db, LEADERBOARD_COLLECTION, state.onlineUser), score, { merge: true });
+      }
+
+      const scores = JSON.parse(localStorage.getItem("anteScores") || "[]");
+      scores.push({ ...score, updatedAt: Date.now() });
+      scores.sort((a,b)=>b.balance-a.balance);
+      localStorage.setItem("anteScores", JSON.stringify(scores.slice(0,10)));
+      renderLeaderboard();
+    }
+    async function renderLeaderboard(){
+      if (firebaseReady) {
+        try {
+          const { collection, getDocs, query, orderBy, limit } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+          const q = query(collection(db, LEADERBOARD_COLLECTION), orderBy("balance", "desc"), limit(10));
+          const snap = await getDocs(q);
+          const scores = snap.docs.map(d => d.data());
+          renderPodium(scores);
+          leaderBody.innerHTML = scores.map((s,i)=>`<tr><td>${i+1}</td><td>${s.name || s.username}</td><td>${money(s.balance || 0)}</td><td>${money(s.bestWin || 0)}</td></tr>`).join("") || `<tr><td colspan="4">No online scores yet.</td></tr>`;
+          return;
+        } catch (err) {
+          console.warn("Online leaderboard failed, using local leaderboard", err);
+        }
+      }
+      const scores = JSON.parse(localStorage.getItem("anteScores") || "[]");
+      renderPodium(scores);
+      leaderBody.innerHTML = scores.map((s,i)=>`<tr><td>${i+1}</td><td>${s.name}</td><td>${money(s.balance)}</td><td>${money(s.bestWin)}</td></tr>`).join("") || `<tr><td colspan="4">No scores yet.</td></tr>`;
+    }
+
+    function renderPodium(scores){
+      const top = [scores[1], scores[0], scores[2]];
+      const labels = ["🥈", "🥇", "🥉"];
+      const classes = ["second", "first", "third"];
+      podiumBoard.innerHTML = top.map((s, i) => {
+        if (!s) return `<div class="podium-card ${classes[i]}"><div class="podium-rank">${labels[i]}</div><div class="podium-name">Empty</div><div class="podium-money">No score yet</div></div>`;
+        return `<div class="podium-card ${classes[i]}"><div class="podium-rank">${labels[i]}</div><div class="podium-name">${s.name || s.username || "Player"}</div><div class="podium-money">${money(s.balance || 0)}</div><p>Best win: ${money(s.bestWin || 0)}</p></div>`;
+      }).join("");
+    }
+    function renderShop(){
+      shopItems.innerHTML = shop.map(item => `<div class="card"><h3>${item.name}</h3><p>${item.desc}</p><p><b>${money(item.price)}</b></p><button onclick="buyItem('${item.id}')">${state.items.includes(item.id)?'Owned':'Buy'}</button></div>`).join("");
+    }
+    async function buyItem(id){ const item=shop.find(x=>x.id===id); if(state.items.includes(id))return msg("Already owned."); if(state.balance<item.price)return msg("Not enough money."); state.balance-=item.price; state.items.push(id); msg("Bought " + item.name + "."); await save(); renderShop(); }
+    function rebirthCostValue(){ return 100000 * Math.pow(2, state.rebirths); }
+    async function rebirth(){ const cost=rebirthCostValue(); if(state.balance<cost)return msg("You need " + money(cost) + " to rebirth."); state.balance=100; state.rebirths++; msg("Rebirth complete! Bonus increased."); await save(); }
+    async function unlockAdmin(){
+      if (!state.onlineUser) return msg("Log in first to use admin.");
+      if (state.onlineUser !== OWNER_USERNAME) return msg("Admin is locked to the owner account only.");
+      if(adminPass.value === ADMIN_PASSCODE){ state.admin=true; await save(false); msg("Admin unlocked."); }
+      else msg("Wrong passcode.");
+    }
+    async function lockAdmin(){ state.admin=false; await save(false); }
+    async function adminAdd(n){
+      if(!state.admin || state.onlineUser !== OWNER_USERNAME)return msg("Owner admin only.");
+      const safe = Math.max(0, Math.min(Number(n || 0), MAX_SINGLE_WIN));
+      state.balance = Math.min(state.balance + safe, MAX_BALANCE);
+      await save();
+      msg("Admin added " + money(safe));
+    }
+    async function adminSet(n){
+      if(!state.admin || state.onlineUser !== OWNER_USERNAME)return msg("Owner admin only.");
+      const safe = Math.max(0, Math.min(Number(n || 0), MAX_BALANCE));
+      state.balance = safe;
+      await save();
+      msg("Admin set balance to " + money(safe));
+    }
+    function exportSave(){ saveBox.value = JSON.stringify(state, null, 2); }
+    function hardReset(){ if(confirm("Reset this browser save?")){ localStorage.removeItem("anteSave"); location.reload(); } }
+
+    window.showPage = showPage;
+    window.selectGame = selectGame;
+    window.resetGameUI = resetGameUI;
+    window.rollDice = rollDice;
+    window.spinSlots = spinSlots;
+    window.hilo = hilo;
+    window.highCard = highCard;
+    window.play21 = play21;
+    window.toggleRouletteBet = toggleRouletteBet;
+    window.clearRouletteBets = clearRouletteBets;
+    window.finaliseRouletteBets = finaliseRouletteBets;
+    window.startMines = startMines;
+    window.cashMines = cashMines;
+    window.safePick = safePick;
+    window.rollBattle = rollBattle;
+    window.startStop = startStop;
+    window.stopNow = stopNow;
+    window.startCross = startCross;
+    window.cashCross = cashCross;
+    window.startCrash = startCrash;
+    window.cashCrash = cashCrash;
+    window.startSnake = startSnake;
+    window.cashSnake = cashSnake;
+    window.playHoldem = playHoldem;
+    window.coinFlip = coinFlip;
+    window.openTreasure = openTreasure;
+    window.spinWheel = spinWheel;
+    window.playBlackjackRush = playBlackjackRush;
+    window.saveScore = saveScore;
+    window.buyItem = buyItem;
+    window.rebirth = rebirth;
+    window.unlockAdmin = unlockAdmin;
+    window.lockAdmin = lockAdmin;
+    window.adminAdd = adminAdd;
+    window.adminSet = adminSet;
+    window.exportSave = exportSave;
+    window.hardReset = hardReset;
+    window.createAccount = createAccount;
+    window.loginAccount = loginAccount;
+    window.logoutAccount = logoutAccount;
+    window.syncSaveNow = syncSaveNow;
+
+    renderGameButtons(); renderGame(); renderShop(); saveScore(); updateStats();
+  </script>
+</body>
+</html>
