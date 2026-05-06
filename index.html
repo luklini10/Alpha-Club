@@ -65,6 +65,95 @@
       border-radius: 18px;
       box-shadow: 0 0 24px rgba(25,195,125,.35);
     }
+    .roulette-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 16px;
+      align-items: start;
+      margin-top: 12px;
+    }
+    .roulette-wheel-wrap {
+      display: grid;
+      place-items: center;
+      gap: 12px;
+    }
+    .roulette-wheel {
+      width: min(320px, 80vw);
+      height: min(320px, 80vw);
+      border-radius: 50%;
+      border: 10px solid var(--gold);
+      position: relative;
+      background: conic-gradient(#d62828 0deg 10deg,#111 10deg 20deg,#d62828 20deg 30deg,#111 30deg 40deg,#d62828 40deg 50deg,#111 50deg 60deg,#d62828 60deg 70deg,#111 70deg 80deg,#d62828 80deg 90deg,#111 90deg 100deg,#d62828 100deg 110deg,#111 110deg 120deg,#d62828 120deg 130deg,#111 130deg 140deg,#d62828 140deg 150deg,#111 150deg 160deg,#d62828 160deg 170deg,#111 170deg 180deg,#d62828 180deg 190deg,#111 190deg 200deg,#d62828 200deg 210deg,#111 210deg 220deg,#d62828 220deg 230deg,#111 230deg 240deg,#d62828 240deg 250deg,#111 250deg 260deg,#d62828 260deg 270deg,#111 270deg 280deg,#d62828 280deg 290deg,#111 290deg 300deg,#d62828 300deg 310deg,#111 310deg 320deg,#d62828 320deg 330deg,#111 330deg 340deg,#d62828 340deg 350deg,#0b8f3a 350deg 360deg);
+      box-shadow: inset 0 0 45px rgba(0,0,0,.65), 0 25px 55px rgba(0,0,0,.45);
+      transition: transform 3.4s cubic-bezier(.08,.75,.12,1);
+    }
+    .roulette-wheel::after {
+      content: "";
+      position: absolute;
+      inset: 38px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #6d1b1b, #260909);
+      border: 4px solid rgba(255,209,102,.65);
+    }
+    .roulette-ball {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      position: absolute;
+      left: 50%;
+      top: 10px;
+      transform: translateX(-50%);
+      z-index: 3;
+      box-shadow: 0 0 16px white;
+    }
+    .roulette-pointer {
+      width: 0;
+      height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-top: 24px solid var(--gold);
+      filter: drop-shadow(0 0 10px rgba(255,209,102,.8));
+    }
+    .roulette-board {
+      display: grid;
+      grid-template-columns: 56px repeat(12, minmax(34px, 1fr));
+      gap: 5px;
+      align-items: stretch;
+    }
+    .roulette-num, .roulette-bet-option {
+      min-height: 42px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .roulette-num.red-num { background: rgba(214,40,40,.75); }
+    .roulette-num.black-num { background: rgba(0,0,0,.55); }
+    .roulette-num.green-num { background: rgba(25,195,125,.65); grid-row: span 3; }
+    .roulette-num.selected, .roulette-bet-option.selected {
+      outline: 3px solid var(--gold);
+      box-shadow: 0 0 16px rgba(255,209,102,.45);
+      transform: translateY(-2px);
+    }
+    .roulette-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .roulette-bets-list {
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 28px;
+    }
+    @media (max-width: 900px) {
+      .roulette-layout { grid-template-columns: 1fr; }
+      .roulette-board { grid-template-columns: 44px repeat(12, minmax(26px, 1fr)); gap: 4px; }
+      .roulette-num, .roulette-bet-option { min-height: 36px; font-size: 12px; padding: 6px; }
+    }
     .pop-anim { animation: pop .35s ease; }
     .spin-anim { animation: spin .75s ease; }
     .shake-anim { animation: shake .35s ease; }
@@ -690,17 +779,128 @@
     }
     async function play21(){ const b=getBet(); if(!b)return; twenty.className='big pop-anim'; let you=rand(10)+12, dealer=rand(10)+12; twenty.textContent=`You ${you} vs Dealer ${dealer}`; (you<=21 && (dealer>21 || you>dealer))?await win(b*2):you===dealer?msg("Push. No money lost."):await lose(b); }
 
-    function rouletteUI(){
-      gameArea.innerHTML = `<div class="big" id="roulette">⚫</div><p>Pick red or black. Green zero loses.</p>`;
-      setActions(`<button onclick="roulette('red')">Red</button><button onclick="roulette('black')">Black</button>`, "Bet Amount → pick colour.");
-    }
-    async function roulette(c){ const b=getBet(); if(!b)return; roulette.className='big spin-anim'; setTimeout(async()=>{ const r=rand(37); const colour=r===0?'green':r%2?'red':'black'; roulette.textContent = `${r} ${colour}`; roulette.className='big pop-anim'; colour===c?await win(b*2):await lose(b); },650); }
+    let rouletteBets = [];
+    let rouletteSpinAngle = 0;
+    const rouletteRedNumbers = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
-    function minesUI(){
-      minesPicks=0; minesActive=false;
-      gameArea.innerHTML = `<p>Start mines, then pick safe tiles. Cash out before hitting a bomb.</p><div class="mines-board" id="minesBoard"></div><p id="minesInfo">Multiplier 1.00x | Safe Picks 0</p>`;
-      setActions(`<button onclick="startMines()">Start Mines</button><button class="cashout" onclick="cashMines()">Cash Out</button>`, "Bet Amount + Mode → Start Mines → click tiles.");
-      drawMines(false);
+    function rouletteUI(){
+      rouletteBets = [];
+      gameArea.innerHTML = `
+        <div class="roulette-layout">
+          <div class="roulette-wheel-wrap">
+            <div class="roulette-pointer"></div>
+            <div class="roulette-wheel" id="rouletteWheel"><div class="roulette-ball" id="rouletteBall"></div></div>
+            <div class="big" id="rouletteResult">Place Bets</div>
+            <p class="roulette-bets-list" id="rouletteBetsList">No bets selected.</p>
+          </div>
+          <div>
+            <h3>Number Board</h3>
+            <div class="roulette-board" id="rouletteBoard"></div>
+            <div class="roulette-options">
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('red','Red',2)">Red 2x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('black','Black',2)">Black 2x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('even','Even',2)">Even 2x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('odd','Odd',2)">Odd 2x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('low','1-18',2)">1-18 2x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('high','19-36',2)">19-36 2x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('dozen1','1st 12',3)">1st 12 3x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('dozen2','2nd 12',3)">2nd 12 3x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('dozen3','3rd 12',3)">3rd 12 3x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('row0','Top Row',3)">Top Row 3x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('row1','Middle Row',3)">Middle Row 3x</button>
+              <button class="roulette-bet-option" onclick="toggleRouletteBet('row2','Bottom Row',3)">Bottom Row 3x</button>
+            </div>
+          </div>
+        </div>`;
+      drawRouletteBoard();
+      setActions(`<button onclick="clearRouletteBets()">Clear Bets</button><button class="cashout" onclick="finaliseRouletteBets()">Finalise Bets</button>`, "Choose numbers, rows/columns/dozens, then finalise bets. Each selected bet costs your bet amount.");
+    }
+
+    function drawRouletteBoard(){
+      const board = document.getElementById('rouletteBoard');
+      board.innerHTML = `<button class="roulette-num green-num" onclick="toggleRouletteBet('num0','0',36)">0</button>`;
+      for(let col=0; col<12; col++){
+        for(let row=0; row<3; row++){
+          const n = col*3 + (3-row);
+          const colour = rouletteRedNumbers.has(n) ? 'red-num' : 'black-num';
+          board.innerHTML += `<button class="roulette-num ${colour}" onclick="toggleRouletteBet('num${n}','${n}',36)">${n}</button>`;
+        }
+      }
+    }
+
+    function toggleRouletteBet(type, label, payout){
+      const existing = rouletteBets.findIndex(b => b.type === type);
+      if(existing >= 0) rouletteBets.splice(existing, 1);
+      else rouletteBets.push({type, label, payout});
+      updateRouletteBetUI();
+    }
+
+    function clearRouletteBets(){
+      rouletteBets = [];
+      updateRouletteBetUI();
+      rouletteResult.textContent = 'Bets Cleared';
+    }
+
+    function updateRouletteBetUI(){
+      document.querySelectorAll('.roulette-num,.roulette-bet-option').forEach(btn => btn.classList.remove('selected'));
+      rouletteBets.forEach(b => {
+        document.querySelectorAll(`[onclick*="'${b.type}'"]`).forEach(btn => btn.classList.add('selected'));
+      });
+      rouletteBetsList.textContent = rouletteBets.length ? `Selected: ${rouletteBets.map(b=>b.label).join(', ')}` : 'No bets selected.';
+    }
+
+    function rouletteBetWins(bet, n){
+      if(bet.type.startsWith('num')) return Number(bet.type.replace('num','')) === n;
+      if(n === 0) return false;
+      if(bet.type === 'red') return rouletteRedNumbers.has(n);
+      if(bet.type === 'black') return !rouletteRedNumbers.has(n);
+      if(bet.type === 'even') return n % 2 === 0;
+      if(bet.type === 'odd') return n % 2 === 1;
+      if(bet.type === 'low') return n >= 1 && n <= 18;
+      if(bet.type === 'high') return n >= 19 && n <= 36;
+      if(bet.type === 'dozen1') return n >= 1 && n <= 12;
+      if(bet.type === 'dozen2') return n >= 13 && n <= 24;
+      if(bet.type === 'dozen3') return n >= 25 && n <= 36;
+      if(bet.type === 'row0') return n % 3 === 0;
+      if(bet.type === 'row1') return n % 3 === 2;
+      if(bet.type === 'row2') return n % 3 === 1;
+      return false;
+    }
+
+    async function finaliseRouletteBets(){
+      if(!rouletteBets.length) return msg('Select at least one roulette bet first.');
+      const baseBet = getBet();
+      if(!baseBet) return;
+      const totalCost = baseBet * rouletteBets.length;
+      if(state.balance < totalCost) return msg(`You need ${money(totalCost)} for ${rouletteBets.length} bets.`);
+      state.balance -= totalCost;
+      await save();
+
+      rouletteResult.textContent = 'Spinning...';
+      rouletteResult.className = 'big pulse-anim';
+      const result = rand(37);
+      const slotAngle = result * (360 / 37);
+      rouletteSpinAngle += 1440 + slotAngle + rand(20);
+      rouletteWheel.style.transform = `rotate(${rouletteSpinAngle}deg)`;
+      rouletteBall.style.animation = 'spin 1s linear infinite';
+
+      setTimeout(async()=>{
+        rouletteBall.style.animation = '';
+        const colour = result === 0 ? 'Green' : rouletteRedNumbers.has(result) ? 'Red' : 'Black';
+        rouletteResult.textContent = `${result} ${colour}`;
+        rouletteResult.className = 'big pop-anim';
+        const winningBets = rouletteBets.filter(b => rouletteBetWins(b, result));
+        if(winningBets.length){
+          let totalWin = 0;
+          winningBets.forEach(b => totalWin += baseBet * b.payout);
+          await win(totalWin);
+        } else {
+          msg(`Roulette landed on ${result}. No winning bets.`);
+          await save();
+        }
+        rouletteBets = [];
+        updateRouletteBetUI();
+      }, 3500);
     }
     async function startMines(){ const b=getBet(); if(!b)return; minesBet=b; state.balance-=b; minesActive=true; minesPicks=0; minesBombs=new Set(); const bombs=mode.value==='Easy'?1:mode.value==='Hard'?3:2; while(minesBombs.size<bombs) minesBombs.add(rand(25)); await save(); drawMines(false); msg("Mines started."); }
     function drawMines(reveal){ minesBoard.innerHTML=''; for(let i=0;i<25;i++){ const d=document.createElement('div'); d.className='cell'; d.onclick=()=>pickMine(i,d); d.textContent=reveal&&minesBombs.has(i)?'💣':''; minesBoard.appendChild(d); } }
@@ -875,7 +1075,9 @@
     window.hilo = hilo;
     window.highCard = highCard;
     window.play21 = play21;
-    window.roulette = roulette;
+    window.toggleRouletteBet = toggleRouletteBet;
+    window.clearRouletteBets = clearRouletteBets;
+    window.finaliseRouletteBets = finaliseRouletteBets;
     window.startMines = startMines;
     window.cashMines = cashMines;
     window.safePick = safePick;
