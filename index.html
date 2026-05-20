@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Ore Roller RNG — Animations + Owned-Only Inventory</title>
+  <title>Ore Roller RNG — Auto Roll + Showcase + Skips</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
       --bg:#0f1220; --panel:#151a31; --panel2:#10152b;
       --text:#e7ecf7; --muted:#9aa3b2; --accent:#6ae3ff;
-      --good:#6aff9e; --warn:#ffd24a;
+      --good:#6aff9e; --warn:#ffd24a; --danger:#ff6a6a;
     }
     *{box-sizing:border-box}
     body{
@@ -26,16 +26,16 @@
     .money{ display:flex; gap:16px; align-items:center; color:var(--muted); font-size:.95rem; }
     .money strong{color:var(--text)}
     .wrap{
-      display:grid; grid-template-columns: 1fr 360px; gap:18px;
-      width:min(1200px, 94vw); margin:20px auto; align-items:start;
+      display:grid; grid-template-columns: 1fr 380px; gap:18px;
+      width:min(1280px, 95vw); margin:20px auto; align-items:start;
     }
     .stage{
       background:var(--panel2); border:1px solid #222a4a; border-radius:14px;
-      padding:24px; display:grid; grid-template-rows:auto 1fr auto; gap:16px; min-height:520px;
+      padding:24px; display:grid; grid-template-rows:auto 1fr auto; gap:16px; min-height:560px;
       position:relative; overflow:hidden;
     }
-    .stage-head{ display:flex; justify-content:space-between; align-items:center; }
-    .rate{ display:flex; gap:14px; color:var(--muted); font-size:.95rem; }
+    .stage-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .rate{ display:flex; gap:14px; color:var(--muted); font-size:.95rem; flex-wrap:wrap; }
     .center{ display:grid; place-items:center; position:relative; }
     .roll-btn{
       width:220px; height:220px; border-radius:50%;
@@ -56,6 +56,7 @@
     .subpanel{ background:#0d132a; border:1px solid #1e2550; border-radius:12px; padding:12px; }
     .bar{ height:8px; border-radius:6px; background:#0f1430; border:1px solid #27305a; overflow:hidden; }
     .bar > div{ height:100%; background:linear-gradient(90deg, #6ae3ff, #8ef5c2); width:0%; transition:width .25s ease; }
+
     .side{ display:grid; gap:16px; }
     .card{ background:var(--panel2); border:1px solid #1f274a; border-radius:12px; padding:14px; }
     .card h3{ margin:0 0 10px 0; font-size:1rem; color:var(--accent)}
@@ -81,7 +82,7 @@
     .miss{ color:var(--muted); }
     .warn{ color:var(--warn); }
 
-    /* Toast: pop-up notification for finds */
+    /* Toasts for basic finds */
     .toasts{
       position:absolute; left:50%; top:14%; transform:translateX(-50%);
       display:flex; flex-direction:column; gap:8px; pointer-events:none; z-index:20;
@@ -94,18 +95,11 @@
     }
     .toast .rarity{ font-size:.85rem; color:#a9c7ff; font-weight:600; }
     .toast .value{ color:#9fe6b6; font-weight:800; }
-    @keyframes toastIn{
-      from{ transform: translateY(-8px) scale(.96); opacity: 0 }
-      to{ transform: translateY(0) scale(1); opacity: 1 }
-    }
-    @keyframes toastOut{
-      to{ transform: translateY(-10px) scale(.98); opacity: 0 }
-    }
+    @keyframes toastIn{ from{ transform: translateY(-8px) scale(.96); opacity: 0 } to{ transform: translateY(0) scale(1); opacity: 1 } }
+    @keyframes toastOut{ to{ transform: translateY(-10px) scale(.98); opacity: 0 } }
 
-    /* Confetti for Epic+ */
-    .confetti{
-      position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:15;
-    }
+    /* Confetti */
+    .confetti{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:15; }
     .piece{
       position:absolute; width:8px; height:12px; opacity:.9;
       animation: fall 900ms cubic-bezier(.2,.8,.2,1) forwards;
@@ -114,6 +108,101 @@
       0%{ transform: translate(var(--sx,0), calc(var(--sy,0))) rotate(0deg); opacity:1 }
       100%{ transform: translate(calc(var(--sx,0) + var(--dx,0)), calc(var(--sy,0) + var(--dy,140px))) rotate(360deg); opacity:0.2 }
     }
+
+    /* Full-screen showcase for Epic+ */
+    .showcase{
+      position:fixed; inset:0; background: rgba(6,8,20,.9);
+      display:none; align-items:center; justify-content:center; z-index:50;
+      backdrop-filter: blur(2px);
+    }
+    .showcase.active{ display:flex; }
+    .showcase-inner{
+      width:min(780px, 92vw); aspect-ratio: 16/9;
+      background: radial-gradient(600px 300px at 50% 40%, rgba(60,90,180,.35), rgba(0,0,0,.6));
+      border:1px solid #2a3a88; border-radius:16px; position:relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.05);
+      overflow:hidden;
+      animation: popIn .22s ease;
+    }
+    @keyframes popIn{ from{ transform: scale(.96); opacity:0 } to{ transform: scale(1); opacity:1 } }
+    .shine{
+      position:absolute; inset:0; background:
+        radial-gradient(500px 300px at 50% 30%, rgba(255,255,255,.15), rgba(255,255,255,0)),
+        radial-gradient(800px 500px at 50% 80%, rgba(106,227,255,.12), rgba(0,0,0,0));
+      pointer-events:none;
+      animation: slowShine 2.5s ease-in-out infinite alternate;
+    }
+    @keyframes slowShine{
+      from{ filter: hue-rotate(0deg) }
+      to{ filter: hue-rotate(30deg) }
+    }
+    .ore-card{
+      position:absolute; left:50%; top:50%; transform: translate(-50%,-50%) rotate(-6deg);
+      width: 360px; height: 420px; border-radius: 16px;
+      background:#0c1230; border:1px solid #2e45aa; box-shadow: 0 10px 40px rgba(0,0,0,.5);
+      display:grid; grid-template-rows: auto 1fr auto; overflow:hidden;
+      animation: cardFloat 2.2s ease-in-out infinite alternate;
+    }
+    @keyframes cardFloat{
+      from{ transform: translate(-50%, calc(-50% - 4px)) rotate(-6deg) }
+      to{ transform: translate(-50%, calc(-50% + 6px)) rotate(-4deg) }
+    }
+    .ore-top{
+      background: linear-gradient(120deg, rgba(255,255,255,.06), rgba(255,255,255,0));
+      padding: 10px 14px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #22327a;
+    }
+    .ore-art{
+      display:grid; place-items:center; position:relative;
+      background: radial-gradient(260px 180px at 50% 55%, rgba(120,170,255,.16), rgba(0,0,0,0));
+    }
+    .ore-gem{
+      width: 160px; height: 160px; border-radius: 24px;
+      background: conic-gradient(from 20deg, rgba(255,255,255,.15), rgba(255,255,255,0) 20%);
+      position:relative;
+      filter: drop-shadow(0 18px 30px rgba(0,0,0,.45));
+      animation: spin 2.4s ease-in-out infinite alternate;
+    }
+    @keyframes spin{
+      from{ transform: rotate(-6deg) scale(0.98) }
+      to{ transform: rotate(6deg) scale(1.02) }
+    }
+    .ore-gem::before{
+      content:''; position:absolute; inset:0; border-radius:24px;
+      background: var(--gemColor, #6ae3ff);
+      mix-blend-mode: screen; opacity:.9;
+      box-shadow: inset 0 0 40px rgba(255,255,255,.15), 0 0 50px var(--gemColor, #6ae3ff);
+    }
+    .ore-meta{
+      padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+      border-top:1px solid #22327a; background: rgba(10,12,24,.6);
+    }
+    .ore-name{ font-weight:900; letter-spacing:.4px; }
+    .ore-rarity{ color:#a9c7ff; }
+    .closeBtn{
+      position:absolute; top:10px; right:12px; background:#0f1430; border:1px solid #2a3a88; color:#e6eeff;
+      padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:800;
+    }
+    .closeBtn:hover{ filter: brightness(1.1); }
+
+    /* Skips / Upgrades */
+    .shop{
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .shop button{
+      padding:8px 10px; font-weight:800; border-radius:8px; border:1px solid #2f3866;
+      background:linear-gradient(180deg, #263160, #1b2347); color:#e8efff; cursor:pointer;
+    }
+    .shop button:disabled{ opacity:.55; cursor:not-allowed; }
+    .skip-panel{
+      display:none; background:#0d132a; border:1px solid #1e2550; border-radius:12px; padding:10px; margin-top:10px;
+      max-height:260px; overflow:auto;
+    }
+    .skip-panel.active{ display:block; }
+    .skip-row{
+      display:flex; align-items:center; gap:10px; padding:6px 8px; border-radius:8px; background:#0b1022; border:1px solid #20284a; margin-bottom:6px;
+    }
+    .skip-row label{ display:flex; align-items:center; gap:8px; cursor:pointer; }
+    .skip-row input{ transform: scale(1.2); }
 
     .footer{
       padding:10px 18px; border-top:1px solid #242a44; background:var(--panel); color:var(--muted);
@@ -124,9 +213,10 @@
       padding:8px 12px; border-radius:8px; border:1px solid #2f3866;
       background:linear-gradient(180deg, #263160, #1b2347); color:#e8efff; cursor:pointer; font-weight:700;
     }
+
     @media (max-width: 980px){
       .wrap{ grid-template-columns: 1fr; }
-      .stage{ min-height:460px; }
+      .stage{ min-height:520px; }
       .roll-btn{ width:200px; height:200px; }
     }
   </style>
@@ -146,9 +236,10 @@
         <div class="rate">
           <div>Total Rolls: <strong id="totalRolls">0</strong></div>
           <div>Find Rate: <strong id="findRate">0%</strong></div>
+          <div id="autoStatus" class="odds"></div>
         </div>
-        <div style="min-width:220px">
-          <div class="bar"><div id="findBar"></div></div>
+        <div style="min-width:260px; display:flex; align-items:center; gap:10px; justify-content:flex-end;">
+          <div class="bar" style="flex:1 1 auto"><div id="findBar"></div></div>
         </div>
       </div>
 
@@ -160,17 +251,18 @@
         <div class="quick">
           <button id="auto10">Roll x10 ($15)</button>
         </div>
-        <!-- Toast container -->
         <div id="toasts" class="toasts"></div>
-        <!-- Confetti container -->
         <div id="confetti" class="confetti"></div>
       </div>
 
       <div class="subpanel">
-        <div class="odds">
-          Rolls cost $1. Or buy 10 rolls for $15. Each roll attempts to find exactly one ore (common → rare).
-          Owned ores generate passive income per second; inventory shows only ores you own.
+        <div class="shop">
+          <button id="buyAuto" title="Buy Auto-Roll for $100">Buy Auto-Roll ($100)</button>
+          <button id="toggleAuto" disabled>Toggle Auto-Roll</button>
+          <button id="toggleSkips" disabled>Skips Menu</button>
+          <span class="odds">Auto-Roll spends automatically at intervals. Skips let you ignore selected ores.</span>
         </div>
+        <div id="skipPanel" class="skip-panel"></div>
       </div>
     </section>
 
@@ -193,41 +285,99 @@
   </main>
 
   <footer class="footer">
-    <div>Tip: Press Space to roll. Your ores earn money automatically.</div>
+    <div>Tip: Press Space to roll. Your ores earn money automatically. Auto-Roll unlocked at $100.</div>
     <div class="controls">
       <button id="resetBtn" title="Clear inventory and log">Reset</button>
     </div>
   </footer>
 
+  <!-- Full-screen Showcase -->
+  <div id="showcase" class="showcase" aria-hidden="true">
+    <div class="showcase-inner">
+      <button id="closeShowcase" class="closeBtn" aria-label="Close">Close</button>
+      <div class="shine"></div>
+      <div class="ore-card" id="oreCard">
+        <div class="ore-top">
+          <div class="badge" id="scBadge" style="width:14px;height:14px;"></div>
+          <div class="ore-name" id="scName">Ore</div>
+          <div class="odds" id="scRarity">Rarity</div>
+        </div>
+        <div class="ore-art">
+          <div class="ore-gem" id="scGem"></div>
+        </div>
+        <div class="ore-meta">
+          <div class="odds">You now own <strong id="scCount">#1</strong></div>
+          <div class="income" id="scIncome">+$0.00/s</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // CONFIG
-    const ROLL_COST = 1;     // $1 per roll
-    const ROLL10_COST = 15;  // $15 for 10 rolls (discount)
+    const ROLL_COST = 1;         // $1 per roll
+    const ROLL10_COST = 15;      // $15 for 10 rolls (discount)
+    const AUTO_COST = 100;       // $100 to unlock auto-roll
+    const AUTO_INTERVAL_MS = 600; // time between auto-roll attempts
 
-    // Ores: odds + passive income per ore owned
+    // Ores: odds + passive income per ore owned.
+    // Boost incomes for ores rarer than 1 in 50.
     const ORES = [
-      { key:'dirt',     name:'Dirt',     color:'#8b5a2b', oneIn: 2,   rarity:'Common',    incomePerSec: 0.01 },
-      { key:'rock',     name:'Rock',     color:'#7a7f87', oneIn: 4,   rarity:'Common',    incomePerSec: 0.02 },
-      { key:'coal',     name:'Coal',     color:'#2f3136', oneIn: 6,   rarity:'Common',    incomePerSec: 0.03 },
-      { key:'copper',   name:'Copper',   color:'#c77943', oneIn: 10,  rarity:'Uncommon',  incomePerSec: 0.06 },
-      { key:'iron',     name:'Iron',     color:'#b8bfc7', oneIn: 16,  rarity:'Uncommon',  incomePerSec: 0.10 },
-      { key:'silver',   name:'Silver',   color:'#dfe6ee', oneIn: 24,  rarity:'Uncommon',  incomePerSec: 0.16 },
-      { key:'gold',     name:'Gold',     color:'#ffd24a', oneIn: 40,  rarity:'Rare',      incomePerSec: 0.30 },
-      { key:'ruby',     name:'Ruby',     color:'#ff4d6d', oneIn: 80,  rarity:'Epic',      incomePerSec: 0.60 },
-      { key:'sapphire', name:'Sapphire', color:'#4da3ff', oneIn: 120, rarity:'Epic',      incomePerSec: 0.90 },
-      { key:'emerald',  name:'Emerald',  color:'#40e0a8', oneIn: 160, rarity:'Legendary', incomePerSec: 1.40 },
-      { key:'diamond',  name:'Diamond',  color:'#82fff6', oneIn: 240, rarity:'Mythic',    incomePerSec: 2.20 },
-      { key:'obsidian', name:'Obsidian', color:'#3a0c5a', oneIn: 360, rarity:'Mythic',    incomePerSec: 3.40 },
-      { key:'mythril',  name:'Mythril',  color:'#a9fffe', oneIn: 480, rarity:'Relic',     incomePerSec: 5.20 },
-      { key:'starlite', name:'Starlite', color:'#b986ff', oneIn: 720, rarity:'Relic',     incomePerSec: 8.00 }
-    ];
+      { key:'dirt',     name:'Dirt',      color:'#8b5a2b', oneIn: 2,   rarity:'Common'   },
+      { key:'rock',     name:'Rock',      color:'#7a7f87', oneIn: 4,   rarity:'Common'   },
+      { key:'coal',     name:'Coal',      color:'#2f3136', oneIn: 6,   rarity:'Common'   },
+      { key:'clay',     name:'Clay',      color:'#b0705a', oneIn: 8,   rarity:'Common'   },
+      { key:'copper',   name:'Copper',    color:'#c77943', oneIn: 10,  rarity:'Uncommon' },
+      { key:'tin',      name:'Tin',       color:'#b6c3c8', oneIn: 12,  rarity:'Uncommon' },
+      { key:'iron',     name:'Iron',      color:'#b8bfc7', oneIn: 16,  rarity:'Uncommon' },
+      { key:'nickel',   name:'Nickel',    color:'#9fb3be', oneIn: 20,  rarity:'Uncommon' },
+      { key:'silver',   name:'Silver',    color:'#dfe6ee', oneIn: 24,  rarity:'Uncommon' },
+      { key:'gold',     name:'Gold',      color:'#ffd24a', oneIn: 40,  rarity:'Rare'     },
+      { key:'platinum', name:'Platinum',  color:'#e4f1ff', oneIn: 50,  rarity:'Rare'     },
+      { key:'ruby',     name:'Ruby',      color:'#ff4d6d', oneIn: 80,  rarity:'Epic'     },
+      { key:'sapphire', name:'Sapphire',  color:'#4da3ff', oneIn: 120, rarity:'Epic'     },
+      { key:'emerald',  name:'Emerald',   color:'#40e0a8', oneIn: 160, rarity:'Legendary'},
+      { key:'diamond',  name:'Diamond',   color:'#82fff6', oneIn: 240, rarity:'Mythic'   },
+      { key:'obsidian', name:'Obsidian',  color:'#3a0c5a', oneIn: 360, rarity:'Mythic'   },
+      { key:'mythril',  name:'Mythril',   color:'#a9fffe', oneIn: 480, rarity:'Relic'    },
+      { key:'starlite', name:'Starlite',  color:'#b986ff', oneIn: 720, rarity:'Relic'    },
+      // Extra ultra endgame
+      { key:'nebulite', name:'Nebulite',  color:'#9efcff', oneIn: 1200, rarity:'Relic'   },
+      { key:'voidcore', name:'Voidcore',  color:'#6c36ff', oneIn: 2000, rarity:'Relic'   }
+    ].map(o => {
+      // Base incomes (tuned), then boost for > 1 in 50
+      let base;
+      switch (o.rarity){
+        case 'Common':    base = 0.02; break;
+        case 'Uncommon':  base = 0.08; break;
+        case 'Rare':      base = 0.22; break;
+        case 'Epic':      base = 0.60; break;
+        case 'Legendary': base = 1.40; break;
+        case 'Mythic':    base = 2.40; break;
+        case 'Relic':     base = 5.00; break;
+        default:          base = 0.05;
+      }
+      if (o.oneIn > 50){
+        // Progressive boost: 1 + log-scaled factor
+        const factor = 1 + Math.log10(o.oneIn / 50) * 0.9; // gentle ramp
+        base = +(base * factor).toFixed(2);
+      }
+      return { ...o, incomePerSec: base };
+    });
 
     // State
     const inventory = Object.fromEntries(ORES.map(o => [o.key, 0]));
     let totalRolls = 0;
     let totalFinds = 0;
-    let money = 20; // start funds for quick testing
+    let money = 20; // starting funds for testing
     let lastTick = performance.now();
+
+    let autoUnlocked = false;
+    let autoEnabled = false;
+    let autoTimer = null;
+
+    // Skips: set of ore keys to ignore
+    const skipSet = new Set();
 
     // DOM
     const invListEl = document.getElementById('invList');
@@ -243,9 +393,25 @@
     const mpsDisplay = document.getElementById('mpsDisplay');
     const toastsEl = document.getElementById('toasts');
     const confettiEl = document.getElementById('confetti');
+    const buyAutoBtn = document.getElementById('buyAuto');
+    const toggleAutoBtn = document.getElementById('toggleAuto');
+    const toggleSkipsBtn = document.getElementById('toggleSkips');
+    const skipPanel = document.getElementById('skipPanel');
+    const autoStatus = document.getElementById('autoStatus');
+
+    // Showcase
+    const showcase = document.getElementById('showcase');
+    const closeShowcase = document.getElementById('closeShowcase');
+    const scBadge = document.getElementById('scBadge');
+    const scName = document.getElementById('scName');
+    const scRarity = document.getElementById('scRarity');
+    const scCount = document.getElementById('scCount');
+    const scIncome = document.getElementById('scIncome');
+    const scGem = document.getElementById('scGem');
 
     // Helpers
     function formatMoney(x){
+      if (x >= 1e12) return '$' + (x/1e12).toFixed(2) + 'T';
       if (x >= 1e9) return '$' + (x/1e9).toFixed(2) + 'B';
       if (x >= 1e6) return '$' + (x/1e6).toFixed(2) + 'M';
       if (x >= 1e3) return '$' + (x/1e3).toFixed(2) + 'k';
@@ -257,7 +423,6 @@
       return mps;
     }
     function rarityRank(r){
-      // Order for styling confetti threshold
       const order = ['Common','Uncommon','Rare','Epic','Legendary','Mythic','Relic'];
       return order.indexOf(r);
     }
@@ -281,17 +446,45 @@
       });
     }
 
-    // Only show ores with count > 0
+    // Skips menu (checkboxes)
+    function renderSkips(){
+      skipPanel.innerHTML = '';
+      ORES.forEach(o => {
+        const row = document.createElement('div');
+        row.className = 'skip-row';
+        const id = 'skip_' + o.key;
+        row.innerHTML = `
+          <label for="${id}">
+            <span class="badge" style="background:${o.color}"></span>
+            <strong>${o.name}</strong> <span class="odds">(${o.rarity}, 1/${o.oneIn})</span>
+          </label>
+          <input type="checkbox" id="${id}" ${skipSet.has(o.key)?'checked':''} />
+        `;
+        const input = row.querySelector('input');
+        input.addEventListener('change', () => {
+          if (input.checked) skipSet.add(o.key); else skipSet.delete(o.key);
+          log(`${input.checked ? 'Skipping' : 'Un-skipping'} ${o.name}.`, 'warn');
+        });
+        skipPanel.appendChild(row);
+      });
+      if (!skipPanel.children.length){
+        const empty = document.createElement('div');
+        empty.className = 'odds';
+        empty.textContent = 'No ores available.';
+        skipPanel.appendChild(empty);
+      }
+    }
+
+    // Only show owned ores
     function renderInventory(highlightKey=null){
       invListEl.innerHTML = '';
       ORES.forEach(o => {
         const count = inventory[o.key];
-        if (!count) return; // hide unowned
+        if (!count) return;
         const wrap = document.createElement('div');
         wrap.className = 'inv-item';
         if (highlightKey === o.key){
           wrap.classList.add('inv-pulse');
-          // Remove pulse after a moment
           setTimeout(()=>wrap.classList.remove('inv-pulse'), 450);
         }
         const name = document.createElement('div');
@@ -305,7 +498,6 @@
         wrap.appendChild(amt);
         invListEl.appendChild(wrap);
       });
-      // If nothing owned, show a friendly placeholder
       if (!invListEl.children.length){
         const empty = document.createElement('div');
         empty.className = 'odds';
@@ -325,6 +517,15 @@
       // Affordability
       rollBtn.disabled = money < ROLL_COST;
       auto10Btn.disabled = money < ROLL10_COST;
+
+      // Shop buttons
+      buyAutoBtn.disabled = autoUnlocked || money < AUTO_COST;
+      toggleAutoBtn.disabled = !autoUnlocked;
+      toggleSkipsBtn.disabled = !autoUnlocked;
+
+      autoStatus.textContent = autoUnlocked
+        ? (autoEnabled ? 'Auto-Roll: ON' : 'Auto-Roll: OFF')
+        : 'Auto-Roll locked';
       rollBtn.style.filter = rollBtn.disabled ? 'grayscale(0.3) brightness(0.9)' : '';
     }
 
@@ -334,7 +535,7 @@
       const time = new Date().toLocaleTimeString();
       div.textContent = `[${time}] ${msg}`;
       logEl.prepend(div);
-      const MAX = 200;
+      const MAX = 220;
       while (logEl.children.length > MAX) logEl.removeChild(logEl.lastChild);
     }
 
@@ -354,32 +555,56 @@
     }
 
     function burstConfetti(color){
-      // Small burst near the roll button center
       const rect = confettiEl.getBoundingClientRect();
       const centerX = rect.width/2;
-      const y = 40; // near the top of center panel
-      const n = 20;
+      const y = 40;
+      const n = 22;
       for (let i=0;i<n;i++){
         const p = document.createElement('div');
         p.className = 'piece';
-        const hueShift = (i*18)%360;
-        p.style.background = i%2 ? color : `hsl(${hueShift},85%,60%)`;
+        const hue = (i*18)%360;
+        p.style.background = i%2 ? color : `hsl(${hue},85%,60%)`;
         const sx = centerX + (Math.random()*40 - 20);
         const sy = y + (Math.random()*30 - 10);
-        const dx = (Math.random()*200 - 100);
-        const dy = 120 + Math.random()*120;
-        p.style.left = `${sx}px`;
-        p.style.top = `${sy}px`;
-        p.style.setProperty('--sx', '0px');
-        p.style.setProperty('--sy', '0px');
-        p.style.setProperty('--dx', dx+'px');
-        p.style.setProperty('--dy', dy+'px');
+        const dx = (Math.random()*220 - 110);
+        const dy = 120 + Math.random()*140;
+        p.style.left = `${sx}px`; p.style.top = `${sy}px`;
+        p.style.setProperty('--sx', '0px'); p.style.setProperty('--sy', '0px');
+        p.style.setProperty('--dx', dx+'px'); p.style.setProperty('--dy', dy+'px');
         confettiEl.appendChild(p);
         setTimeout(()=>p.remove(), 1000);
       }
     }
 
-    // RNG + costs
+    // Full-screen showcase for Epic+
+    function openShowcase(ore, count){
+      scBadge.style.background = ore.color;
+      scName.textContent = ore.name;
+      scRarity.textContent = ore.rarity + ` • 1/${ore.oneIn}`;
+      scCount.textContent = `#${count}`;
+      scIncome.textContent = `+$${ore.incomePerSec.toFixed(2)}/s`;
+      scGem.style.setProperty('--gemColor', ore.color);
+      showcase.classList.add('active');
+      showcase.setAttribute('aria-hidden','false');
+    }
+    function closeShowcaseFn(){
+      showcase.classList.remove('active');
+      showcase.setAttribute('aria-hidden','true');
+    }
+    closeShowcase.addEventListener('click', closeShowcaseFn);
+    showcase.addEventListener('click', (e)=>{ if (e.target === showcase) closeShowcaseFn(); });
+    window.addEventListener('keydown', (e)=>{ if (e.key === 'Escape' && showcase.classList.contains('active')) closeShowcaseFn(); });
+
+    // RNG roll with cost and skips
+    function performRNG(){
+      // Do independent checks from common to rare, first hit wins, but skip any in skipSet
+      for (const o of ORES){
+        if (skipSet.has(o.key)) continue;
+        if (Math.floor(Math.random() * o.oneIn) === 0) return o;
+      }
+      return null;
+    }
+
     function doOneRoll(){
       if (money < ROLL_COST){
         log(`Not enough money for a roll. Need $${ROLL_COST.toFixed(2)}.`, 'warn');
@@ -388,22 +613,23 @@
       money -= ROLL_COST;
 
       totalRolls += 1;
-      let found = null;
-      for (const o of ORES){
-        if (Math.floor(Math.random() * o.oneIn) === 0){
-          found = o; break;
-        }
-      }
+      const found = performRNG();
 
       if (found){
         totalFinds += 1;
         inventory[found.key] += 1;
         const count = inventory[found.key];
-        log(`You found ${found.name}! (+$${found.incomePerSec.toFixed(2)}/s)`, 'got');
-        showToast(found, count);
-        if (rarityRank(found.rarity) >= rarityRank('Epic')){
-          burstConfetti(found.color);
+
+        const rRank = rarityRank(found.rarity);
+        // Big showcase for Epic+ (>= Epic)
+        if (rRank >= rarityRank('Epic')){
+          openShowcase(found, count);
+        } else {
+          showToast(found, count);
         }
+        if (rRank >= rarityRank('Epic')) burstConfetti(found.color);
+
+        log(`You found ${found.name}! (+$${found.incomePerSec.toFixed(2)}/s)`, 'got');
         renderInventory(found.key);
       } else {
         log(`No ore found.`, 'miss');
@@ -421,26 +647,22 @@
       money -= totalCost;
       updateTopStats();
 
-      rollBtn.disabled = true;
-      auto10Btn.disabled = true;
-
+      rollBtn.disabled = true; auto10Btn.disabled = true;
       for (let i=0; i<n; i++){
         totalRolls += 1;
-        let found = null;
-        for (const o of ORES){
-          if (Math.floor(Math.random() * o.oneIn) === 0){
-            found = o; break;
-          }
-        }
+        const found = performRNG();
         if (found){
           totalFinds += 1;
           inventory[found.key] += 1;
           const count = inventory[found.key];
-          log(`Bundle roll: found ${found.name}! (+$${found.incomePerSec.toFixed(2)}/s)`, 'got');
-          showToast(found, count);
-          if (rarityRank(found.rarity) >= rarityRank('Epic')){
+          const rRank = rarityRank(found.rarity);
+          if (rRank >= rarityRank('Epic')) {
+            openShowcase(found, count);
             burstConfetti(found.color);
+          } else {
+            showToast(found, count);
           }
+          log(`Bundle roll: found ${found.name}! (+$${found.incomePerSec.toFixed(2)}/s)`, 'got');
           renderInventory(found.key);
         } else {
           log(`Bundle roll: no ore.`, 'miss');
@@ -464,28 +686,82 @@
       tick._acc += dt;
       if (tick._acc >= 0.1){
         updateTopStats();
-        // Inventory rows display per-ore $/s; refresh but preserve pulses
         renderInventory();
         tick._acc = 0;
       }
       requestAnimationFrame(tick);
     }
 
+    // Auto-roll
+    function startAuto(){
+      if (autoTimer) return;
+      autoEnabled = true;
+      autoStatus.textContent = 'Auto-Roll: ON';
+      autoTimer = setInterval(()=>{
+        // Try one roll if we can afford it; else do nothing (income may refill)
+        if (money >= ROLL_COST){
+          doOneRoll();
+        }
+      }, AUTO_INTERVAL_MS);
+      log('Auto-Roll enabled.', 'warn');
+      updateTopStats();
+    }
+    function stopAuto(){
+      autoEnabled = false;
+      autoStatus.textContent = 'Auto-Roll: OFF';
+      if (autoTimer){ clearInterval(autoTimer); autoTimer = null; }
+      log('Auto-Roll disabled.', 'warn');
+      updateTopStats();
+    }
+
     // Events
     rollBtn.addEventListener('click', () => doOneRoll());
     auto10Btn.addEventListener('click', () => rollBatchPaid(10, ROLL10_COST, 40));
+
+    buyAutoBtn.addEventListener('click', () => {
+      if (autoUnlocked) return;
+      if (money < AUTO_COST){
+        log(`Not enough money to buy Auto-Roll. Need $${AUTO_COST.toFixed(2)}.`, 'warn');
+        return;
+      }
+      money -= AUTO_COST;
+      autoUnlocked = true;
+      toggleAutoBtn.disabled = false;
+      toggleSkipsBtn.disabled = false;
+      log('Auto-Roll purchased! You can now toggle Auto-Roll and manage Skips.', 'warn');
+      updateTopStats();
+      renderSkips();
+    });
+
+    toggleAutoBtn.addEventListener('click', () => {
+      if (!autoUnlocked) return;
+      if (autoEnabled) stopAuto(); else startAuto();
+    });
+
+    toggleSkipsBtn.addEventListener('click', () => {
+      if (!autoUnlocked) return;
+      skipPanel.classList.toggle('active');
+    });
+
     resetBtn.addEventListener('click', () => {
       if (!confirm('Reset inventory, money, and log?')) return;
       for (const k in inventory) inventory[k] = 0;
       totalRolls = 0; totalFinds = 0; money = 0;
+      autoUnlocked = false; stopAuto();
+      skipSet.clear();
       logEl.innerHTML = '';
-      renderInventory(); updateTopStats();
+      renderInventory(); renderSkips(); updateTopStats();
       log('Game reset.', 'warn');
     });
+
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space'){
+      if (e.code === 'Space' && !showcase.classList.contains('active')){
         e.preventDefault();
         doOneRoll();
+      }
+      if (e.key.toLowerCase() === 'a' && autoUnlocked){
+        // quick toggle
+        if (autoEnabled) stopAuto(); else startAuto();
       }
     });
 
@@ -493,16 +769,20 @@
     function init(){
       renderLegend();
       renderInventory();
+      renderSkips();
       updateTopStats();
       requestAnimationFrame((t)=>{ lastTick = t; tick(t); });
-      log(`Welcome! Rolls cost $${ROLL_COST.toFixed(2)}. Bundle: 10 rolls for $${ROLL10_COST.toFixed(2)}.`, 'warn');
+      log(`Welcome! Rolls cost $${ROLL_COST.toFixed(2)}. Bundle: 10 rolls for $${ROLL10_COST.toFixed(2)}. Auto-Roll costs $${AUTO_COST.toFixed(2)}.`, 'warn');
     }
     init();
 
     // Save/load
-    const SAVE_KEY = 'oreRNG_save_v3_anims_owned';
+    const SAVE_KEY = 'oreRNG_save_v4_auto_showcase_skips';
     function save(){
-      const data = { inv: inventory, rolls: totalRolls, finds: totalFinds, money };
+      const data = {
+        inv: inventory, rolls: totalRolls, finds: totalFinds, money,
+        autoUnlocked, autoEnabled, skips: Array.from(skipSet)
+      };
       localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     }
     function load(){
@@ -515,6 +795,10 @@
           totalRolls = d.rolls ?? 0;
           totalFinds = d.finds ?? 0;
           money = d.money ?? 0;
+          autoUnlocked = !!d.autoUnlocked;
+          if (Array.isArray(d.skips)) d.skips.forEach(k => skipSet.add(k));
+          renderSkips();
+          if (d.autoEnabled && autoUnlocked) startAuto();
         }
       }catch{}
     }
