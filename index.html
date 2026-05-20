@@ -2,56 +2,38 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Ore Roller RNG — Upgrades & Systems Expansion</title>
+<title>Ore Roller RNG — Fix: Legend + $10 Start</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
   :root{
     --bg:#0f1220; --panel:#151a31; --panel2:#10152b;
     --text:#e7ecf7; --muted:#9aa3b2; --accent:#6ae3ff;
-    --good:#6aff9e; --warn:#ffd24a; --danger:#ff6a6a;
-    --hud:#0b1026;
+    --good:#6aff9e; --warn:#ffd24a; --danger:#ff6a6a; --hud:#0b1026;
   }
   *{box-sizing:border-box}
-  body{
-    margin:0; font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  body{ margin:0; font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
     background: radial-gradient(1200px 700px at 30% -10%, #1b2348 0%, #0f1220 60%) fixed;
-    color:var(--text);
-    min-height:100vh; display:grid; grid-template-rows:auto 1fr auto;
-    overflow-x:hidden;
+    color:var(--text); min-height:100vh; display:grid; grid-template-rows:auto 1fr auto; overflow-x:hidden;
   }
-  header{
-    padding:14px 18px; background:var(--panel);
-    border-bottom:1px solid #242a44; display:flex; align-items:center; justify-content:space-between; gap:14px;
-    flex-wrap:wrap;
+  header{ padding:14px 18px; background:var(--panel); border-bottom:1px solid #242a44;
+    display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
   }
   header h1{margin:0; font-size:1.1rem; letter-spacing:.3px}
-  .money{
-    display:flex; gap:16px; align-items:center; color:var(--muted); font-size:.95rem;
-    flex-wrap:wrap;
-  }
+  .money{ display:flex; gap:16px; align-items:center; color:var(--muted); font-size:.95rem; flex-wrap:wrap; }
   .money strong{color:var(--text)}
-  .wrap{
-    display:grid; grid-template-columns: 1.1fr 420px; gap:18px;
-    width:min(1300px, 95vw); margin:20px auto; align-items:start;
-  }
-  .stage{
-    background:var(--panel2); border:1px solid #222a4a; border-radius:14px;
-    padding:24px; display:grid; grid-template-rows:auto auto 1fr auto; gap:16px; min-height:620px;
-    position:relative; overflow:hidden;
+  .wrap{ display:grid; grid-template-columns: 1.1fr 420px; gap:18px; width:min(1300px, 95vw); margin:20px auto; align-items:start; }
+  .stage{ background:var(--panel2); border:1px solid #222a4a; border-radius:14px; padding:24px;
+    display:grid; grid-template-rows:auto auto 1fr auto; gap:16px; min-height:620px; position:relative; overflow:hidden;
   }
   .stage-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
   .rate{ display:flex; gap:14px; color:var(--muted); font-size:.95rem; flex-wrap:wrap; }
-  .hud{
-    display:flex; gap:10px; align-items:center; flex-wrap:wrap; background:var(--hud); border:1px solid #1a2450; padding:8px 10px; border-radius:10px;
-  }
+  .hud{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; background:var(--hud); border:1px solid #1a2450; padding:8px 10px; border-radius:10px; }
   .pill{ background:#0d1436; border:1px solid #233070; padding:6px 10px; border-radius:999px; font-size:.9rem; display:flex; gap:6px; align-items:center; }
   .bar{ height:8px; border-radius:6px; background:#0f1430; border:1px solid #27305a; overflow:hidden; }
   .bar > div{ height:100%; background:linear-gradient(90deg, #6ae3ff, #8ef5c2); width:0%; transition:width .25s ease; }
-  .pity{ width:220px; }
-  .pity .bar{ width:100%; }
+  .pity{ width:220px; } .pity .bar{ width:100%; }
   .center{ display:grid; place-items:center; position:relative; }
-  .roll-btn{
-    width:220px; height:220px; border-radius:50%;
+  .roll-btn{ width:220px; height:220px; border-radius:50%;
     background: radial-gradient(100px 100px at 35% 30%, #2e3a78 0%, #1e2853 60%);
     border:2px solid #35407a; color:#fff; font-weight:900; font-size:1.4rem; letter-spacing:.3px;
     cursor:pointer; box-shadow: 0 18px 40px rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.05), 0 0 40px rgba(106,227,255,.18);
@@ -61,18 +43,17 @@
   .roll-btn:hover{ filter:brightness(1.06); box-shadow: 0 22px 50px rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.07), 0 0 60px rgba(106,227,255,.25);}
   .roll-btn:active{ transform: translateY(2px) scale(0.985); }
   .quick{ position:absolute; bottom:-4px; display:flex; gap:10px; }
-  .quick button{
-    padding:10px 12px; font-weight:800; border-radius:8px; border:1px solid #2f3866;
-    background:linear-gradient(180deg, #263160, #1b2347); color:#e8efff; cursor:pointer;
-  }
+  .quick button{ padding:10px 12px; font-weight:800; border-radius:8px; border:1px solid #2f3866;
+    background:linear-gradient(180deg, #263160, #1b2347); color:#e8efff; cursor:pointer; }
   .quick button:disabled{ opacity:.55; cursor:not-allowed; }
   .subpanel{ background:#0d132a; border:1px solid #1e2550; border-radius:12px; padding:12px; }
   .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
   .card{ background:var(--panel2); border:1px solid #1f274a; border-radius:12px; padding:14px; }
   .card h3{ margin:0 0 10px 0; font-size:1rem; color:var(--accent)}
   .ore-legend{ display:grid; gap:8px; }
-  .row{ display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center;
-    padding:8px; border-radius:8px; background:#101634; border:1px solid #222b55; }
+  .legend-row{ display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center;
+    padding:8px; border-radius:8px; background:#101634; border:1px solid #222b55;
+  }
   .badge{ width:12px; height:12px; border-radius:50%; box-shadow:0 0 0 3px rgba(255,255,255,.03) inset; }
   .odds{ color:var(--muted); font-size:.85rem; }
   .income{ color:#9fe6b6; font-size:.9rem; }
@@ -84,9 +65,7 @@
   .log{ max-height:220px; overflow:auto; background:#0d1122; border:1px solid #22294a; border-radius:10px; padding:10px; }
   .entry{ font-size:.92rem; padding:6px 8px; border-bottom:1px dashed #22294a; }
   .entry:last-child{ border-bottom:none; }
-  .got{ color:var(--good); }
-  .miss{ color:var(--muted); }
-  .warn{ color:var(--warn); }
+  .got{ color:var(--good); } .miss{ color:var(--muted); } .warn{ color:var(--warn); }
 
   .toasts{ position:absolute; left:50%; top:14%; transform:translateX(-50%); display:flex; flex-direction:column; gap:8px; pointer-events:none; z-index:20; }
   .toast{ background:#0b1028; border:1px solid #2540a8; border-radius:10px; padding:10px 14px; display:flex; align-items:center; gap:10px; box-shadow:0 10px 30px rgba(0,0,0,.35); animation: toastIn .28s ease, toastOut .3s ease 2.3s forwards; font-weight:700; }
@@ -154,9 +133,7 @@
         <div class="pill">Luck <strong id="luckPill">0%</strong></div>
         <div class="pill">Pity <strong id="pityPill">0%</strong></div>
         <div class="pill">Focus: <strong id="focusPill">None</strong></div>
-        <div class="pity">
-          <div class="bar"><div id="pityBar" style="width:0%"></div></div>
-        </div>
+        <div class="pity"><div class="bar"><div id="pityBar" style="width:0%"></div></div></div>
       </div>
     </div>
 
@@ -192,8 +169,8 @@
 
     <div class="subpanel">
       <div class="odds">
-        Rolls cost $1. Bundle: x10 for $15. Auto-Roll can be upgraded for speed. Pity increases on misses up to a cap, helping nudge Rare+ finds.
-        Luck and Focus modify odds for Rare+ and a chosen ore respectively. Refineries convert lower tiers over time. Quests reward RP for research.
+        Rolls cost $1. Bundle: x10 for $15. Pity increases on misses up to a cap, nudging Rare+ finds.
+        Luck and Focus modify odds for Rare+ and a chosen ore respectively. Refineries convert lower tiers over time.
       </div>
     </div>
   </section>
@@ -251,77 +228,640 @@
    ========================= */
 const ROLL_COST = 1;
 const ROLL10_COST = 15;
-
-// Auto-roll
-const AUTO_BASE_INTERVAL_MS = 600;
-const AUTO_SPEED_TIERS = [600, 450, 300, 200]; // base + 3 upgrades
-const AUTO_UPGRADE_COSTS = [100, 250, 750];    // after base unlock at 100
 const AUTO_UNLOCK_COST = 100;
+const AUTO_SPEED_TIERS = [600, 450, 300, 200];
+const AUTO_UPGRADE_COSTS = [100, 250, 750];
 
-// Pity
-const PITY_PER_MISS = 0.5; // %
-const PITY_CAP = 20;       // %
-const PITY_APPLIES_MIN_RARITY = 'Rare'; // pity applicable rarity and above
+const PITY_PER_MISS = 0.5;
+const PITY_CAP = 20;
+const PITY_APPLIES_MIN_RARITY = 'Rare';
 
-// Luck infusion
-const LUCK_INFUSION_BONUS = 10; // +% to Rare+ checks (effective reduction)
-const LUCK_INFUSION_DURATION = 60; // seconds
+const LUCK_INFUSION_BONUS = 10;
+const LUCK_INFUSION_DURATION = 60;
 const LUCK_INFUSION_COST = 50;
-const LUCK_COOLDOWN = 120; // seconds cooldown
+const LUCK_COOLDOWN = 120;
 
-// Focus lens
-const FOCUS_DURATION = 60; // seconds
+const FOCUS_DURATION = 60;
 const FOCUS_COOLDOWN = 120;
-const FOCUS_BONUS = 50; // effective boost to chosen ore chance
+const FOCUS_BONUS = 50;
 const FOCUS_COST = 80;
 
-// Beacons (global income +%)
-const BEACON_STEP = 10; // %
-const BEACON_COSTS = [100, 300, 900, 2700]; // 4 ranks
+const BEACON_STEP = 10;
+const BEACON_COSTS = [100, 300, 900, 2700];
 
-// Tier boosters (income +% per rarity)
-const TIER_BOOST = 25; // %
-const TIER_BOOST_COSTS = { // one-time per rarity
-  'Common': 50, 'Uncommon': 100, 'Rare': 250, 'Epic': 600, 'Legendary': 1500, 'Mythic': 4000, 'Relic': 10000
-};
+const TIER_BOOST = 25;
+const TIER_BOOST_COSTS = { 'Common': 50, 'Uncommon': 100, 'Rare': 250, 'Epic': 600, 'Legendary': 1500, 'Mythic': 4000, 'Relic': 10000 };
 
-// Smelter & Refinery
-const SMELTER_MULT = 1.25; // income multiplier step (stacks)
-const SMELTER_COSTS = { 'Uncommon': 200, 'Rare': 600 };
-const REFINERY_TICK_SECS = 10; // convert every N seconds
-const REFINERY_RECIPES = [
-  { from:'Common', to:'Uncommon', rate: 10, loss: 0.0, cost: 150 },
-  { from:'Uncommon', to:'Rare',   rate: 12, loss: 0.2, cost: 400 },
-  { from:'Rare',     to:'Epic',   rate: 14, loss: 0.4, cost: 1200 }
-];
+/* Expanded ore list with income boosts for oneIn > 50 (already tuned earlier) */
+const ORES = [
+  { key:'dirt',     name:'Dirt',      color:'#8b5a2b', oneIn: 2,   rarity:'Common',    base:0.02 },
+  { key:'rock',     name:'Rock',      color:'#7a7f87', oneIn: 4,   rarity:'Common',    base:0.02 },
+  { key:'coal',     name:'Coal',      color:'#2f3136', oneIn: 6,   rarity:'Common',    base:0.02 },
+  { key:'clay',     name:'Clay',      color:'#b0705a', oneIn: 8,   rarity:'Common',    base:0.02 },
+  { key:'copper',   name:'Copper',    color:'#c77943', oneIn: 10,  rarity:'Uncommon',  base:0.08 },
+  { key:'tin',      name:'Tin',       color:'#b6c3c8', oneIn: 12,  rarity:'Uncommon',  base:0.08 },
+  { key:'iron',     name:'Iron',      color:'#b8bfc7', oneIn: 16,  rarity:'Uncommon',  base:0.08 },
+  { key:'nickel',   name:'Nickel',    color:'#9fb3be', oneIn: 20,  rarity:'Uncommon',  base:0.08 },
+  { key:'silver',   name:'Silver',    color:'#dfe6ee', oneIn: 24,  rarity:'Uncommon',  base:0.08 },
+  { key:'gold',     name:'Gold',      color:'#ffd24a', oneIn: 40,  rarity:'Rare',      base:0.22 },
+  { key:'platinum', name:'Platinum',  color:'#e4f1ff', oneIn: 50,  rarity:'Rare',      base:0.22 },
+  { key:'ruby',     name:'Ruby',      color:'#ff4d6d', oneIn: 80,  rarity:'Epic',      base:0.60 },
+  { key:'sapphire', name:'Sapphire',  color:'#4da3ff', oneIn: 120, rarity:'Epic',      base:0.60 },
+  { key:'emerald',  name:'Emerald',   color:'#40e0a8', oneIn: 160, rarity:'Legendary', base:1.40 },
+  { key:'diamond',  name:'Diamond',   color:'#82fff6', oneIn: 240, rarity:'Mythic',    base:2.40 },
+  { key:'obsidian', name:'Obsidian',  color:'#3a0c5a', oneIn: 360, rarity:'Mythic',    base:2.40 },
+  { key:'mythril',  name:'Mythril',   color:'#a9fffe', oneIn: 480, rarity:'Relic',     base:5.00 },
+  { key:'starlite', name:'Starlite',  color:'#b986ff', oneIn: 720, rarity:'Relic',     base:5.00 },
+  { key:'nebulite', name:'Nebulite',  color:'#9efcff', oneIn: 1200,rarity:'Relic',     base:5.00 },
+  { key:'voidcore', name:'Voidcore',  color:'#6c36ff', oneIn: 2000,rarity:'Relic',     base:5.00 }
+].map(o => {
+  let income = o.base;
+  if (o.oneIn > 50){
+    const factor = 1 + Math.log10(o.oneIn / 50) * 0.9;
+    income = +(income * factor).toFixed(2);
+  }
+  return { ...o, incomePerSec: income };
+});
 
-// Duplicate alchemy thresholds
-const ALCHEMY_RECIPES = [
-  { from:'Common', to:'Uncommon', need: 100 },
-  { from:'Uncommon', to:'Rare',   need: 80 },
-  { from:'Rare', to:'Epic',       need: 50 }
-];
+/* =========================
+   STATE
+   ========================= */
+const inventory = Object.fromEntries(ORES.map(o => [o.key, 0]));
+let totalRolls = 0;
+let totalFinds = 0;
+// Start balance: set to $10 per your request
+let money = 10;
 
-// Set bonuses
-const SETS = [
-  { key:'miners', name:"Miner's Set", members:['coal','iron','gold'], bonus:{ type:'incomeTier', rarities:['Common','Uncommon','Rare'], mult:1.10 } },
-  { key:'gemtrio', name:'Gem Trio', members:['ruby','sapphire','emerald'], bonus:{ type:'incomeTier', rarities:['Epic','Legendary'], mult:1.20 } }
-];
+let lastTick = performance.now();
 
-// Contracts/quests
-const DAILY_CONTRACTS = [
-  { key:'d1', text:'Find 3 Silvers and 1 Gold', req:{silver:3, gold:1}, reward:{ money:50, rp:3 } },
-  { key:'d2', text:'Find 1 Ruby or 1 Sapphire', any:['ruby','sapphire'], count:1, reward:{ money:80, rp:4 } }
-];
+let autoUnlocked = false;
+let autoEnabled = false;
+let autoTimer = null;
+let autoSpeedIndex = 0;
 
-// Research
-const RP_GAIN_PER_MIN = 0; // passive (0 for now)
-const RESEARCH_NODES = {
-  luckI:  { name:'Luck I',  desc:'+3% Rare+ odds', cost:5,  apply:(s)=>{s.research.luck += 3;} },
-  luckII: { name:'Luck II', desc:'+5% Rare+ odds', cost:12, apply:(s)=>{s.research.luck += 5;} },
-  incomeI:{ name:'Income I',desc:'+10% global income', cost:8, apply:(s)=>{s.research.incomeMult *= 1.10;} },
-  incomeII:{name:'Income II',desc:'+15% global income', cost:18, apply:(s)=>{s.research.incomeMult *= 1.15;} }
-};
+const skipSet = new Set();
 
-// Ores (as before, expanded), with income boosts for oneIn > 50
-const ORES = 
+let pity = 0;           // %
+let luckBonus = 0;      // from research + active infusion
+let infusionActive = false;
+let infusionEndsAt = 0;
+let infusionCdEndsAt = 0;
+
+let focusOre = null;
+let focusEndsAt = 0;
+let focusCdEndsAt = 0;
+
+let beacons = 0;
+const tierBoosts = { 'Common':0,'Uncommon':0,'Rare':0,'Epic':0,'Legendary':0,'Mythic':0,'Relic':0 };
+
+let rp = 0;
+const research = { luck: 0, incomeMult: 1.0 };
+
+/* =========================
+   DOM HOOKS
+   ========================= */
+const invListEl = document.getElementById('invList');
+const oreLegendEl = document.getElementById('oreLegend');
+const logEl = document.getElementById('log');
+const totalRollsEl = document.getElementById('totalRolls');
+const findRateEl = document.getElementById('findRate');
+const findBarEl = document.getElementById('findBar');
+const rollBtn = document.getElementById('rollBtn');
+const auto10Btn = document.getElementById('auto10');
+const resetBtn = document.getElementById('resetBtn');
+const moneyDisplay = document.getElementById('moneyDisplay');
+const mpsDisplay = document.getElementById('mpsDisplay');
+const beaconDisplay = document.getElementById('beaconDisplay');
+const rpDisplay = document.getElementById('rpDisplay');
+const toastsEl = document.getElementById('toasts');
+const confettiEl = document.getElementById('confetti');
+const autoStatus = document.getElementById('autoStatus');
+const luckPill = document.getElementById('luckPill');
+const pityPill = document.getElementById('pityPill');
+const pityBar = document.getElementById('pityBar');
+const focusPill = document.getElementById('focusPill');
+
+const showcase = document.getElementById('showcase');
+const closeShowcase = document.getElementById('closeShowcase');
+const scBadge = document.getElementById('scBadge');
+const scName = document.getElementById('scName');
+const scRarity = document.getElementById('scRarity');
+const scCount = document.getElementById('scCount');
+const scIncome = document.getElementById('scIncome');
+const scGem = document.getElementById('scGem');
+
+const shopEl = document.getElementById('shop');
+const toggleSkipsBtn = document.getElementById('toggleSkips');
+const saveProfileBtn = document.getElementById('saveProfile');
+const loadProfileBtn = document.getElementById('loadProfile');
+const skipPanel = document.getElementById('skipPanel');
+
+/* =========================
+   HELPERS
+   ========================= */
+function formatMoney(x){
+  if (x >= 1e12) return '$' + (x/1e12).toFixed(2) + 'T';
+  if (x >= 1e9) return '$' + (x/1e9).toFixed(2) + 'B';
+  if (x >= 1e6) return '$' + (x/1e6).toFixed(2) + 'M';
+  if (x >= 1e3) return '$' + (x/1e3).toFixed(2) + 'k';
+  return '$' + x.toFixed(2);
+}
+function rarityRank(r){
+  const order = ['Common','Uncommon','Rare','Epic','Legendary','Mythic','Relic'];
+  return order.indexOf(r);
+}
+function computeMPS(){
+  // Base per-ore income
+  let mps = 0;
+  for (const o of ORES){
+    const base = o.incomePerSec;
+    const tierBoost = 1 + (tierBoosts[o.rarity] || 0) / 100;
+    mps += inventory[o.key] * base * tierBoost;
+  }
+  // Beacons and research income multiplier
+  const beaconMult = 1 + beacons * BEACON_STEP / 100;
+  mps *= beaconMult * research.incomeMult;
+  return mps;
+}
+
+/* =========================
+   UI RENDERERS
+   ========================= */
+function renderLegend(){
+  // Restore and populate the Ores, Odds, and Income panel
+  oreLegendEl.innerHTML = '';
+  ORES.forEach(o => {
+    const row = document.createElement('div');
+    row.className = 'legend-row';
+    row.innerHTML = `
+      <div class="badge" style="background:${o.color}"></div>
+      <div>
+        <div><strong>${o.name}</strong> <span class="odds">(${o.rarity})</span></div>
+        <div class="odds">1 in ${o.oneIn} per check</div>
+      </div>
+      <div class="odds">${(100/o.oneIn).toFixed(2)}%</div>
+      <div class="income">+$${o.incomePerSec.toFixed(2)}/s</div>
+    `;
+    oreLegendEl.appendChild(row);
+  });
+}
+function renderInventory(highlightKey=null){
+  invListEl.innerHTML = '';
+  let owned = 0;
+  ORES.forEach(o => {
+    const count = inventory[o.key];
+    if (!count) return;
+    owned++;
+    const wrap = document.createElement('div');
+    wrap.className = 'inv-item';
+    if (highlightKey === o.key){
+      wrap.classList.add('inv-pulse');
+      setTimeout(()=>wrap.classList.remove('inv-pulse'), 450);
+    }
+    const name = document.createElement('div');
+    name.className = 'inv-name';
+    name.innerHTML = `<span class="badge" style="background:${o.color}"></span>${o.name} <span class="odds" style="margin-left:6px">(${o.rarity})</span>`;
+    const amt = document.createElement('div');
+    amt.className = 'inv-amt';
+    const perSec = (o.incomePerSec * count) * (1 + (tierBoosts[o.rarity]||0)/100) * (1 + beacons*BEACON_STEP/100) * research.incomeMult;
+    amt.innerHTML = `<strong>${count}</strong> <span class="odds" style="margin-left:8px">($${perSec.toFixed(2)}/s)</span>`;
+    wrap.appendChild(name);
+    wrap.appendChild(amt);
+    invListEl.appendChild(wrap);
+  });
+  if (!owned){
+    const empty = document.createElement('div');
+    empty.className = 'odds';
+    empty.textContent = 'No ores yet. Roll to find your first!';
+    invListEl.appendChild(empty);
+  }
+}
+function updateTopStats(){
+  totalRollsEl.textContent = totalRolls;
+  const rate = totalRolls ? (100 * totalFinds / totalRolls) : 0;
+  findRateEl.textContent = rate.toFixed(2) + '%';
+  findBarEl && (findBarEl.style.width = Math.min(100, rate).toFixed(2) + '%');
+
+  moneyDisplay.textContent = formatMoney(money);
+  mpsDisplay.textContent = `$${computeMPS().toFixed(2)}/s`;
+  beaconDisplay.textContent = `${beacons*BEACON_STEP}%`;
+  rpDisplay.textContent = `${rp} RP`;
+
+  // HUD
+  const liveLuck = research.luck + (infusionActive ? LUCK_INFUSION_BONUS : 0);
+  luckPill.textContent = `${liveLuck}%`;
+  pityPill.textContent = `${pity.toFixed(1)}%`;
+  pityBar.style.width = `${(pity / PITY_CAP) * 100}%`;
+  focusPill.textContent = focusOre ? ORES.find(o=>o.key===focusOre).name : 'None';
+
+  // Affordability
+  rollBtn.disabled = money < ROLL_COST;
+  auto10Btn.disabled = money < ROLL10_COST;
+  rollBtn.style.filter = rollBtn.disabled ? 'grayscale(0.3) brightness(0.9)' : '';
+}
+
+/* =========================
+   LOG, TOASTS, CONFETTI, SHOWCASE
+   ========================= */
+function log(msg, cls=''){
+  const div = document.createElement('div');
+  div.className = 'entry ' + cls;
+  const time = new Date().toLocaleTimeString();
+  div.textContent = `[${time}] ${msg}`;
+  logEl.prepend(div);
+  const MAX = 220;
+  while (logEl.children.length > MAX) logEl.removeChild(logEl.lastChild);
+}
+function showToast(ore, newCount){
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `
+    <div class="badge" style="background:${ore.color}; width:14px; height:14px;"></div>
+    <div>
+      <div>Found <strong>${ore.name}</strong>!</div>
+      <div class="odds">${ore.rarity} • You now own <strong>#${newCount}</strong></div>
+    </div>
+  `;
+  toastsEl.appendChild(t);
+  setTimeout(()=>{ t.remove(); }, 2600);
+}
+function burstConfetti(color){
+  const rect = confettiEl.getBoundingClientRect();
+  const centerX = rect.width/2;
+  const y = 40;
+  const n = 22;
+  for (let i=0;i<n;i++){
+    const p = document.createElement('div');
+    p.className = 'piece';
+    const hue = (i*18)%360;
+    p.style.background = i%2 ? color : `hsl(${hue},85%,60%)`;
+    const sx = centerX + (Math.random()*40 - 20);
+    const sy = y + (Math.random()*30 - 10);
+    const dx = (Math.random()*220 - 110);
+    const dy = 120 + Math.random()*140;
+    p.style.left = `${sx}px`; p.style.top = `${sy}px`;
+    p.style.setProperty('--sx', '0px'); p.style.setProperty('--sy', '0px');
+    p.style.setProperty('--dx', dx+'px'); p.style.setProperty('--dy', dy+'px');
+    confettiEl.appendChild(p);
+    setTimeout(()=>p.remove(), 1000);
+  }
+}
+function openShowcase(ore, count){
+  scBadge.style.background = ore.color;
+  scName.textContent = ore.name;
+  scRarity.textContent = `${ore.rarity} • 1/${ore.oneIn}`;
+  scCount.textContent = `#${count}`;
+  scIncome.textContent = `+$${ore.incomePerSec.toFixed(2)}/s`;
+  scGem.style.setProperty('--gemColor', ore.color);
+  showcase.classList.add('active');
+  showcase.setAttribute('aria-hidden','false');
+}
+function closeShowcaseFn(){
+  showcase.classList.remove('active');
+  showcase.setAttribute('aria-hidden','true');
+}
+closeShowcase.addEventListener('click', closeShowcaseFn);
+showcase.addEventListener('click', (e)=>{ if (e.target === showcase) closeShowcaseFn(); });
+window.addEventListener('keydown', (e)=>{ if (e.key === 'Escape' && showcase.classList.contains('active')) closeShowcaseFn(); });
+
+/* =========================
+   SKIPS UI
+   ========================= */
+function renderSkips(){
+  // Enable after auto unlocked (keeping that behavior)
+  const enabled = autoUnlocked;
+  toggleSkipsBtn.disabled = !enabled;
+  saveProfileBtn.disabled = !enabled;
+  loadProfileBtn.disabled = !enabled;
+
+  skipPanel.innerHTML = '';
+  ORES.forEach(o => {
+    const row = document.createElement('div');
+    row.className = 'skip-row';
+    const id = 'skip_' + o.key;
+    row.innerHTML = `
+      <label for="${id}">
+        <span class="badge" style="background:${o.color}"></span>
+        <strong>${o.name}</strong> <span class="odds">(${o.rarity}, 1/${o.oneIn})</span>
+      </label>
+      <input type="checkbox" id="${id}" ${skipSet.has(o.key)?'checked':''} ${enabled?'':'disabled'} />
+    `;
+    const input = row.querySelector('input');
+    input.addEventListener('change', () => {
+      if (input.checked) skipSet.add(o.key); else skipSet.delete(o.key);
+      log(`${input.checked ? 'Skipping' : 'Un-skipping'} ${o.name}.`, 'warn');
+    });
+    skipPanel.appendChild(row);
+  });
+}
+
+/* =========================
+   RNG WITH MODIFIERS
+   ========================= */
+function effectiveHit(oneIn, ore){
+  // Apply luck to Rare+ and pity to Rare+
+  let eff = oneIn;
+  const rarePlus = rarityRank(ore.rarity) >= rarityRank(PITY_APPLIES_MIN_RARITY);
+  const liveLuck = research.luck + (infusionActive ? LUCK_INFUSION_BONUS : 0);
+
+  if (rarePlus && liveLuck > 0){
+    // Reduce oneIn by luck% (bounded)
+    eff = Math.max(1, Math.floor(eff * (100 - liveLuck) / 100));
+  }
+  if (rarePlus && pity > 0){
+    eff = Math.max(1, Math.floor(eff * (100 - Math.min(pity, PITY_CAP)) / 100));
+  }
+  if (focusOre && ore.key === focusOre){
+    eff = Math.max(1, Math.floor(eff * (100 - FOCUS_BONUS) / 100));
+  }
+  return eff;
+}
+
+function performRNG(){
+  for (const o of ORES){
+    if (skipSet.has(o.key)) continue;
+    const eff = effectiveHit(o.oneIn, o);
+    if (Math.floor(Math.random() * eff) === 0) return o;
+  }
+  return null;
+}
+
+/* =========================
+   ROLL LOGIC
+   ========================= */
+function onMiss(){
+  pity = Math.min(PITY_CAP, pity + PITY_PER_MISS);
+}
+function onHit(){
+  pity = 0; // reset pity on any hit
+}
+
+function doOneRoll(){
+  if (money < ROLL_COST){
+    log(`Not enough money for a roll. Need $${ROLL_COST.toFixed(2)}.`, 'warn');
+    return false;
+  }
+  money -= ROLL_COST;
+
+  totalRolls += 1;
+  const found = performRNG();
+
+  if (found){
+    totalFinds += 1;
+    inventory[found.key] += 1;
+    const count = inventory[found.key];
+    const rRank = rarityRank(found.rarity);
+
+    if (rRank >= rarityRank('Epic')) {
+      openShowcase(found, count);
+      burstConfetti(found.color);
+    } else {
+      showToast(found, count);
+    }
+    log(`You found ${found.name}! (+$${found.incomePerSec.toFixed(2)}/s)`, 'got');
+    renderInventory(found.key);
+    onHit();
+  } else {
+    log(`No ore found.`, 'miss');
+    renderInventory();
+    onMiss();
+  }
+  updateTopStats();
+  return true;
+}
+
+async function rollBatchPaid(n, totalCost, delayMs=0){
+  if (money < totalCost){
+    log(`Not enough money for x${n}. Need $${totalCost.toFixed(2)}.`, 'warn');
+    return;
+  }
+  money -= totalCost;
+  updateTopStats();
+
+  rollBtn.disabled = true; auto10Btn.disabled = true;
+  for (let i=0; i<n; i++){
+    totalRolls += 1;
+    const found = performRNG();
+    if (found){
+      totalFinds += 1;
+      inventory[found.key] += 1;
+      const count = inventory[found.key];
+      const rRank = rarityRank(found.rarity);
+      if (rRank >= rarityRank('Epic')) {
+        openShowcase(found, count);
+        burstConfetti(found.color);
+      } else {
+        showToast(found, count);
+      }
+      log(`Bundle roll: found ${found.name}! (+$${found.incomePerSec.toFixed(2)}/s)`, 'got');
+      renderInventory(found.key);
+      onHit();
+    } else {
+      log(`Bundle roll: no ore.`, 'miss');
+      renderInventory();
+      onMiss();
+    }
+    updateTopStats();
+    if (delayMs) await new Promise(r => setTimeout(r, delayMs));
+  }
+  rollBtn.disabled = money < ROLL_COST;
+  auto10Btn.disabled = money < ROLL10_COST;
+}
+
+/* =========================
+   TICK: PASSIVE INCOME & BUFF DURATIONS
+   ========================= */
+function tick(now){
+  const dt = Math.max(0, (now - lastTick) / 1000);
+  lastTick = now;
+
+  // Income
+  money += computeMPS() * dt;
+
+  // Buff timers
+  const t = Date.now()/1000;
+  if (infusionActive && t >= infusionEndsAt){ infusionActive = false; }
+  if (focusOre && t >= focusEndsAt){ focusOre = null; }
+
+  // Update HUD periodically
+  if (!tick._acc) tick._acc = 0;
+  tick._acc += dt;
+  if (tick._acc >= 0.1){
+    updateTopStats();
+    renderInventory();
+    tick._acc = 0;
+  }
+  requestAnimationFrame(tick);
+}
+
+/* =========================
+   SHOP (minimal subset to demonstrate; extend later)
+   ========================= */
+function renderShop(){
+  shopEl.innerHTML = '';
+
+  // Auto unlock
+  const autoRow = document.createElement('div');
+  autoRow.className = 'row2';
+  const autoTxt = autoUnlocked ? `Auto-Roll unlocked (speed: ${AUTO_SPEED_TIERS[autoSpeedIndex]}ms)` : `Buy Auto-Roll ($${AUTO_UNLOCK_COST})`;
+  autoRow.innerHTML = `<div>${autoTxt}</div>`;
+  const autoBtn = document.createElement('button');
+  autoBtn.textContent = autoUnlocked ? (autoEnabled ? 'Disable Auto' : 'Enable Auto') : 'Buy';
+  autoBtn.disabled = !autoUnlocked && money < AUTO_UNLOCK_COST;
+  autoBtn.onclick = ()=>{
+    if (!autoUnlocked){
+      if (money < AUTO_UNLOCK_COST) return;
+      money -= AUTO_UNLOCK_COST; autoUnlocked = true; log('Auto-Roll purchased.', 'warn');
+      toggleSkipsBtn.disabled = false; renderSkips();
+    } else {
+      // toggle
+      if (autoEnabled){ stopAuto(); } else { startAuto(); }
+    }
+    updateTopStats(); renderShop();
+  };
+  autoRow.appendChild(autoBtn);
+  shopEl.appendChild(autoRow);
+
+  // Auto speed upgrades
+  if (autoUnlocked && autoSpeedIndex < AUTO_SPEED_TIERS.length-1){
+    const i = autoSpeedIndex;
+    const cost = AUTO_UPGRADE_COSTS[i] || 999999;
+    const row = document.createElement('div');
+    row.className = 'row2';
+    row.innerHTML = `<div>Auto Speed Up (${AUTO_SPEED_TIERS[i]}ms → ${AUTO_SPEED_TIERS[i+1]}ms) — $${cost}</div>`;
+    const btn = document.createElement('button');
+    btn.textContent = 'Buy';
+    btn.disabled = money < cost;
+    btn.onclick = ()=>{
+      if (money < cost) return;
+      money -= cost;
+      autoSpeedIndex++;
+      if (autoEnabled){ stopAuto(); startAuto(); }
+      log(`Auto speed upgraded to ${AUTO_SPEED_TIERS[autoSpeedIndex]}ms.`, 'warn');
+      updateTopStats(); renderShop();
+    };
+    row.appendChild(btn);
+    shopEl.appendChild(row);
+  }
+
+  // Luck infusion
+  const canUseInf = Date.now()/1000 >= infusionCdEndsAt;
+  const rowInf = document.createElement('div');
+  rowInf.className = 'row2';
+  rowInf.innerHTML = `<div>Luck Infusion (+${LUCK_INFUSION_BONUS}% Rare+ for ${LUCK_INFUSION_DURATION}s) — $${LUCK_INFUSION_COST} ${!canUseInf ? '(cooldown)' : ''}</div>`;
+  const btnInf = document.createElement('button');
+  btnInf.textContent = infusionActive ? 'Active' : 'Use';
+  btnInf.disabled = infusionActive || !canUseInf || money < LUCK_INFUSION_COST;
+  btnInf.onclick = ()=>{
+    if (money < LUCK_INFUSION_COST) return;
+    money -= LUCK_INFUSION_COST;
+    infusionActive = true;
+    const now = Date.now()/1000;
+    infusionEndsAt = now + LUCK_INFUSION_DURATION;
+    infusionCdEndsAt = now + LUCK_COOLDOWN;
+    log(`Luck infusion activated for ${LUCK_INFUSION_DURATION}s.`, 'warn');
+    updateTopStats(); renderShop();
+  };
+  rowInf.appendChild(btnInf);
+  shopEl.appendChild(rowInf);
+
+  // Focus lens (pick a target from dropdown)
+  const rowFocus = document.createElement('div');
+  rowFocus.className = 'row2';
+  const sel = document.createElement('select');
+  ORES.forEach(o=>{
+    const opt = document.createElement('option');
+    opt.value = o.key; opt.textContent = o.name;
+    sel.appendChild(opt);
+  });
+  const canUseFocus = Date.now()/1000 >= focusCdEndsAt && !focusOre;
+  rowFocus.appendChild(document.createTextNode(`Focus Lens (+${FOCUS_BONUS}% to chosen ore for ${FOCUS_DURATION}s) — $${FOCUS_COST}`));
+  const btnFocus = document.createElement('button');
+  btnFocus.textContent = 'Activate';
+  btnFocus.disabled = !canUseFocus || money < FOCUS_COST;
+  btnFocus.onclick = ()=>{
+    if (money < FOCUS_COST) return;
+    money -= FOCUS_COST;
+    focusOre = sel.value;
+    const now = Date.now()/1000;
+    focusEndsAt = now + FOCUS_DURATION;
+    focusCdEndsAt = now + FOCUS_COOLDOWN;
+    log(`Focus on ${ORES.find(o=>o.key===focusOre).name} for ${FOCUS_DURATION}s.`, 'warn');
+    updateTopStats(); renderShop();
+  };
+  rowFocus.appendChild(sel);
+  rowFocus.appendChild(btnFocus);
+  shopEl.appendChild(rowFocus);
+
+  // Beacons (+10% global income each)
+  if (beacons < BEACON_COSTS.length){
+    const cost = BEACON_COSTS[beacons];
+    const rowB = document.createElement('div');
+    rowB.className = 'row2';
+    rowB.innerHTML = `<div>Beacon +${BEACON_STEP}% global income — $${cost}</div>`;
+    const btnB = document.createElement('button');
+    btnB.textContent = 'Buy';
+    btnB.disabled = money < cost;
+    btnB.onclick = ()=>{
+      if (money < cost) return;
+      money -= cost; beacons++;
+      log(`Beacon purchased. Global income now +${beacons*BEACON_STEP}%.`, 'warn');
+      updateTopStats(); renderShop();
+    };
+    rowB.appendChild(btnB);
+    shopEl.appendChild(rowB);
+  }
+
+  // Tier boosters (+25% income for a rarity)
+  ['Common','Uncommon','Rare','Epic','Legendary','Mythic','Relic'].forEach(r=>{
+    if ((tierBoosts[r]||0) >= TIER_BOOST) return; // one-time
+    const cost = TIER_BOOST_COSTS[r];
+    const row = document.createElement('div');
+    row.className = 'row2';
+    row.innerHTML = `<div>${r} Booster +${TIER_BOOST}% income — $${cost}</div>`;
+    const btn = document.createElement('button');
+    btn.textContent = 'Buy';
+    btn.disabled = money < cost;
+    btn.onclick = ()=>{
+      if (money < cost) return;
+      money -= cost;
+      tierBoosts[r] = (tierBoosts[r]||0) + TIER_BOOST;
+      log(`${r} income boosted by ${TIER_BOOST}%.`, 'warn');
+      updateTopStats(); renderShop();
+    };
+    row.appendChild(btn);
+    shopEl.appendChild(row);
+  });
+}
+
+/* =========================
+   AUTO-ROLL
+   ========================= */
+function startAuto(){
+  if (autoTimer) return;
+  autoEnabled = true;
+  autoStatus.textContent = `Auto-Roll: ON (${AUTO_SPEED_TIERS[autoSpeedIndex]}ms)`;
+  autoTimer = setInterval(()=>{
+    if (money >= ROLL_COST){ doOneRoll(); }
+  }, AUTO_SPEED_TIERS[autoSpeedIndex]);
+  log('Auto-Roll enabled.', 'warn');
+  updateTopStats();
+}
+function stopAuto(){
+  autoEnabled = false;
+  autoStatus.textContent = 'Auto-Roll: OFF';
+  if (autoTimer){ clearInterval(autoTimer); autoTimer = null; }
+  log('Auto-Roll disabled.', 'warn');
+  updateTopStats();
+}
+
+/* =========================
+   EVENTS
+   ========================= */
+rollBtn.addEventListener('click', () => doOneRoll());
+auto10Btn.addEventListener('click', () => rollBatchPaid(10, ROLL10_COST, 40));
+toggleSkipsBtn.addEventListener('click', () => { skipPanel.classList.toggle('active'); });
+saveProfileBtn.addEventListener('click', ()=>{
+  if (!autoUnlocked) return;
+  localStorage.setItem('ore_rng_skip_profile', JSON.stringify(Array.from(skipSet)));
+  log
