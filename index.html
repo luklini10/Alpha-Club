@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Ore Roller RNG — Stable Rewrite ($10 + Legend)</title>
+<title>Ore Roller RNG — Stable Build ($10 start + Legend + Upgrades)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
   :root{
@@ -11,18 +11,21 @@
     --good:#6aff9e; --warn:#ffd24a; --danger:#ff6a6a; --hud:#0b1026;
   }
   *{box-sizing:border-box}
-  body{ margin:0; font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  body{
+    margin:0; font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
     background: radial-gradient(1200px 700px at 30% -10%, #1b2348 0%, #0f1220 60%) fixed;
     color:var(--text); min-height:100vh; display:grid; grid-template-rows:auto 1fr auto; overflow-x:hidden;
   }
-  header{ padding:14px 18px; background:var(--panel); border-bottom:1px solid #242a44;
+  header{
+    padding:14px 18px; background:var(--panel); border-bottom:1px solid #242a44;
     display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
   }
   header h1{margin:0; font-size:1.1rem; letter-spacing:.3px}
   .money{ display:flex; gap:16px; align-items:center; color:var(--muted); font-size:.95rem; flex-wrap:wrap; }
   .money strong{color:var(--text)}
   .wrap{ display:grid; grid-template-columns: 1.1fr 420px; gap:18px; width:min(1300px, 95vw); margin:20px auto; align-items:start; }
-  .stage{ background:var(--panel2); border:1px solid #222a4a; border-radius:14px; padding:24px;
+  .stage{
+    background:var(--panel2); border:1px solid #222a4a; border-radius:14px; padding:24px;
     display:grid; grid-template-rows:auto auto 1fr auto; gap:16px; min-height:620px; position:relative; overflow:hidden;
   }
   .stage-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
@@ -32,8 +35,10 @@
   .bar{ height:8px; border-radius:6px; background:#0f1430; border:1px solid #27305a; overflow:hidden; }
   .bar > div{ height:100%; background:linear-gradient(90deg, #6ae3ff, #8ef5c2); width:0%; transition:width .25s ease; }
   .pity{ width:220px; } .pity .bar{ width:100%; }
+
   .center{ display:grid; place-items:center; position:relative; }
-  .roll-btn{ width:220px; height:220px; border-radius:50%;
+  .roll-btn{
+    width:220px; height:220px; border-radius:50%;
     background: radial-gradient(100px 100px at 35% 30%, #2e3a78 0%, #1e2853 60%);
     border:2px solid #35407a; color:#fff; font-weight:900; font-size:1.4rem; letter-spacing:.3px;
     cursor:pointer; box-shadow: 0 18px 40px rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.05), 0 0 40px rgba(106,227,255,.18);
@@ -46,21 +51,28 @@
   .quick button{ padding:10px 12px; font-weight:800; border-radius:8px; border:1px solid #2f3866;
     background:linear-gradient(180deg, #263160, #1b2347); color:#e8efff; cursor:pointer; }
   .quick button:disabled{ opacity:.55; cursor:not-allowed; }
+
   .subpanel{ background:#0d132a; border:1px solid #1e2550; border-radius:12px; padding:12px; }
   .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+
   .card{ background:var(--panel2); border:1px solid #1f274a; border-radius:12px; padding:14px; }
-  .card h3{ margin:0 0 10px 0; font-size:1rem; color:var(--accent)}
+  .card h3{ margin:0 0 10px 0; font-size:1rem; color:var(--accent) }
+
   .ore-legend{ display:grid; gap:8px; }
-  .legend-row{ display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center;
-    padding:8px; border-radius:8px; background:#101634; border:1px solid #222b55; }
+  .legend-row{
+    display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center;
+    padding:8px; border-radius:8px; background:#101634; border:1px solid #222b55;
+  }
   .badge{ width:12px; height:12px; border-radius:50%; box-shadow:0 0 0 3px rgba(255,255,255,.03) inset; }
   .odds{ color:var(--muted); font-size:.85rem; }
   .income{ color:#9fe6b6; font-size:.9rem; }
+
   .inv-list{ display:grid; grid-template-columns: 1fr auto; gap:8px; }
   .inv-item{ display:contents; }
   .inv-name{ background:#0b1022; border:1px solid #20284a; border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:8px; transition: box-shadow .3s ease; }
   .inv-amt{ display:flex; align-items:center; justify-content:flex-end; background:#0b1022; border:1px solid #20284a; border-radius:8px; padding:8px 10px; font-weight:800; transition: box-shadow .3s ease; }
   .inv-pulse .inv-name, .inv-pulse .inv-amt{ box-shadow: 0 0 0 2px rgba(106,227,255,.35); }
+
   .log{ max-height:220px; overflow:auto; background:#0d1122; border:1px solid #22294a; border-radius:10px; padding:10px; }
   .entry{ font-size:.92rem; padding:6px 8px; border-bottom:1px dashed #22294a; }
   .entry:last-child{ border-bottom:none; }
@@ -169,7 +181,7 @@
     <div class="subpanel">
       <div class="odds">
         Rolls cost $1. Bundle: x10 for $15. Pity increases on misses up to a cap, nudging Rare+ finds.
-        Luck Infusion and Focus Lens temporarily boost odds (Rare+ or a chosen ore). Auto-Roll unlocks at $100 and enables skip list.
+        Luck Infusion and Focus Lens temporarily boost odds (Rare+ or a chosen ore). Auto-Roll unlocks at $100 and enables a skip list.
       </div>
     </div>
   </section>
@@ -284,7 +296,7 @@ const ORES = [
 const inventory = Object.fromEntries(ORES.map(o => [o.key, 0]));
 let totalRolls = 0;
 let totalFinds = 0;
-let money = 10; // start with $10 as requested
+let money = 10; // start with $10
 
 let pity = 0;
 let infusionActive = false, infusionEnds = 0, infusionCdEnds = 0;
@@ -295,7 +307,6 @@ let research = { luck: 0, incomeMult: 1.0 };
 let rp = 0;
 
 let autoUnlocked = false, autoEnabled = false, autoTimer = null, autoSpeedIndex = 0;
-
 const skipSet = new Set();
 
 let lastTick = performance.now();
@@ -389,8 +400,8 @@ function renderInventory(highlightKey=null){
     name.innerHTML = `<span class="badge" style="background:${o.color}"></span>${o.name} <span class="odds" style="margin-left:6px">(${o.rarity})</span>`;
     const amt = document.createElement('div');
     amt.className = 'inv-amt';
-    const perSec = (o.incomePerSec) * (1 + (tierBoosts[o.rarity]||0)/100) * (1 + beacons*BEACON_STEP/100) * research.incomeMult;
-    amt.innerHTML = `<strong>${count}</strong> <span class="odds" style="margin-left:8px">($${(perSec*count).toFixed(2)}/s)</span>`;
+    const perSecEach = (o.incomePerSec) * (1 + (tierBoosts[o.rarity]||0)/100) * (1 + beacons*BEACON_STEP/100) * research.incomeMult;
+    amt.innerHTML = `<strong>${count}</strong> <span class="odds" style="margin-left:8px">($${(perSecEach*count).toFixed(2)}/s)</span>`;
     row.appendChild(name); row.appendChild(amt);
     invListEl.appendChild(row);
     if (highlightKey===o.key){ setTimeout(()=>row.classList.remove('inv-pulse'), 450); }
@@ -480,8 +491,7 @@ function renderSkips(){
 
   skipPanel.innerHTML = '';
   ORES.forEach(o=>{
-    const row = document.createElement('div');
-    row.className = 'skip-row';
+    const row = document.createElement('div'); row.className='skip-row';
     const id = 'skip_'+o.key;
     row.innerHTML = `
       <label for="${id}">
@@ -498,6 +508,23 @@ function renderSkips(){
     skipPanel.appendChild(row);
   });
 }
+toggleSkipsBtn.addEventListener('click', ()=> skipPanel.classList.toggle('active'));
+saveProfileBtn.addEventListener('click', ()=>{
+  if (!autoUnlocked) return;
+  localStorage.setItem('ore_rng_skip_profile', JSON.stringify(Array.from(skipSet)));
+  log('Skip profile saved.', 'warn');
+});
+loadProfileBtn.addEventListener('click', ()=>{
+  if (!autoUnlocked) return;
+  try{
+    const raw = localStorage.getItem('ore_rng_skip_profile');
+    if (!raw) return;
+    skipSet.clear();
+    JSON.parse(raw).forEach(k=>skipSet.add(k));
+    renderSkips();
+    log('Skip profile loaded.', 'warn');
+  }catch{}
+});
 
 /* ===== RNG with modifiers ===== */
 function effectiveOneIn(base, ore){
@@ -573,7 +600,7 @@ async function doTenRolls(){
   auto10Btn.disabled = money < ROLL10_COST;
 }
 
-/* ===== Ticking (income + timers) ===== */
+/* ===== Income + Buff timers tick ===== */
 function tick(now){
   const dt = Math.max(0, (now - lastTick)/1000);
   lastTick = now;
@@ -589,7 +616,7 @@ function tick(now){
   requestAnimationFrame(tick);
 }
 
-/* ===== Shop (Auto, Luck Infusion, Focus, Beacons, Tier Boosters) ===== */
+/* ===== Shop (Auto, speeds, Luck Infusion, Focus, Beacons, Tier Boosters) ===== */
 function renderShop(){
   shopEl.innerHTML = '';
 
@@ -604,9 +631,7 @@ function renderShop(){
       if (money < AUTO_UNLOCK_COST) return;
       money -= AUTO_UNLOCK_COST; autoUnlocked=true; log('Auto-Roll purchased.', 'warn');
       toggleSkipsBtn.disabled = false; saveProfileBtn.disabled=false; loadProfileBtn.disabled=false; renderSkips();
-    } else {
-      if (autoEnabled) stopAuto(); else startAuto();
-    }
+    } else { if (autoEnabled) stopAuto(); else startAuto(); }
     updateStats(); renderShop();
   };
   autoRow.appendChild(autoBtn); shopEl.appendChild(autoRow);
@@ -630,7 +655,7 @@ function renderShop(){
   // Luck Infusion
   const canInf = (Date.now()/1000) >= infusionCdEnds && !infusionActive;
   const infRow = document.createElement('div'); infRow.className='row2';
-  infRow.innerHTML = `<div>Luck Infusion (+${LUCK_INFUSION_BONUS}% Rare+ for ${LUCK_INFUSION_SECS}s) — $${LUCK_INFUSION_COST} ${canInf?'':'(cooldown or active)'}</div>`;
+  infRow.innerHTML = `<div>Luck Infusion (+${LUCK_INFUSION_BONUS}% Rare+ for ${LUCK_INFUSION_SECS}s) — $${LUCK_INFUSION_COST} ${canInf?'':'(cooldown/active)'}</div>`;
   const infBtn = document.createElement('button'); infBtn.textContent='Use'; infBtn.disabled = !canInf || money < LUCK_INFUSION_COST;
   infBtn.onclick=()=>{
     if (money < LUCK_INFUSION_COST) return;
@@ -707,5 +732,33 @@ function stopAuto(){
 /* ===== Events ===== */
 rollBtn.addEventListener('click', doOneRoll);
 auto10Btn.addEventListener('click', doTenRolls);
-toggleSkipsBtn.addEventListener('click', ()=> skipPanel.classList.toggle('active'));
-saveProfileBtn
+resetBtn.addEventListener('click', ()=>{
+  if (!confirm('Reset inventory, money, and log?')) return;
+  for (const k in inventory) inventory[k]=0;
+  totalRolls=0; totalFinds=0; money=10;
+  pity=0; infusionActive=false; focusOre=null;
+  beacons=0; for (const r in tierBoosts) tierBoosts[r]=0;
+  research={luck:0,incomeMult:1.0}; rp=0;
+  autoUnlocked=false; stopAuto(); autoSpeedIndex=0; skipSet.clear();
+  logEl.innerHTML=''; renderInventory(); updateStats(); renderSkips(); renderShop();
+  log('Game reset.', 'warn');
+});
+window.addEventListener('keydown', (e)=>{
+  if (e.code==='Space' && !showcase.classList.contains('active')){ e.preventDefault(); doOneRoll(); }
+  if (e.key.toLowerCase()==='a' && autoUnlocked){ if (autoEnabled) stopAuto(); else startAuto(); }
+});
+
+/* ===== Init ===== */
+function init(){
+  renderLegend();
+  renderInventory();
+  renderSkips();
+  renderShop();
+  updateStats();
+  requestAnimationFrame((t)=>{ lastTick=t; tick(t); });
+  log(`Welcome! Start: $${money}. Rolls cost $${ROLL_COST}. Bundle: $${ROLL10_COST}. Auto-Roll unlocks at $${AUTO_UNLOCK_COST}.`, 'warn');
+}
+init();
+</script>
+</body>
+</html>
