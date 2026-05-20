@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Ore Roller RNG — Fix: Legend + $10 Start</title>
+<title>Ore Roller RNG — Stable Rewrite ($10 + Legend)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
   :root{
@@ -52,8 +52,7 @@
   .card h3{ margin:0 0 10px 0; font-size:1rem; color:var(--accent)}
   .ore-legend{ display:grid; gap:8px; }
   .legend-row{ display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center;
-    padding:8px; border-radius:8px; background:#101634; border:1px solid #222b55;
-  }
+    padding:8px; border-radius:8px; background:#101634; border:1px solid #222b55; }
   .badge{ width:12px; height:12px; border-radius:50%; box-shadow:0 0 0 3px rgba(255,255,255,.03) inset; }
   .odds{ color:var(--muted); font-size:.85rem; }
   .income{ color:#9fe6b6; font-size:.9rem; }
@@ -69,8 +68,8 @@
 
   .toasts{ position:absolute; left:50%; top:14%; transform:translateX(-50%); display:flex; flex-direction:column; gap:8px; pointer-events:none; z-index:20; }
   .toast{ background:#0b1028; border:1px solid #2540a8; border-radius:10px; padding:10px 14px; display:flex; align-items:center; gap:10px; box-shadow:0 10px 30px rgba(0,0,0,.35); animation: toastIn .28s ease, toastOut .3s ease 2.3s forwards; font-weight:700; }
-  @keyframes toastIn{ from{ transform: translateY(-8px) scale(.96); opacity: 0 } to{ transform: translateY(0) scale(1); opacity: 1 } }
-  @keyframes toastOut{ to{ transform: translateY(-10px) scale(.98); opacity: 0 } }
+  @keyframes toastIn{ from{ transform: translateY(-8px) scale(.96); opacity:0 } to{ transform: translateY(0) scale(1); opacity:1 } }
+  @keyframes toastOut{ to{ transform: translateY(-10px) scale(.98); opacity:0 } }
 
   .confetti{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:15; }
   .piece{ position:absolute; width:8px; height:12px; opacity:.9; animation: fall 900ms cubic-bezier(.2,.8,.2,1) forwards; }
@@ -170,7 +169,7 @@
     <div class="subpanel">
       <div class="odds">
         Rolls cost $1. Bundle: x10 for $15. Pity increases on misses up to a cap, nudging Rare+ finds.
-        Luck and Focus modify odds for Rare+ and a chosen ore respectively. Refineries convert lower tiers over time.
+        Luck Infusion and Focus Lens temporarily boost odds (Rare+ or a chosen ore). Auto-Roll unlocks at $100 and enables skip list.
       </div>
     </div>
   </section>
@@ -223,28 +222,27 @@
 </div>
 
 <script>
-/* =========================
-   CONFIG & CONSTANTS
-   ========================= */
+/* ===== Config ===== */
 const ROLL_COST = 1;
 const ROLL10_COST = 15;
+
 const AUTO_UNLOCK_COST = 100;
-const AUTO_SPEED_TIERS = [600, 450, 300, 200];
+const AUTO_SPEEDS = [600, 450, 300, 200];
 const AUTO_UPGRADE_COSTS = [100, 250, 750];
 
 const PITY_PER_MISS = 0.5;
 const PITY_CAP = 20;
-const PITY_APPLIES_MIN_RARITY = 'Rare';
+const PITY_MIN_RARITY = 'Rare';
 
 const LUCK_INFUSION_BONUS = 10;
-const LUCK_INFUSION_DURATION = 60;
+const LUCK_INFUSION_SECS = 60;
 const LUCK_INFUSION_COST = 50;
-const LUCK_COOLDOWN = 120;
+const LUCK_COOLDOWN_SECS = 120;
 
-const FOCUS_DURATION = 60;
-const FOCUS_COOLDOWN = 120;
 const FOCUS_BONUS = 50;
+const FOCUS_SECS = 60;
 const FOCUS_COST = 80;
+const FOCUS_COOLDOWN_SECS = 120;
 
 const BEACON_STEP = 10;
 const BEACON_COSTS = [100, 300, 900, 2700];
@@ -252,7 +250,6 @@ const BEACON_COSTS = [100, 300, 900, 2700];
 const TIER_BOOST = 25;
 const TIER_BOOST_COSTS = { 'Common': 50, 'Uncommon': 100, 'Rare': 250, 'Epic': 600, 'Legendary': 1500, 'Mythic': 4000, 'Relic': 10000 };
 
-/* Expanded ore list with income boosts for oneIn > 50 (already tuned earlier) */
 const ORES = [
   { key:'dirt',     name:'Dirt',      color:'#8b5a2b', oneIn: 2,   rarity:'Common',    base:0.02 },
   { key:'rock',     name:'Rock',      color:'#7a7f87', oneIn: 4,   rarity:'Common',    base:0.02 },
@@ -272,8 +269,8 @@ const ORES = [
   { key:'obsidian', name:'Obsidian',  color:'#3a0c5a', oneIn: 360, rarity:'Mythic',    base:2.40 },
   { key:'mythril',  name:'Mythril',   color:'#a9fffe', oneIn: 480, rarity:'Relic',     base:5.00 },
   { key:'starlite', name:'Starlite',  color:'#b986ff', oneIn: 720, rarity:'Relic',     base:5.00 },
-  { key:'nebulite', name:'Nebulite',  color:'#9efcff', oneIn: 1200,rarity:'Relic',     base:5.00 },
-  { key:'voidcore', name:'Voidcore',  color:'#6c36ff', oneIn: 2000,rarity:'Relic',     base:5.00 }
+  { key:'nebulite', name:'Nebulite',  color:'#9efcff', oneIn:1200, rarity:'Relic',     base:5.00 },
+  { key:'voidcore', name:'Voidcore',  color:'#6c36ff', oneIn:2000, rarity:'Relic',     base:5.00 }
 ].map(o => {
   let income = o.base;
   if (o.oneIn > 50){
@@ -283,49 +280,32 @@ const ORES = [
   return { ...o, incomePerSec: income };
 });
 
-/* =========================
-   STATE
-   ========================= */
+/* ===== State ===== */
 const inventory = Object.fromEntries(ORES.map(o => [o.key, 0]));
 let totalRolls = 0;
 let totalFinds = 0;
-// Start balance: set to $10 per your request
-let money = 10;
+let money = 10; // start with $10 as requested
 
-let lastTick = performance.now();
+let pity = 0;
+let infusionActive = false, infusionEnds = 0, infusionCdEnds = 0;
+let focusOre = null, focusEnds = 0, focusCdEnds = 0;
+let beacons = 0;
+const tierBoosts = { 'Common':0,'Uncommon':0,'Rare':0,'Epic':0,'Legendary':0,'Mythic':0,'Relic':0 };
+let research = { luck: 0, incomeMult: 1.0 };
+let rp = 0;
 
-let autoUnlocked = false;
-let autoEnabled = false;
-let autoTimer = null;
-let autoSpeedIndex = 0;
+let autoUnlocked = false, autoEnabled = false, autoTimer = null, autoSpeedIndex = 0;
 
 const skipSet = new Set();
 
-let pity = 0;           // %
-let luckBonus = 0;      // from research + active infusion
-let infusionActive = false;
-let infusionEndsAt = 0;
-let infusionCdEndsAt = 0;
+let lastTick = performance.now();
 
-let focusOre = null;
-let focusEndsAt = 0;
-let focusCdEndsAt = 0;
-
-let beacons = 0;
-const tierBoosts = { 'Common':0,'Uncommon':0,'Rare':0,'Epic':0,'Legendary':0,'Mythic':0,'Relic':0 };
-
-let rp = 0;
-const research = { luck: 0, incomeMult: 1.0 };
-
-/* =========================
-   DOM HOOKS
-   ========================= */
+/* ===== DOM ===== */
 const invListEl = document.getElementById('invList');
 const oreLegendEl = document.getElementById('oreLegend');
 const logEl = document.getElementById('log');
 const totalRollsEl = document.getElementById('totalRolls');
 const findRateEl = document.getElementById('findRate');
-const findBarEl = document.getElementById('findBar');
 const rollBtn = document.getElementById('rollBtn');
 const auto10Btn = document.getElementById('auto10');
 const resetBtn = document.getElementById('resetBtn');
@@ -333,14 +313,13 @@ const moneyDisplay = document.getElementById('moneyDisplay');
 const mpsDisplay = document.getElementById('mpsDisplay');
 const beaconDisplay = document.getElementById('beaconDisplay');
 const rpDisplay = document.getElementById('rpDisplay');
-const toastsEl = document.getElementById('toasts');
-const confettiEl = document.getElementById('confetti');
 const autoStatus = document.getElementById('autoStatus');
 const luckPill = document.getElementById('luckPill');
 const pityPill = document.getElementById('pityPill');
 const pityBar = document.getElementById('pityBar');
 const focusPill = document.getElementById('focusPill');
-
+const toastsEl = document.getElementById('toasts');
+const confettiEl = document.getElementById('confetti');
 const showcase = document.getElementById('showcase');
 const closeShowcase = document.getElementById('closeShowcase');
 const scBadge = document.getElementById('scBadge');
@@ -356,9 +335,7 @@ const saveProfileBtn = document.getElementById('saveProfile');
 const loadProfileBtn = document.getElementById('loadProfile');
 const skipPanel = document.getElementById('skipPanel');
 
-/* =========================
-   HELPERS
-   ========================= */
+/* ===== Helpers ===== */
 function formatMoney(x){
   if (x >= 1e12) return '$' + (x/1e12).toFixed(2) + 'T';
   if (x >= 1e9) return '$' + (x/1e9).toFixed(2) + 'B';
@@ -371,24 +348,17 @@ function rarityRank(r){
   return order.indexOf(r);
 }
 function computeMPS(){
-  // Base per-ore income
   let mps = 0;
   for (const o of ORES){
-    const base = o.incomePerSec;
-    const tierBoost = 1 + (tierBoosts[o.rarity] || 0) / 100;
-    mps += inventory[o.key] * base * tierBoost;
+    const tierMult = 1 + (tierBoosts[o.rarity]||0)/100;
+    mps += inventory[o.key] * o.incomePerSec * tierMult;
   }
-  // Beacons and research income multiplier
   const beaconMult = 1 + beacons * BEACON_STEP / 100;
-  mps *= beaconMult * research.incomeMult;
-  return mps;
+  return mps * beaconMult * research.incomeMult;
 }
 
-/* =========================
-   UI RENDERERS
-   ========================= */
+/* ===== UI ===== */
 function renderLegend(){
-  // Restore and populate the Ores, Odds, and Income panel
   oreLegendEl.innerHTML = '';
   ORES.forEach(o => {
     const row = document.createElement('div');
@@ -412,22 +382,18 @@ function renderInventory(highlightKey=null){
     const count = inventory[o.key];
     if (!count) return;
     owned++;
-    const wrap = document.createElement('div');
-    wrap.className = 'inv-item';
-    if (highlightKey === o.key){
-      wrap.classList.add('inv-pulse');
-      setTimeout(()=>wrap.classList.remove('inv-pulse'), 450);
-    }
+    const row = document.createElement('div');
+    row.className = 'inv-item' + (highlightKey===o.key?' inv-pulse':'');
     const name = document.createElement('div');
     name.className = 'inv-name';
     name.innerHTML = `<span class="badge" style="background:${o.color}"></span>${o.name} <span class="odds" style="margin-left:6px">(${o.rarity})</span>`;
     const amt = document.createElement('div');
     amt.className = 'inv-amt';
-    const perSec = (o.incomePerSec * count) * (1 + (tierBoosts[o.rarity]||0)/100) * (1 + beacons*BEACON_STEP/100) * research.incomeMult;
-    amt.innerHTML = `<strong>${count}</strong> <span class="odds" style="margin-left:8px">($${perSec.toFixed(2)}/s)</span>`;
-    wrap.appendChild(name);
-    wrap.appendChild(amt);
-    invListEl.appendChild(wrap);
+    const perSec = (o.incomePerSec) * (1 + (tierBoosts[o.rarity]||0)/100) * (1 + beacons*BEACON_STEP/100) * research.incomeMult;
+    amt.innerHTML = `<strong>${count}</strong> <span class="odds" style="margin-left:8px">($${(perSec*count).toFixed(2)}/s)</span>`;
+    row.appendChild(name); row.appendChild(amt);
+    invListEl.appendChild(row);
+    if (highlightKey===o.key){ setTimeout(()=>row.classList.remove('inv-pulse'), 450); }
   });
   if (!owned){
     const empty = document.createElement('div');
@@ -436,74 +402,58 @@ function renderInventory(highlightKey=null){
     invListEl.appendChild(empty);
   }
 }
-function updateTopStats(){
+function updateStats(){
   totalRollsEl.textContent = totalRolls;
-  const rate = totalRolls ? (100 * totalFinds / totalRolls) : 0;
+  const rate = totalRolls ? (100*totalFinds/totalRolls) : 0;
   findRateEl.textContent = rate.toFixed(2) + '%';
-  findBarEl && (findBarEl.style.width = Math.min(100, rate).toFixed(2) + '%');
-
   moneyDisplay.textContent = formatMoney(money);
   mpsDisplay.textContent = `$${computeMPS().toFixed(2)}/s`;
   beaconDisplay.textContent = `${beacons*BEACON_STEP}%`;
   rpDisplay.textContent = `${rp} RP`;
 
-  // HUD
   const liveLuck = research.luck + (infusionActive ? LUCK_INFUSION_BONUS : 0);
   luckPill.textContent = `${liveLuck}%`;
   pityPill.textContent = `${pity.toFixed(1)}%`;
-  pityBar.style.width = `${(pity / PITY_CAP) * 100}%`;
-  focusPill.textContent = focusOre ? ORES.find(o=>o.key===focusOre).name : 'None';
+  pityBar.style.width = `${(pity/PITY_CAP)*100}%`;
+  focusPill.textContent = focusOre ? (ORES.find(o=>o.key===focusOre)?.name || 'None') : 'None';
 
-  // Affordability
   rollBtn.disabled = money < ROLL_COST;
   auto10Btn.disabled = money < ROLL10_COST;
   rollBtn.style.filter = rollBtn.disabled ? 'grayscale(0.3) brightness(0.9)' : '';
 }
-
-/* =========================
-   LOG, TOASTS, CONFETTI, SHOWCASE
-   ========================= */
 function log(msg, cls=''){
-  const div = document.createElement('div');
-  div.className = 'entry ' + cls;
-  const time = new Date().toLocaleTimeString();
-  div.textContent = `[${time}] ${msg}`;
-  logEl.prepend(div);
+  const el = document.createElement('div');
+  el.className = 'entry ' + cls;
+  el.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  logEl.prepend(el);
   const MAX = 220;
   while (logEl.children.length > MAX) logEl.removeChild(logEl.lastChild);
 }
-function showToast(ore, newCount){
+function showToast(ore, count){
   const t = document.createElement('div');
   t.className = 'toast';
   t.innerHTML = `
     <div class="badge" style="background:${ore.color}; width:14px; height:14px;"></div>
     <div>
       <div>Found <strong>${ore.name}</strong>!</div>
-      <div class="odds">${ore.rarity} • You now own <strong>#${newCount}</strong></div>
+      <div class="odds">${ore.rarity} • You now own <strong>#${count}</strong></div>
     </div>
   `;
   toastsEl.appendChild(t);
-  setTimeout(()=>{ t.remove(); }, 2600);
+  setTimeout(()=>t.remove(), 2600);
 }
-function burstConfetti(color){
+function confetti(color){
   const rect = confettiEl.getBoundingClientRect();
-  const centerX = rect.width/2;
-  const y = 40;
-  const n = 22;
+  const cx = rect.width/2, y = 40, n = 22;
   for (let i=0;i<n;i++){
-    const p = document.createElement('div');
-    p.className = 'piece';
-    const hue = (i*18)%360;
+    const p = document.createElement('div'); p.className='piece';
+    const hue=(i*18)%360;
     p.style.background = i%2 ? color : `hsl(${hue},85%,60%)`;
-    const sx = centerX + (Math.random()*40 - 20);
-    const sy = y + (Math.random()*30 - 10);
-    const dx = (Math.random()*220 - 110);
-    const dy = 120 + Math.random()*140;
+    const sx = cx + (Math.random()*40-20), sy = y + (Math.random()*30-10);
+    const dx = (Math.random()*220-110), dy = 120 + Math.random()*140;
     p.style.left = `${sx}px`; p.style.top = `${sy}px`;
-    p.style.setProperty('--sx', '0px'); p.style.setProperty('--sy', '0px');
     p.style.setProperty('--dx', dx+'px'); p.style.setProperty('--dy', dy+'px');
-    confettiEl.appendChild(p);
-    setTimeout(()=>p.remove(), 1000);
+    confettiEl.appendChild(p); setTimeout(()=>p.remove(), 1000);
   }
 }
 function openShowcase(ore, count){
@@ -516,29 +466,23 @@ function openShowcase(ore, count){
   showcase.classList.add('active');
   showcase.setAttribute('aria-hidden','false');
 }
-function closeShowcaseFn(){
-  showcase.classList.remove('active');
-  showcase.setAttribute('aria-hidden','true');
-}
+function closeShowcaseFn(){ showcase.classList.remove('active'); showcase.setAttribute('aria-hidden','true'); }
 closeShowcase.addEventListener('click', closeShowcaseFn);
-showcase.addEventListener('click', (e)=>{ if (e.target === showcase) closeShowcaseFn(); });
-window.addEventListener('keydown', (e)=>{ if (e.key === 'Escape' && showcase.classList.contains('active')) closeShowcaseFn(); });
+showcase.addEventListener('click', (e)=>{ if (e.target===showcase) closeShowcaseFn(); });
+window.addEventListener('keydown', (e)=>{ if (e.key==='Escape' && showcase.classList.contains('active')) closeShowcaseFn(); });
 
-/* =========================
-   SKIPS UI
-   ========================= */
+/* ===== Skips ===== */
 function renderSkips(){
-  // Enable after auto unlocked (keeping that behavior)
   const enabled = autoUnlocked;
   toggleSkipsBtn.disabled = !enabled;
   saveProfileBtn.disabled = !enabled;
   loadProfileBtn.disabled = !enabled;
 
   skipPanel.innerHTML = '';
-  ORES.forEach(o => {
+  ORES.forEach(o=>{
     const row = document.createElement('div');
     row.className = 'skip-row';
-    const id = 'skip_' + o.key;
+    const id = 'skip_'+o.key;
     row.innerHTML = `
       <label for="${id}">
         <span class="badge" style="background:${o.color}"></span>
@@ -547,7 +491,7 @@ function renderSkips(){
       <input type="checkbox" id="${id}" ${skipSet.has(o.key)?'checked':''} ${enabled?'':'disabled'} />
     `;
     const input = row.querySelector('input');
-    input.addEventListener('change', () => {
+    input.addEventListener('change', ()=>{
       if (input.checked) skipSet.add(o.key); else skipSet.delete(o.key);
       log(`${input.checked ? 'Skipping' : 'Un-skipping'} ${o.name}.`, 'warn');
     });
@@ -555,69 +499,40 @@ function renderSkips(){
   });
 }
 
-/* =========================
-   RNG WITH MODIFIERS
-   ========================= */
-function effectiveHit(oneIn, ore){
-  // Apply luck to Rare+ and pity to Rare+
-  let eff = oneIn;
-  const rarePlus = rarityRank(ore.rarity) >= rarityRank(PITY_APPLIES_MIN_RARITY);
+/* ===== RNG with modifiers ===== */
+function effectiveOneIn(base, ore){
+  let eff = base;
+  const rarePlus = rarityRank(ore.rarity) >= rarityRank(PITY_MIN_RARITY);
   const liveLuck = research.luck + (infusionActive ? LUCK_INFUSION_BONUS : 0);
-
-  if (rarePlus && liveLuck > 0){
-    // Reduce oneIn by luck% (bounded)
-    eff = Math.max(1, Math.floor(eff * (100 - liveLuck) / 100));
-  }
-  if (rarePlus && pity > 0){
-    eff = Math.max(1, Math.floor(eff * (100 - Math.min(pity, PITY_CAP)) / 100));
-  }
-  if (focusOre && ore.key === focusOre){
-    eff = Math.max(1, Math.floor(eff * (100 - FOCUS_BONUS) / 100));
-  }
+  if (rarePlus && liveLuck>0) eff = Math.max(1, Math.floor(eff * (100-liveLuck)/100));
+  if (rarePlus && pity>0) eff = Math.max(1, Math.floor(eff * (100-Math.min(pity,PITY_CAP))/100));
+  if (focusOre && ore.key===focusOre) eff = Math.max(1, Math.floor(eff * (100-FOCUS_BONUS)/100));
   return eff;
 }
-
-function performRNG(){
+function rollRNG(){
   for (const o of ORES){
     if (skipSet.has(o.key)) continue;
-    const eff = effectiveHit(o.oneIn, o);
-    if (Math.floor(Math.random() * eff) === 0) return o;
+    const eff = effectiveOneIn(o.oneIn, o);
+    if (Math.floor(Math.random()*eff)===0) return o;
   }
   return null;
 }
 
-/* =========================
-   ROLL LOGIC
-   ========================= */
-function onMiss(){
-  pity = Math.min(PITY_CAP, pity + PITY_PER_MISS);
-}
-function onHit(){
-  pity = 0; // reset pity on any hit
-}
+/* ===== Roll logic ===== */
+function onMiss(){ pity = Math.min(PITY_CAP, pity + PITY_PER_MISS); }
+function onHit(){ pity = 0; }
 
 function doOneRoll(){
-  if (money < ROLL_COST){
-    log(`Not enough money for a roll. Need $${ROLL_COST.toFixed(2)}.`, 'warn');
-    return false;
-  }
+  if (money < ROLL_COST){ log(`Not enough money for a roll. Need $${ROLL_COST}.`, 'warn'); return false; }
   money -= ROLL_COST;
-
-  totalRolls += 1;
-  const found = performRNG();
-
+  totalRolls++;
+  const found = rollRNG();
   if (found){
-    totalFinds += 1;
-    inventory[found.key] += 1;
-    const count = inventory[found.key];
-    const rRank = rarityRank(found.rarity);
-
-    if (rRank >= rarityRank('Epic')) {
-      openShowcase(found, count);
-      burstConfetti(found.color);
-    } else {
-      showToast(found, count);
-    }
+    totalFinds++;
+    const newCount = ++inventory[found.key];
+    const rank = rarityRank(found.rarity);
+    if (rank >= rarityRank('Epic')) { openShowcase(found, newCount); confetti(found.color); }
+    else { showToast(found, newCount); }
     log(`You found ${found.name}! (+$${found.incomePerSec.toFixed(2)}/s)`, 'got');
     renderInventory(found.key);
     onHit();
@@ -626,33 +541,23 @@ function doOneRoll(){
     renderInventory();
     onMiss();
   }
-  updateTopStats();
+  updateStats();
   return true;
 }
 
-async function rollBatchPaid(n, totalCost, delayMs=0){
-  if (money < totalCost){
-    log(`Not enough money for x${n}. Need $${totalCost.toFixed(2)}.`, 'warn');
-    return;
-  }
-  money -= totalCost;
-  updateTopStats();
-
+async function doTenRolls(){
+  if (money < ROLL10_COST){ log(`Not enough money for x10. Need $${ROLL10_COST}.`, 'warn'); return; }
+  money -= ROLL10_COST; updateStats();
   rollBtn.disabled = true; auto10Btn.disabled = true;
-  for (let i=0; i<n; i++){
-    totalRolls += 1;
-    const found = performRNG();
+  for (let i=0;i<10;i++){
+    totalRolls++;
+    const found = rollRNG();
     if (found){
-      totalFinds += 1;
-      inventory[found.key] += 1;
-      const count = inventory[found.key];
-      const rRank = rarityRank(found.rarity);
-      if (rRank >= rarityRank('Epic')) {
-        openShowcase(found, count);
-        burstConfetti(found.color);
-      } else {
-        showToast(found, count);
-      }
+      totalFinds++;
+      const newCount = ++inventory[found.key];
+      const rank = rarityRank(found.rarity);
+      if (rank >= rarityRank('Epic')) { openShowcase(found, newCount); confetti(found.color); }
+      else { showToast(found, newCount); }
       log(`Bundle roll: found ${found.name}! (+$${found.incomePerSec.toFixed(2)}/s)`, 'got');
       renderInventory(found.key);
       onHit();
@@ -661,207 +566,146 @@ async function rollBatchPaid(n, totalCost, delayMs=0){
       renderInventory();
       onMiss();
     }
-    updateTopStats();
-    if (delayMs) await new Promise(r => setTimeout(r, delayMs));
+    updateStats();
+    await new Promise(r=>setTimeout(r, 40));
   }
   rollBtn.disabled = money < ROLL_COST;
   auto10Btn.disabled = money < ROLL10_COST;
 }
 
-/* =========================
-   TICK: PASSIVE INCOME & BUFF DURATIONS
-   ========================= */
+/* ===== Ticking (income + timers) ===== */
 function tick(now){
-  const dt = Math.max(0, (now - lastTick) / 1000);
+  const dt = Math.max(0, (now - lastTick)/1000);
   lastTick = now;
+  money += computeMPS()*dt;
 
-  // Income
-  money += computeMPS() * dt;
-
-  // Buff timers
   const t = Date.now()/1000;
-  if (infusionActive && t >= infusionEndsAt){ infusionActive = false; }
-  if (focusOre && t >= focusEndsAt){ focusOre = null; }
+  if (infusionActive && t>=infusionEnds) infusionActive=false;
+  if (focusOre && t>=focusEnds) focusOre=null;
 
-  // Update HUD periodically
-  if (!tick._acc) tick._acc = 0;
+  if (!tick._acc) tick._acc=0;
   tick._acc += dt;
-  if (tick._acc >= 0.1){
-    updateTopStats();
-    renderInventory();
-    tick._acc = 0;
-  }
+  if (tick._acc>=0.1){ updateStats(); renderInventory(); tick._acc=0; }
   requestAnimationFrame(tick);
 }
 
-/* =========================
-   SHOP (minimal subset to demonstrate; extend later)
-   ========================= */
+/* ===== Shop (Auto, Luck Infusion, Focus, Beacons, Tier Boosters) ===== */
 function renderShop(){
   shopEl.innerHTML = '';
 
-  // Auto unlock
-  const autoRow = document.createElement('div');
-  autoRow.className = 'row2';
-  const autoTxt = autoUnlocked ? `Auto-Roll unlocked (speed: ${AUTO_SPEED_TIERS[autoSpeedIndex]}ms)` : `Buy Auto-Roll ($${AUTO_UNLOCK_COST})`;
-  autoRow.innerHTML = `<div>${autoTxt}</div>`;
+  // Auto unlock / toggle
+  const autoRow = document.createElement('div'); autoRow.className='row2';
+  autoRow.innerHTML = `<div>${autoUnlocked ? `Auto-Roll unlocked (speed: ${AUTO_SPEEDS[autoSpeedIndex]}ms)` : `Buy Auto-Roll ($${AUTO_UNLOCK_COST})`}</div>`;
   const autoBtn = document.createElement('button');
-  autoBtn.textContent = autoUnlocked ? (autoEnabled ? 'Disable Auto' : 'Enable Auto') : 'Buy';
+  autoBtn.textContent = autoUnlocked ? (autoEnabled?'Disable Auto':'Enable Auto') : 'Buy';
   autoBtn.disabled = !autoUnlocked && money < AUTO_UNLOCK_COST;
   autoBtn.onclick = ()=>{
     if (!autoUnlocked){
       if (money < AUTO_UNLOCK_COST) return;
-      money -= AUTO_UNLOCK_COST; autoUnlocked = true; log('Auto-Roll purchased.', 'warn');
-      toggleSkipsBtn.disabled = false; renderSkips();
+      money -= AUTO_UNLOCK_COST; autoUnlocked=true; log('Auto-Roll purchased.', 'warn');
+      toggleSkipsBtn.disabled = false; saveProfileBtn.disabled=false; loadProfileBtn.disabled=false; renderSkips();
     } else {
-      // toggle
-      if (autoEnabled){ stopAuto(); } else { startAuto(); }
+      if (autoEnabled) stopAuto(); else startAuto();
     }
-    updateTopStats(); renderShop();
+    updateStats(); renderShop();
   };
-  autoRow.appendChild(autoBtn);
-  shopEl.appendChild(autoRow);
+  autoRow.appendChild(autoBtn); shopEl.appendChild(autoRow);
 
   // Auto speed upgrades
-  if (autoUnlocked && autoSpeedIndex < AUTO_SPEED_TIERS.length-1){
-    const i = autoSpeedIndex;
-    const cost = AUTO_UPGRADE_COSTS[i] || 999999;
-    const row = document.createElement('div');
-    row.className = 'row2';
-    row.innerHTML = `<div>Auto Speed Up (${AUTO_SPEED_TIERS[i]}ms → ${AUTO_SPEED_TIERS[i+1]}ms) — $${cost}</div>`;
-    const btn = document.createElement('button');
-    btn.textContent = 'Buy';
-    btn.disabled = money < cost;
-    btn.onclick = ()=>{
+  if (autoUnlocked && autoSpeedIndex < AUTO_SPEEDS.length-1){
+    const cost = AUTO_UPGRADE_COSTS[autoSpeedIndex] || 999999;
+    const r = document.createElement('div'); r.className='row2';
+    r.innerHTML = `<div>Auto Speed Up (${AUTO_SPEEDS[autoSpeedIndex]}ms → ${AUTO_SPEEDS[autoSpeedIndex+1]}ms) — $${cost}</div>`;
+    const b = document.createElement('button'); b.textContent='Buy'; b.disabled = money < cost;
+    b.onclick=()=>{
       if (money < cost) return;
-      money -= cost;
-      autoSpeedIndex++;
+      money -= cost; autoSpeedIndex++;
       if (autoEnabled){ stopAuto(); startAuto(); }
-      log(`Auto speed upgraded to ${AUTO_SPEED_TIERS[autoSpeedIndex]}ms.`, 'warn');
-      updateTopStats(); renderShop();
+      log(`Auto speed upgraded to ${AUTO_SPEEDS[autoSpeedIndex]}ms.`, 'warn');
+      updateStats(); renderShop();
     };
-    row.appendChild(btn);
-    shopEl.appendChild(row);
+    r.appendChild(b); shopEl.appendChild(r);
   }
 
-  // Luck infusion
-  const canUseInf = Date.now()/1000 >= infusionCdEndsAt;
-  const rowInf = document.createElement('div');
-  rowInf.className = 'row2';
-  rowInf.innerHTML = `<div>Luck Infusion (+${LUCK_INFUSION_BONUS}% Rare+ for ${LUCK_INFUSION_DURATION}s) — $${LUCK_INFUSION_COST} ${!canUseInf ? '(cooldown)' : ''}</div>`;
-  const btnInf = document.createElement('button');
-  btnInf.textContent = infusionActive ? 'Active' : 'Use';
-  btnInf.disabled = infusionActive || !canUseInf || money < LUCK_INFUSION_COST;
-  btnInf.onclick = ()=>{
+  // Luck Infusion
+  const canInf = (Date.now()/1000) >= infusionCdEnds && !infusionActive;
+  const infRow = document.createElement('div'); infRow.className='row2';
+  infRow.innerHTML = `<div>Luck Infusion (+${LUCK_INFUSION_BONUS}% Rare+ for ${LUCK_INFUSION_SECS}s) — $${LUCK_INFUSION_COST} ${canInf?'':'(cooldown or active)'}</div>`;
+  const infBtn = document.createElement('button'); infBtn.textContent='Use'; infBtn.disabled = !canInf || money < LUCK_INFUSION_COST;
+  infBtn.onclick=()=>{
     if (money < LUCK_INFUSION_COST) return;
     money -= LUCK_INFUSION_COST;
     infusionActive = true;
-    const now = Date.now()/1000;
-    infusionEndsAt = now + LUCK_INFUSION_DURATION;
-    infusionCdEndsAt = now + LUCK_COOLDOWN;
-    log(`Luck infusion activated for ${LUCK_INFUSION_DURATION}s.`, 'warn');
-    updateTopStats(); renderShop();
+    const now=Date.now()/1000;
+    infusionEnds = now + LUCK_INFUSION_SECS;
+    infusionCdEnds = now + LUCK_COOLDOWN_SECS;
+    log(`Luck infusion active for ${LUCK_INFUSION_SECS}s.`, 'warn');
+    updateStats(); renderShop();
   };
-  rowInf.appendChild(btnInf);
-  shopEl.appendChild(rowInf);
+  infRow.appendChild(infBtn); shopEl.appendChild(infRow);
 
-  // Focus lens (pick a target from dropdown)
-  const rowFocus = document.createElement('div');
-  rowFocus.className = 'row2';
+  // Focus Lens
+  const focusRow = document.createElement('div'); focusRow.className='row2';
   const sel = document.createElement('select');
-  ORES.forEach(o=>{
-    const opt = document.createElement('option');
-    opt.value = o.key; opt.textContent = o.name;
-    sel.appendChild(opt);
-  });
-  const canUseFocus = Date.now()/1000 >= focusCdEndsAt && !focusOre;
-  rowFocus.appendChild(document.createTextNode(`Focus Lens (+${FOCUS_BONUS}% to chosen ore for ${FOCUS_DURATION}s) — $${FOCUS_COST}`));
-  const btnFocus = document.createElement('button');
-  btnFocus.textContent = 'Activate';
-  btnFocus.disabled = !canUseFocus || money < FOCUS_COST;
-  btnFocus.onclick = ()=>{
+  ORES.forEach(o=>{ const opt=document.createElement('option'); opt.value=o.key; opt.textContent=o.name; sel.appendChild(opt); });
+  const canFocus = (Date.now()/1000)>=focusCdEnds && !focusOre;
+  const info = document.createElement('div');
+  info.textContent = `Focus Lens (+${FOCUS_BONUS}% to selected ore for ${FOCUS_SECS}s) — $${FOCUS_COST}`;
+  const focusBtn = document.createElement('button'); focusBtn.textContent='Activate'; focusBtn.disabled = !canFocus || money < FOCUS_COST;
+  focusBtn.onclick=()=>{
     if (money < FOCUS_COST) return;
     money -= FOCUS_COST;
     focusOre = sel.value;
-    const now = Date.now()/1000;
-    focusEndsAt = now + FOCUS_DURATION;
-    focusCdEndsAt = now + FOCUS_COOLDOWN;
-    log(`Focus on ${ORES.find(o=>o.key===focusOre).name} for ${FOCUS_DURATION}s.`, 'warn');
-    updateTopStats(); renderShop();
+    const now=Date.now()/1000;
+    focusEnds = now + FOCUS_SECS;
+    focusCdEnds = now + FOCUS_COOLDOWN_SECS;
+    log(`Focus on ${ORES.find(o=>o.key===focusOre).name} for ${FOCUS_SECS}s.`, 'warn');
+    updateStats(); renderShop();
   };
-  rowFocus.appendChild(sel);
-  rowFocus.appendChild(btnFocus);
-  shopEl.appendChild(rowFocus);
+  focusRow.appendChild(info); focusRow.appendChild(sel); focusRow.appendChild(focusBtn);
+  shopEl.appendChild(focusRow);
 
-  // Beacons (+10% global income each)
+  // Beacons
   if (beacons < BEACON_COSTS.length){
     const cost = BEACON_COSTS[beacons];
-    const rowB = document.createElement('div');
-    rowB.className = 'row2';
-    rowB.innerHTML = `<div>Beacon +${BEACON_STEP}% global income — $${cost}</div>`;
-    const btnB = document.createElement('button');
-    btnB.textContent = 'Buy';
-    btnB.disabled = money < cost;
-    btnB.onclick = ()=>{
-      if (money < cost) return;
-      money -= cost; beacons++;
-      log(`Beacon purchased. Global income now +${beacons*BEACON_STEP}%.`, 'warn');
-      updateTopStats(); renderShop();
-    };
-    rowB.appendChild(btnB);
-    shopEl.appendChild(rowB);
+    const row = document.createElement('div'); row.className='row2';
+    row.innerHTML = `<div>Beacon +${BEACON_STEP}% global income — $${cost}</div>`;
+    const btn=document.createElement('button'); btn.textContent='Buy'; btn.disabled = money < cost;
+    btn.onclick=()=>{ if (money<cost) return; money-=cost; beacons++; log(`Beacon purchased. +${beacons*BEACON_STEP}% income.`, 'warn'); updateStats(); renderShop(); };
+    row.appendChild(btn); shopEl.appendChild(row);
   }
 
-  // Tier boosters (+25% income for a rarity)
+  // Tier Boosters (one-time per rarity)
   ['Common','Uncommon','Rare','Epic','Legendary','Mythic','Relic'].forEach(r=>{
-    if ((tierBoosts[r]||0) >= TIER_BOOST) return; // one-time
+    if ((tierBoosts[r]||0) >= TIER_BOOST) return;
     const cost = TIER_BOOST_COSTS[r];
-    const row = document.createElement('div');
-    row.className = 'row2';
+    const row = document.createElement('div'); row.className='row2';
     row.innerHTML = `<div>${r} Booster +${TIER_BOOST}% income — $${cost}</div>`;
-    const btn = document.createElement('button');
-    btn.textContent = 'Buy';
-    btn.disabled = money < cost;
-    btn.onclick = ()=>{
-      if (money < cost) return;
-      money -= cost;
-      tierBoosts[r] = (tierBoosts[r]||0) + TIER_BOOST;
-      log(`${r} income boosted by ${TIER_BOOST}%.`, 'warn');
-      updateTopStats(); renderShop();
-    };
-    row.appendChild(btn);
-    shopEl.appendChild(row);
+    const btn=document.createElement('button'); btn.textContent='Buy'; btn.disabled = money < cost;
+    btn.onclick=()=>{ if (money<cost) return; money-=cost; tierBoosts[r]=(tierBoosts[r]||0)+TIER_BOOST; log(`${r} income +${TIER_BOOST}%.`, 'warn'); updateStats(); renderShop(); };
+    row.appendChild(btn); shopEl.appendChild(row);
   });
 }
 
-/* =========================
-   AUTO-ROLL
-   ========================= */
+/* ===== Auto-Roll ===== */
 function startAuto(){
   if (autoTimer) return;
   autoEnabled = true;
-  autoStatus.textContent = `Auto-Roll: ON (${AUTO_SPEED_TIERS[autoSpeedIndex]}ms)`;
-  autoTimer = setInterval(()=>{
-    if (money >= ROLL_COST){ doOneRoll(); }
-  }, AUTO_SPEED_TIERS[autoSpeedIndex]);
+  autoStatus.textContent = `Auto-Roll: ON (${AUTO_SPEEDS[autoSpeedIndex]}ms)`;
+  autoTimer = setInterval(()=>{ if (money >= ROLL_COST) doOneRoll(); }, AUTO_SPEEDS[autoSpeedIndex]);
   log('Auto-Roll enabled.', 'warn');
-  updateTopStats();
+  updateStats();
 }
 function stopAuto(){
   autoEnabled = false;
   autoStatus.textContent = 'Auto-Roll: OFF';
-  if (autoTimer){ clearInterval(autoTimer); autoTimer = null; }
+  if (autoTimer){ clearInterval(autoTimer); autoTimer=null; }
   log('Auto-Roll disabled.', 'warn');
-  updateTopStats();
+  updateStats();
 }
 
-/* =========================
-   EVENTS
-   ========================= */
-rollBtn.addEventListener('click', () => doOneRoll());
-auto10Btn.addEventListener('click', () => rollBatchPaid(10, ROLL10_COST, 40));
-toggleSkipsBtn.addEventListener('click', () => { skipPanel.classList.toggle('active'); });
-saveProfileBtn.addEventListener('click', ()=>{
-  if (!autoUnlocked) return;
-  localStorage.setItem('ore_rng_skip_profile', JSON.stringify(Array.from(skipSet)));
-  log
+/* ===== Events ===== */
+rollBtn.addEventListener('click', doOneRoll);
+auto10Btn.addEventListener('click', doTenRolls);
+toggleSkipsBtn.addEventListener('click', ()=> skipPanel.classList.toggle('active'));
+saveProfileBtn
