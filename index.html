@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Ore Roller RNG — Center Roll + Income</title>
+  <title>Ore Roller RNG — Costs + x10 Discount</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
@@ -30,7 +30,6 @@
       display:grid; grid-template-columns: 1fr 360px; gap:18px;
       width:min(1200px, 94vw); margin:20px auto; align-items:start;
     }
-    /* Center stage with big roll button */
     .stage{
       background:var(--panel2); border:1px solid #222a4a; border-radius:14px;
       padding:24px; display:grid; grid-template-rows:auto 1fr auto; gap:16px; min-height:520px;
@@ -47,13 +46,14 @@
     .roll-btn{
       width:220px; height:220px; border-radius:50%;
       background: radial-gradient(100px 100px at 35% 30%, #2e3a78 0%, #1e2853 60%);
-      border:2px solid #35407a; color:#fff; font-weight:900; font-size:1.6rem; letter-spacing:.5px;
+      border:2px solid #35407a; color:#fff; font-weight:900; font-size:1.4rem; letter-spacing:.3px;
       cursor:pointer; box-shadow:
         0 18px 40px rgba(0,0,0,.35),
         inset 0 0 0 2px rgba(255,255,255,.05),
         0 0 40px rgba(106,227,255,.18);
       transition: transform .08s ease, filter .2s ease, box-shadow .2s ease;
     }
+    .roll-btn small{ display:block; font-size:.9rem; font-weight:600; color:#cfe8ff; opacity:.8; margin-top:6px; }
     .roll-btn:hover{ filter:brightness(1.06); box-shadow:
       0 22px 50px rgba(0,0,0,.4),
       inset 0 0 0 2px rgba(255,255,255,.07),
@@ -63,16 +63,15 @@
       position:absolute; bottom:-4px; display:flex; gap:10px;
     }
     .quick button{
-      padding:8px 10px; font-weight:700; border-radius:8px; border:1px solid #2f3866;
+      padding:10px 12px; font-weight:800; border-radius:8px; border:1px solid #2f3866;
       background:linear-gradient(180deg, #263160, #1b2347); color:#e8efff; cursor:pointer;
     }
+    .quick button:disabled{ opacity:.55; cursor:not-allowed; }
     .subpanel{
       background:#0d132a; border:1px solid #1e2550; border-radius:12px; padding:12px;
     }
     .bar{ height:8px; border-radius:6px; background:#0f1430; border:1px solid #27305a; overflow:hidden; }
     .bar > div{ height:100%; background:linear-gradient(90deg, #6ae3ff, #8ef5c2); width:0%; transition:width .25s ease; }
-
-    /* Right column: inventory + ores + log */
     .side{ display:grid; gap:16px; }
     .card{ background:var(--panel2); border:1px solid #1f274a; border-radius:12px; padding:14px; }
     .card h3{ margin:0 0 10px 0; font-size:1rem; color:var(--accent)}
@@ -92,6 +91,7 @@
     .entry:last-child{ border-bottom:none; }
     .got{ color:var(--good); }
     .miss{ color:var(--muted); }
+    .warn{ color:#ffd24a; }
 
     .footer{
       padding:10px 18px; border-top:1px solid #242a44; background:var(--panel); color:var(--muted);
@@ -132,15 +132,21 @@
       </div>
 
       <div class="center">
-        <button id="rollBtn" class="roll-btn" aria-label="Roll for ore">ROLL</button>
+        <button id="rollBtn" class="roll-btn" aria-label="Roll for ore">
+          ROLL
+          <small>Cost: $1</small>
+        </button>
         <div class="quick">
-          <button id="auto10">x10</button>
-          <button id="auto100">x100</button>
+          <button id="auto10">Roll x10 ($15)</button>
+          <!-- x100 removed per request -->
         </div>
       </div>
 
       <div class="subpanel">
-        <div class="odds">Each click attempts to find exactly one ore (from common to rare). If none hit, it’s a miss. All owned ores generate passive income per second based on rarity.</div>
+        <div class="odds">
+          Each click attempts to find exactly one ore (from common to rare). If none hit, it’s a miss.
+          All owned ores generate passive income per second based on rarity.
+        </div>
       </div>
     </section>
 
@@ -157,7 +163,7 @@
       </div>
 
       <div class="card">
-        <h3>Recent Rolls</h3>
+        <h3>Recent Events</h3>
         <div id="log" class="log"></div>
       </div>
     </aside>
@@ -171,8 +177,11 @@
   </footer>
 
   <script>
-    // Ores with odds and income per second (AUD assumed visually; values are unitless $ for the counter).
-    // Income scales up with rarity. Tweak incomePerSec freely.
+    // CONFIG
+    const ROLL_COST = 1;     // $1 per single roll
+    const ROLL10_COST = 15;  // $15 for 10 rolls
+
+    // Ore table: odds and passive income per ore owned
     const ORES = [
       { key:'dirt',     name:'Dirt',     color:'#8b5a2b', oneIn: 2,   rarity:'Common',    incomePerSec: 0.01 },
       { key:'rock',     name:'Rock',     color:'#7a7f87', oneIn: 4,   rarity:'Common',    incomePerSec: 0.02 },
@@ -194,7 +203,7 @@
     const inventory = Object.fromEntries(ORES.map(o => [o.key, 0]));
     let totalRolls = 0;
     let totalFinds = 0;
-    let money = 0;
+    let money = 20; // Give a small starting balance for testing (adjust or set to 0)
     let lastTick = performance.now();
 
     // DOM
@@ -206,26 +215,24 @@
     const findBarEl = document.getElementById('findBar');
     const rollBtn = document.getElementById('rollBtn');
     const auto10Btn = document.getElementById('auto10');
-    const auto100Btn = document.getElementById('auto100');
     const resetBtn = document.getElementById('resetBtn');
     const moneyDisplay = document.getElementById('moneyDisplay');
     const mpsDisplay = document.getElementById('mpsDisplay');
 
+    // Helpers
     function formatMoney(x){
-      // Compact but readable formatting
       if (x >= 1e9) return '$' + (x/1e9).toFixed(2) + 'B';
       if (x >= 1e6) return '$' + (x/1e6).toFixed(2) + 'M';
       if (x >= 1e3) return '$' + (x/1e3).toFixed(2) + 'k';
       return '$' + x.toFixed(2);
     }
-
     function computeMPS(){
       let mps = 0;
       for (const o of ORES) mps += inventory[o.key] * o.incomePerSec;
       return mps;
     }
 
-    // UI Renders
+    // UI
     function renderLegend(){
       oreLegendEl.innerHTML = '';
       ORES.forEach(o => {
@@ -243,7 +250,6 @@
         oreLegendEl.appendChild(row);
       });
     }
-
     function renderInventory(){
       invListEl.innerHTML = '';
       ORES.forEach(o => {
@@ -261,7 +267,6 @@
         invListEl.appendChild(wrap);
       });
     }
-
     function updateTopStats(){
       totalRollsEl.textContent = totalRolls;
       const rate = totalRolls ? (100 * totalFinds / totalRolls) : 0;
@@ -269,8 +274,14 @@
       findBarEl.style.width = Math.min(100, rate).toFixed(2) + '%';
       moneyDisplay.textContent = formatMoney(money);
       mpsDisplay.textContent = `$${computeMPS().toFixed(2)}/s`;
-    }
 
+      // Affordability states
+      rollBtn.disabled = money < ROLL_COST;
+      auto10Btn.disabled = money < ROLL10_COST;
+
+      // Visual cue when disabled
+      rollBtn.style.filter = rollBtn.disabled ? 'grayscale(0.3) brightness(0.9)' : '';
+    }
     function log(msg, cls=''){
       const div = document.createElement('div');
       div.className = 'entry ' + cls;
@@ -281,8 +292,15 @@
       while (logEl.children.length > MAX) logEl.removeChild(logEl.lastChild);
     }
 
-    // RNG: independent checks from common to rare; first hit wins. Otherwise miss.
-    function rollOnce(){
+    // RNG and costs
+    function doOneRoll(){
+      // Pay cost
+      if (money < ROLL_COST){
+        log(`Not enough money for a roll. Need $${ROLL_COST.toFixed(2)}.`, 'warn');
+        return false;
+      }
+      money -= ROLL_COST;
+
       totalRolls += 1;
       let found = null;
       for (const o of ORES){
@@ -299,45 +317,69 @@
       }
       renderInventory();
       updateTopStats();
+      return true;
     }
 
-    async function rollBatch(n, delayMs=0){
-      setRollDisabled(true);
+    async function rollBatchPaid(n, totalCost, delayMs=0){
+      if (money < totalCost){
+        log(`Not enough money for x${n}. Need $${totalCost.toFixed(2)}.`, 'warn');
+        return;
+      }
+      // Pay upfront discounted bundle
+      money -= totalCost;
+      updateTopStats();
+
+      // Perform n rolls without further cost
+      rollBtn.disabled = true;
+      auto10Btn.disabled = true;
       for (let i=0; i<n; i++){
-        rollOnce();
+        // For bundle, skip per-roll cost; just do RNG and stats
+        totalRolls += 1;
+        let found = null;
+        for (const o of ORES){
+          if (Math.floor(Math.random() * o.oneIn) === 0){
+            found = o; break;
+          }
+        }
+        if (found){
+          totalFinds += 1;
+          inventory[found.key] += 1;
+          log(`Bundle roll: found ${found.name}! (+$${found.incomePerSec.toFixed(2)}/s)`, 'got');
+        } else {
+          log(`Bundle roll: no ore.`, 'miss');
+        }
+        renderInventory();
+        updateTopStats();
         if (delayMs) await new Promise(r => setTimeout(r, delayMs));
       }
-      setRollDisabled(false);
+      rollBtn.disabled = money < ROLL_COST;
+      auto10Btn.disabled = money < ROLL10_COST;
     }
 
-    function setRollDisabled(disabled){
-      rollBtn.disabled = disabled;
-      auto10Btn.disabled = disabled;
-      auto100Btn.disabled = disabled;
-      rollBtn.style.filter = disabled ? 'grayscale(0.3) brightness(0.9)' : '';
-    }
-
-    // Passive income ticker (smooth, delta-time based)
+    // Passive income ticker
     function tick(now){
-      const dt = Math.max(0, (now - lastTick) / 1000); // seconds
+      const dt = Math.max(0, (now - lastTick) / 1000);
       lastTick = now;
       const mps = computeMPS();
       money += mps * dt;
-      // Avoid heavy DOM churn: update displays at ~10 fps
+
       if (!tick._acc) tick._acc = 0;
       tick._acc += dt;
       if (tick._acc >= 0.1){
         updateTopStats();
-        renderInventory(); // updates per-ore $/s totals
+        renderInventory();
         tick._acc = 0;
       }
       requestAnimationFrame(tick);
     }
 
-    // Controls
-    rollBtn.addEventListener('click', () => rollBatch(1));
-    auto10Btn.addEventListener('click', () => rollBatch(10, 40));
-    auto100Btn.addEventListener('click', () => rollBatch(100, 10));
+    // Events
+    rollBtn.addEventListener('click', () => {
+      doOneRoll();
+    });
+    auto10Btn.addEventListener('click', () => {
+      rollBatchPaid(10, ROLL10_COST, 40);
+    });
     resetBtn.addEventListener('click', () => {
       if (!confirm('Reset inventory, money, and log?')) return;
       for (const k in inventory) inventory[k] = 0;
@@ -349,18 +391,22 @@
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space'){
         e.preventDefault();
-        rollBatch(1);
+        doOneRoll();
       }
     });
 
     // Init
-    renderLegend();
-    renderInventory();
-    updateTopStats();
-    requestAnimationFrame((t)=>{ lastTick = t; tick(t); });
+    function init(){
+      renderLegend();
+      renderInventory();
+      updateTopStats();
+      requestAnimationFrame((t)=>{ lastTick = t; tick(t); });
+      log(`Welcome! Rolls cost $${ROLL_COST.toFixed(2)}. Bundle: 10 rolls for $${ROLL10_COST.toFixed(2)}.`, 'warn');
+    }
+    init();
 
-    // Optional: Persist to localStorage (simple)
-    const SAVE_KEY = 'oreRNG_save_v1';
+    // Save/load
+    const SAVE_KEY = 'oreRNG_save_v2_costs';
     function save(){
       const data = { inv: inventory, rolls: totalRolls, finds: totalFinds, money };
       localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -378,7 +424,6 @@
         }
       }catch{}
     }
-    // Auto-save every 5s
     load();
     renderInventory(); updateTopStats();
     setInterval(save, 5000);
