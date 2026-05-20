@@ -2,149 +2,205 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Ore Roller RNG</title>
+  <title>Ore Roller RNG — Center Roll + Income</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root {
-      --bg: #0f1220;
-      --panel: #171a2b;
-      --accent: #6ae3ff;
-      --text: #e7ecf7;
-      --muted: #9aa3b2;
-      --good: #6aff9e;
-      --bad: #ff6a6a;
+    :root{
+      --bg:#0f1220; --panel:#151a31; --panel2:#10152b;
+      --text:#e7ecf7; --muted:#9aa3b2; --accent:#6ae3ff;
+      --good:#6aff9e; --bad:#ff6a6a; --gold:#ffd24a;
     }
-    body {
-      margin: 0; font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(1200px 600px at 20% 10%, #1b2040 0%, #0f1220 60%) fixed;
-      color: var(--text);
-      display: grid; place-items: center; min-height: 100vh;
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 700px at 30% -10%, #1b2348 0%, #0f1220 60%) fixed;
+      color:var(--text);
+      min-height:100vh; display:grid; grid-template-rows:auto 1fr auto;
     }
-    .wrap {
-      width: min(1000px, 92vw);
-      display: grid; gap: 16px;
-      grid-template-columns: 1.2fr 1fr;
-      align-items: start;
+    header{
+      padding:14px 18px; background:var(--panel);
+      border-bottom:1px solid #242a44; display:flex; align-items:center; justify-content:space-between;
     }
-    header, .card { background: var(--panel); border: 1px solid #242a44; border-radius: 12px; padding: 16px; }
-    header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; }
-    h1 { margin: 0; font-size: 1.3rem; letter-spacing: 0.5px; }
-    button {
-      background: linear-gradient(180deg, #2a325a, #1f274a);
-      color: var(--text); border: 1px solid #2f3866; border-radius: 10px;
-      padding: 12px 18px; font-weight: 700; cursor: pointer;
-      transition: transform .06s ease, filter .2s ease, box-shadow .2s ease;
-      box-shadow: 0 8px 20px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.04);
+    header h1{margin:0; font-size:1.1rem; letter-spacing:.3px}
+    .money{
+      display:flex; gap:16px; align-items:center; color:var(--muted); font-size:.95rem;
     }
-    button:hover { filter: brightness(1.05); }
-    button:active { transform: translateY(1px) scale(0.99); }
-    .roll-btn { font-size: 1.05rem; }
-    .stats { display: flex; gap: 12px; color: var(--muted); font-size: .95rem; }
-    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-    .ore-list { display: grid; gap: 8px; }
-    .ore {
-      display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
-      padding: 10px; border-radius: 10px; background: #12152a; border: 1px solid #252b4b;
+    .money strong{color:var(--text)}
+    .wrap{
+      display:grid; grid-template-columns: 1fr 360px; gap:18px;
+      width:min(1200px, 94vw); margin:20px auto; align-items:start;
     }
-    .badge {
-      width: 12px; height: 12px; border-radius: 50%;
-      box-shadow: 0 0 0 3px rgba(255,255,255,.03) inset;
+    /* Center stage with big roll button */
+    .stage{
+      background:var(--panel2); border:1px solid #222a4a; border-radius:14px;
+      padding:24px; display:grid; grid-template-rows:auto 1fr auto; gap:16px; min-height:520px;
     }
-    .ore-name { font-weight: 700; }
-    .ore-odds { font-size: .85rem; color: var(--muted); }
-    .inv { background: #111425; border: 1px dashed #2a3155; padding: 10px; border-radius: 10px; }
-    .inv h3 { margin: 0 0 8px 0; font-size: 1rem; color: var(--accent); }
-    .inv-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .inv-item { display: flex; justify-content: space-between; background: #0d1122; border: 1px solid #20274a; padding: 8px 10px; border-radius: 8px; }
-    .log { max-height: 260px; overflow:auto; background: #0d1122; border:1px solid #22294a; border-radius: 10px; padding: 10px; }
-    .log h3 { margin: 0 0 8px 0; font-size: 1rem; color: var(--accent); }
-    .entry { font-size: .92rem; padding: 6px 8px; border-bottom: 1px dashed #22294a; }
-    .entry:last-child { border-bottom: none; }
-    .got { color: var(--good); }
-    .miss { color: var(--muted); }
-    .bar {
-      height: 8px; border-radius: 6px; background: #0f1430; border:1px solid #27305a; overflow: hidden;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+    .stage-head{
+      display:flex; justify-content:space-between; align-items:center;
     }
-    .bar > div { height: 100%; background: linear-gradient(90deg, #6ae3ff, #8ef5c2); width: 0%; transition: width .25s ease; }
-    .controls { display: flex; gap: 8px; flex-wrap: wrap; }
-    .note { color: var(--muted); font-size: .85rem; }
-    @media (max-width: 860px) {
-      .wrap { grid-template-columns: 1fr; }
-      .grid { grid-template-columns: 1fr; }
-      .inv-list { grid-template-columns: 1fr; }
+    .rate{
+      display:flex; gap:14px; color:var(--muted); font-size:.95rem;
+    }
+    .center{
+      display:grid; place-items:center; position:relative;
+    }
+    .roll-btn{
+      width:220px; height:220px; border-radius:50%;
+      background: radial-gradient(100px 100px at 35% 30%, #2e3a78 0%, #1e2853 60%);
+      border:2px solid #35407a; color:#fff; font-weight:900; font-size:1.6rem; letter-spacing:.5px;
+      cursor:pointer; box-shadow:
+        0 18px 40px rgba(0,0,0,.35),
+        inset 0 0 0 2px rgba(255,255,255,.05),
+        0 0 40px rgba(106,227,255,.18);
+      transition: transform .08s ease, filter .2s ease, box-shadow .2s ease;
+    }
+    .roll-btn:hover{ filter:brightness(1.06); box-shadow:
+      0 22px 50px rgba(0,0,0,.4),
+      inset 0 0 0 2px rgba(255,255,255,.07),
+      0 0 60px rgba(106,227,255,.25);}
+    .roll-btn:active{ transform: translateY(2px) scale(0.985); }
+    .quick{
+      position:absolute; bottom:-4px; display:flex; gap:10px;
+    }
+    .quick button{
+      padding:8px 10px; font-weight:700; border-radius:8px; border:1px solid #2f3866;
+      background:linear-gradient(180deg, #263160, #1b2347); color:#e8efff; cursor:pointer;
+    }
+    .subpanel{
+      background:#0d132a; border:1px solid #1e2550; border-radius:12px; padding:12px;
+    }
+    .bar{ height:8px; border-radius:6px; background:#0f1430; border:1px solid #27305a; overflow:hidden; }
+    .bar > div{ height:100%; background:linear-gradient(90deg, #6ae3ff, #8ef5c2); width:0%; transition:width .25s ease; }
+
+    /* Right column: inventory + ores + log */
+    .side{ display:grid; gap:16px; }
+    .card{ background:var(--panel2); border:1px solid #1f274a; border-radius:12px; padding:14px; }
+    .card h3{ margin:0 0 10px 0; font-size:1rem; color:var(--accent)}
+    .inv-list{ display:grid; grid-template-columns: 1fr auto; gap:8px; }
+    .inv-item{ display:contents; }
+    .inv-name{ background:#0b1022; border:1px solid #20284a; border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:8px; }
+    .inv-amt{ display:flex; align-items:center; justify-content:flex-end;
+      background:#0b1022; border:1px solid #20284a; border-radius:8px; padding:8px 10px; font-weight:800;}
+    .badge{ width:12px; height:12px; border-radius:50%; box-shadow:0 0 0 3px rgba(255,255,255,.03) inset; }
+    .odds{ color:var(--muted); font-size:.85rem; }
+    .income{ color:#9fe6b6; font-size:.9rem; }
+    .ore-legend{ display:grid; gap:8px; }
+    .row{ display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center;
+      padding:8px; border-radius:8px; background:#101634; border:1px solid #222b55; }
+    .log{ max-height:220px; overflow:auto; background:#0d1122; border:1px solid #22294a; border-radius:10px; padding:10px; }
+    .entry{ font-size:.92rem; padding:6px 8px; border-bottom:1px dashed #22294a; }
+    .entry:last-child{ border-bottom:none; }
+    .got{ color:var(--good); }
+    .miss{ color:var(--muted); }
+
+    .footer{
+      padding:10px 18px; border-top:1px solid #242a44; background:var(--panel); color:var(--muted);
+      display:flex; gap:12px; justify-content:space-between; align-items:center;
+    }
+    .controls{ display:flex; gap:8px; flex-wrap:wrap; }
+    .controls button{
+      padding:8px 12px; border-radius:8px; border:1px solid #2f3866;
+      background:linear-gradient(180deg, #263160, #1b2347); color:#e8efff; cursor:pointer; font-weight:700;
+    }
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+      .stage{ min-height:460px; }
+      .roll-btn{ width:200px; height:200px; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>Ore Roller RNG</h1>
-      <div class="controls">
-        <button id="rollBtn" class="roll-btn">Roll</button>
-        <button id="auto10">Roll x10</button>
-        <button id="auto100">Roll x100</button>
-        <button id="resetBtn" title="Clear inventory and log">Reset</button>
-      </div>
-    </header>
-
-    <div class="card">
-      <div class="stats">
-        <div>Total Rolls: <strong id="totalRolls">0</strong></div>
-        <div>Find Rate: <strong id="findRate">0%</strong></div>
-      </div>
-      <div class="bar" style="margin:10px 0 16px 0;"><div id="findBar"></div></div>
-
-      <div class="grid">
-        <div>
-          <h3 style="margin:0 0 10px 0;">Ores & Odds</h3>
-          <div id="oreList" class="ore-list"></div>
-          <p class="note">Each roll has an independent chance to land exactly one ore, weighted by rarity. If no ore is selected, it’s a miss.</p>
-        </div>
-        <div class="inv">
-          <h3>Inventory</h3>
-          <div id="invList" class="inv-list"></div>
-        </div>
-      </div>
+  <header>
+    <h1>Ore Roller RNG</h1>
+    <div class="money">
+      <div>Money: <strong id="moneyDisplay">$0</strong></div>
+      <div>Income: <strong id="mpsDisplay">$0.00/s</strong></div>
     </div>
+  </header>
 
-    <div class="card">
-      <div class="log">
+  <main class="wrap">
+    <!-- Center stage -->
+    <section class="stage">
+      <div class="stage-head">
+        <div class="rate">
+          <div>Total Rolls: <strong id="totalRolls">0</strong></div>
+          <div>Find Rate: <strong id="findRate">0%</strong></div>
+        </div>
+        <div style="min-width:220px">
+          <div class="bar"><div id="findBar"></div></div>
+        </div>
+      </div>
+
+      <div class="center">
+        <button id="rollBtn" class="roll-btn" aria-label="Roll for ore">ROLL</button>
+        <div class="quick">
+          <button id="auto10">x10</button>
+          <button id="auto100">x100</button>
+        </div>
+      </div>
+
+      <div class="subpanel">
+        <div class="odds">Each click attempts to find exactly one ore (from common to rare). If none hit, it’s a miss. All owned ores generate passive income per second based on rarity.</div>
+      </div>
+    </section>
+
+    <!-- Right column -->
+    <aside class="side">
+      <div class="card">
+        <h3>Inventory</h3>
+        <div id="invList" class="inv-list"></div>
+      </div>
+
+      <div class="card">
+        <h3>Ores, Odds, and Income</h3>
+        <div id="oreLegend" class="ore-legend"></div>
+      </div>
+
+      <div class="card">
         <h3>Recent Rolls</h3>
-        <div id="logEntries"></div>
+        <div id="log" class="log"></div>
       </div>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <div>Tip: Press Space to roll. Your ores earn money automatically.</div>
+    <div class="controls">
+      <button id="resetBtn" title="Clear inventory and log">Reset</button>
     </div>
-  </div>
+  </footer>
 
   <script>
-    // Define ores with friendly names, colors, and odds expressed as "1 in N".
-    // Lower 'oneIn' = more common.
+    // Ores with odds and income per second (AUD assumed visually; values are unitless $ for the counter).
+    // Income scales up with rarity. Tweak incomePerSec freely.
     const ORES = [
-      { key:'dirt',    name:'Dirt',     color:'#8b5a2b', oneIn: 2,   rarity:'Common' },
-      { key:'rock',    name:'Rock',     color:'#7a7f87', oneIn: 4,   rarity:'Common' },
-      { key:'coal',    name:'Coal',     color:'#2f3136', oneIn: 6,   rarity:'Common' },
-      { key:'copper',  name:'Copper',   color:'#c77943', oneIn: 10,  rarity:'Uncommon' },
-      { key:'iron',    name:'Iron',     color:'#b8bfc7', oneIn: 16,  rarity:'Uncommon' },
-      { key:'silver',  name:'Silver',   color:'#dfe6ee', oneIn: 24,  rarity:'Uncommon' },
-      { key:'gold',    name:'Gold',     color:'#ffd24a', oneIn: 40,  rarity:'Rare' },
-      { key:'ruby',    name:'Ruby',     color:'#ff4d6d', oneIn: 80,  rarity:'Epic' },
-      { key:'sapphire',name:'Sapphire', color:'#4da3ff', oneIn: 120, rarity:'Epic' },
-      { key:'emerald', name:'Emerald',  color:'#40e0a8', oneIn: 160, rarity:'Legendary' },
-      { key:'diamond', name:'Diamond',  color:'#82fff6', oneIn: 240, rarity:'Mythic' },
-      { key:'obsidian',name:'Obsidian', color:'#3a0c5a', oneIn: 360, rarity:'Mythic' },
-      { key:'mythril', name:'Mythril',  color:'#a9fffe', oneIn: 480, rarity:'Relic' },
-      { key:'starlite',name:'Starlite', color:'#b986ff', oneIn: 720, rarity:'Relic' }
+      { key:'dirt',     name:'Dirt',     color:'#8b5a2b', oneIn: 2,   rarity:'Common',    incomePerSec: 0.01 },
+      { key:'rock',     name:'Rock',     color:'#7a7f87', oneIn: 4,   rarity:'Common',    incomePerSec: 0.02 },
+      { key:'coal',     name:'Coal',     color:'#2f3136', oneIn: 6,   rarity:'Common',    incomePerSec: 0.03 },
+      { key:'copper',   name:'Copper',   color:'#c77943', oneIn: 10,  rarity:'Uncommon',  incomePerSec: 0.06 },
+      { key:'iron',     name:'Iron',     color:'#b8bfc7', oneIn: 16,  rarity:'Uncommon',  incomePerSec: 0.10 },
+      { key:'silver',   name:'Silver',   color:'#dfe6ee', oneIn: 24,  rarity:'Uncommon',  incomePerSec: 0.16 },
+      { key:'gold',     name:'Gold',     color:'#ffd24a', oneIn: 40,  rarity:'Rare',      incomePerSec: 0.30 },
+      { key:'ruby',     name:'Ruby',     color:'#ff4d6d', oneIn: 80,  rarity:'Epic',      incomePerSec: 0.60 },
+      { key:'sapphire', name:'Sapphire', color:'#4da3ff', oneIn: 120, rarity:'Epic',      incomePerSec: 0.90 },
+      { key:'emerald',  name:'Emerald',  color:'#40e0a8', oneIn: 160, rarity:'Legendary', incomePerSec: 1.40 },
+      { key:'diamond',  name:'Diamond',  color:'#82fff6', oneIn: 240, rarity:'Mythic',    incomePerSec: 2.20 },
+      { key:'obsidian', name:'Obsidian', color:'#3a0c5a', oneIn: 360, rarity:'Mythic',    incomePerSec: 3.40 },
+      { key:'mythril',  name:'Mythril',  color:'#a9fffe', oneIn: 480, rarity:'Relic',     incomePerSec: 5.20 },
+      { key:'starlite', name:'Starlite', color:'#b986ff', oneIn: 720, rarity:'Relic',     incomePerSec: 8.00 }
     ];
 
-    // Inventory and stats state
+    // State
     const inventory = Object.fromEntries(ORES.map(o => [o.key, 0]));
     let totalRolls = 0;
     let totalFinds = 0;
+    let money = 0;
+    let lastTick = performance.now();
 
-    // DOM elements
-    const oreListEl = document.getElementById('oreList');
+    // DOM
     const invListEl = document.getElementById('invList');
-    const logEl = document.getElementById('logEntries');
+    const oreLegendEl = document.getElementById('oreLegend');
+    const logEl = document.getElementById('log');
     const totalRollsEl = document.getElementById('totalRolls');
     const findRateEl = document.getElementById('findRate');
     const findBarEl = document.getElementById('findBar');
@@ -152,127 +208,180 @@
     const auto10Btn = document.getElementById('auto10');
     const auto100Btn = document.getElementById('auto100');
     const resetBtn = document.getElementById('resetBtn');
+    const moneyDisplay = document.getElementById('moneyDisplay');
+    const mpsDisplay = document.getElementById('mpsDisplay');
 
-    // Render ore odds panel
-    function renderOres() {
-      oreListEl.innerHTML = '';
+    function formatMoney(x){
+      // Compact but readable formatting
+      if (x >= 1e9) return '$' + (x/1e9).toFixed(2) + 'B';
+      if (x >= 1e6) return '$' + (x/1e6).toFixed(2) + 'M';
+      if (x >= 1e3) return '$' + (x/1e3).toFixed(2) + 'k';
+      return '$' + x.toFixed(2);
+    }
+
+    function computeMPS(){
+      let mps = 0;
+      for (const o of ORES) mps += inventory[o.key] * o.incomePerSec;
+      return mps;
+    }
+
+    // UI Renders
+    function renderLegend(){
+      oreLegendEl.innerHTML = '';
       ORES.forEach(o => {
         const row = document.createElement('div');
-        row.className = 'ore';
+        row.className = 'row';
         row.innerHTML = `
           <div class="badge" style="background:${o.color}"></div>
           <div>
-            <div class="ore-name">${o.name} <span class="ore-odds">(${o.rarity})</span></div>
-            <div class="ore-odds">1 in ${o.oneIn} per individual check</div>
+            <div><strong>${o.name}</strong> <span class="odds">(${o.rarity})</span></div>
+            <div class="odds">1 in ${o.oneIn} per check</div>
           </div>
-          <div class="ore-odds">${(100 / o.oneIn).toFixed(2)}%</div>
+          <div class="odds">${(100/o.oneIn).toFixed(2)}%</div>
+          <div class="income">+$${o.incomePerSec.toFixed(2)}/s</div>
         `;
-        oreListEl.appendChild(row);
+        oreLegendEl.appendChild(row);
       });
     }
 
-    // Render inventory
-    function renderInventory() {
+    function renderInventory(){
       invListEl.innerHTML = '';
       ORES.forEach(o => {
-        const it = document.createElement('div');
-        it.className = 'inv-item';
-        it.innerHTML = `
-          <span><span class="badge" style="display:inline-block; margin-right:8px; background:${o.color}"></span>${o.name}</span>
-          <strong>${inventory[o.key]}</strong>
-        `;
-        invListEl.appendChild(it);
+        const name = document.createElement('div');
+        name.className = 'inv-name';
+        name.innerHTML = `<span class="badge" style="background:${o.color}"></span>${o.name} <span class="odds" style="margin-left:6px">(${o.rarity})</span>`;
+        const amt = document.createElement('div');
+        amt.className = 'inv-amt';
+        const perSec = (o.incomePerSec * inventory[o.key]);
+        amt.innerHTML = `<strong>${inventory[o.key]}</strong> <span class="odds" style="margin-left:8px">($${perSec.toFixed(2)}/s)</span>`;
+        const wrap = document.createElement('div');
+        wrap.className = 'inv-item';
+        wrap.appendChild(name);
+        wrap.appendChild(amt);
+        invListEl.appendChild(wrap);
       });
     }
 
-    // Update stats
-    function updateStats() {
+    function updateTopStats(){
       totalRollsEl.textContent = totalRolls;
       const rate = totalRolls ? (100 * totalFinds / totalRolls) : 0;
       findRateEl.textContent = rate.toFixed(2) + '%';
       findBarEl.style.width = Math.min(100, rate).toFixed(2) + '%';
+      moneyDisplay.textContent = formatMoney(money);
+      mpsDisplay.textContent = `$${computeMPS().toFixed(2)}/s`;
     }
 
-    // Log helper
-    function log(message, cls='') {
+    function log(msg, cls=''){
       const div = document.createElement('div');
       div.className = 'entry ' + cls;
       const time = new Date().toLocaleTimeString();
-      div.textContent = `[${time}] ${message}`;
+      div.textContent = `[${time}] ${msg}`;
       logEl.prepend(div);
-      // cap log size
-      const MAX = 150;
+      const MAX = 200;
       while (logEl.children.length > MAX) logEl.removeChild(logEl.lastChild);
     }
 
-    // RNG mechanics:
-    // We do independent Bernoulli checks from common to rare until one hits.
-    // This makes common ores much more likely than rare ones. If none hit, it's a miss.
-    function rollOnce() {
+    // RNG: independent checks from common to rare; first hit wins. Otherwise miss.
+    function rollOnce(){
       totalRolls += 1;
       let found = null;
-
-      for (const o of ORES) {
-        // Chance 1 in N
-        if (Math.floor(Math.random() * o.oneIn) === 0) {
-          found = o;
-          break;
+      for (const o of ORES){
+        if (Math.floor(Math.random() * o.oneIn) === 0){
+          found = o; break;
         }
       }
-
-      if (found) {
+      if (found){
         totalFinds += 1;
         inventory[found.key] += 1;
-        log(`You found ${found.name}! [~${(100/found.oneIn).toFixed(2)}% check]`, 'got');
+        log(`You found ${found.name}! (+$${found.incomePerSec.toFixed(2)}/s)`, 'got');
       } else {
-        log(`No ore found this roll.`, 'miss');
+        log(`No ore found.`, 'miss');
       }
-
       renderInventory();
-      updateStats();
+      updateTopStats();
     }
 
-    // Batch rolls
-    async function rollBatch(n, delayMs=0) {
-      rollBtn.disabled = true;
-      auto10Btn.disabled = true;
-      auto100Btn.disabled = true;
-      for (let i=0; i<n; i++) {
+    async function rollBatch(n, delayMs=0){
+      setRollDisabled(true);
+      for (let i=0; i<n; i++){
         rollOnce();
         if (delayMs) await new Promise(r => setTimeout(r, delayMs));
       }
-      rollBtn.disabled = false;
-      auto10Btn.disabled = false;
-      auto100Btn.disabled = false;
+      setRollDisabled(false);
+    }
+
+    function setRollDisabled(disabled){
+      rollBtn.disabled = disabled;
+      auto10Btn.disabled = disabled;
+      auto100Btn.disabled = disabled;
+      rollBtn.style.filter = disabled ? 'grayscale(0.3) brightness(0.9)' : '';
+    }
+
+    // Passive income ticker (smooth, delta-time based)
+    function tick(now){
+      const dt = Math.max(0, (now - lastTick) / 1000); // seconds
+      lastTick = now;
+      const mps = computeMPS();
+      money += mps * dt;
+      // Avoid heavy DOM churn: update displays at ~10 fps
+      if (!tick._acc) tick._acc = 0;
+      tick._acc += dt;
+      if (tick._acc >= 0.1){
+        updateTopStats();
+        renderInventory(); // updates per-ore $/s totals
+        tick._acc = 0;
+      }
+      requestAnimationFrame(tick);
     }
 
     // Controls
     rollBtn.addEventListener('click', () => rollBatch(1));
     auto10Btn.addEventListener('click', () => rollBatch(10, 40));
     auto100Btn.addEventListener('click', () => rollBatch(100, 10));
-
     resetBtn.addEventListener('click', () => {
-      if (!confirm('Reset inventory and log?')) return;
+      if (!confirm('Reset inventory, money, and log?')) return;
       for (const k in inventory) inventory[k] = 0;
-      totalRolls = 0; totalFinds = 0;
+      totalRolls = 0; totalFinds = 0; money = 0;
       logEl.innerHTML = '';
-      renderInventory();
-      updateStats();
+      renderInventory(); updateTopStats();
       log('Game reset.', 'miss');
     });
-
-    // Init
-    renderOres();
-    renderInventory();
-    updateStats();
-
-    // Optional: keyboard shortcut (space to roll)
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') {
+      if (e.code === 'Space'){
         e.preventDefault();
         rollBatch(1);
       }
     });
+
+    // Init
+    renderLegend();
+    renderInventory();
+    updateTopStats();
+    requestAnimationFrame((t)=>{ lastTick = t; tick(t); });
+
+    // Optional: Persist to localStorage (simple)
+    const SAVE_KEY = 'oreRNG_save_v1';
+    function save(){
+      const data = { inv: inventory, rolls: totalRolls, finds: totalFinds, money };
+      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    }
+    function load(){
+      try{
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return;
+        const d = JSON.parse(raw);
+        if (d && d.inv){
+          for (const o of ORES) inventory[o.key] = d.inv[o.key] ?? 0;
+          totalRolls = d.rolls ?? 0;
+          totalFinds = d.finds ?? 0;
+          money = d.money ?? 0;
+        }
+      }catch{}
+    }
+    // Auto-save every 5s
+    load();
+    renderInventory(); updateTopStats();
+    setInterval(save, 5000);
   </script>
 </body>
 </html>
