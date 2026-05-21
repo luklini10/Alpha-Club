@@ -99,10 +99,10 @@
   .entry:last-child{ border-bottom:none; }
   .got{ color:var(--good); } .miss{ color:var(--muted); } .warn{ color:var(--warn); }
 
-  .toasts{ position:absolute; left:50%; top:14%; transform:translateX(-50%); display:flex; flex-direction:column; gap:8px; pointer-events:none; z-index:20; }
+  .toasts{ position:absolute; right:28px; top:18%; transform:none; display:flex; flex-direction:column; gap:8px; pointer-events:none; z-index:20; max-width:min(340px, 42vw); }
   .toast{ background:#20140d; border:1px solid #8a5a2f; border-radius:10px; padding:10px 14px; display:flex; align-items:center; gap:10px; box-shadow:0 10px 30px rgba(0,0,0,.35); animation: toastIn .28s ease, toastOut .3s ease 2.3s forwards; font-weight:700; }
-  @keyframes toastIn{ from{ transform: translateY(-8px) scale(.96); opacity:0 } to{ transform: translateY(0) scale(1); opacity:1 } }
-  @keyframes toastOut{ to{ transform: translateY(-10px) scale(.98); opacity:0 } }
+  @keyframes toastIn{ from{ transform: translateX(26px) translateY(-4px) scale(.96); opacity:0 } to{ transform: translateX(0) translateY(0) scale(1); opacity:1 } }
+  @keyframes toastOut{ to{ transform: translateX(34px) translateY(-8px) scale(.98); opacity:0 } }
 
   .confetti{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:15; }
   .piece{ position:absolute; width:8px; height:12px; opacity:.9; animation: fall 900ms cubic-bezier(.2,.8,.2,1) forwards; }
