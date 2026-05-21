@@ -619,8 +619,8 @@ window.addEventListener('keydown', (e)=>{ if (e.key==='Escape' && showcase.class
 function renderSkips(){
   const enabled = autoUnlocked;
   toggleSkipsBtn.disabled = !enabled;
-  saveProfileBtn.disabled = !enabled;
-  loadProfileBtn.disabled = !enabled;
+  saveProfileBtn.disabled = false;
+  loadProfileBtn.disabled = false;
 
   skipPanel.innerHTML = '';
   ORES.forEach(o=>{
@@ -642,21 +642,91 @@ function renderSkips(){
   });
 }
 toggleSkipsBtn.addEventListener('click', ()=> skipPanel.classList.toggle('active'));
+function createProfileData(){
+  return {
+    version: 2,
+    savedAt: new Date().toISOString(),
+    inventory: { ...inventory },
+    totalRolls, totalFinds, money, pity, beacons, rp,
+    research: { ...research },
+    tierBoosts: { ...tierBoosts },
+    rebirths, rebirthPoints,
+    rebirthUpgrades: { ...rebirthUpgrades },
+    autoUnlocked, autoEnabled: false, autoSpeedIndex,
+    skipSet: Array.from(skipSet),
+    shopSectionsOpen: { ...shopSectionsOpen }
+  };
+}
+function applyProfileData(data){
+  if (!data || typeof data !== 'object') throw new Error('Profile data is missing or invalid.');
+
+  ORES.forEach(o => inventory[o.key] = Number(data.inventory?.[o.key] || 0));
+  totalRolls = Number(data.totalRolls || 0);
+  totalFinds = Number(data.totalFinds || 0);
+  money = Number(data.money ?? 10);
+  pity = Number(data.pity || 0);
+  infusionActive = false; infusionEnds = 0; infusionCdEnds = 0;
+  focusOre = null; focusEnds = 0; focusCdEnds = 0;
+  beacons = Number(data.beacons || 0);
+
+  Object.keys(tierBoosts).forEach(r => tierBoosts[r] = Number(data.tierBoosts?.[r] || 0));
+  research = {
+    luck: Number(data.research?.luck || 0),
+    incomeMult: Number(data.research?.incomeMult || 1)
+  };
+  rp = Number(data.rp || 0);
+  rebirths = Number(data.rebirths || 0);
+  rebirthPoints = Number(data.rebirthPoints || 0);
+  Object.keys(rebirthUpgrades).forEach(k => rebirthUpgrades[k] = Number(data.rebirthUpgrades?.[k] || 0));
+
+  autoUnlocked = !!data.autoUnlocked;
+  stopAuto();
+  autoSpeedIndex = Math.max(0, Math.min(AUTO_SPEEDS.length - 1, Number(data.autoSpeedIndex || 0)));
+
+  skipSet.clear();
+  (Array.isArray(data.skipSet) ? data.skipSet : []).forEach(k => {
+    if (ORES.some(o => o.key === k)) skipSet.add(k);
+  });
+
+  if (data.shopSectionsOpen && typeof data.shopSectionsOpen === 'object'){
+    Object.keys(shopSectionsOpen).forEach(k => {
+      if (typeof data.shopSectionsOpen[k] === 'boolean') shopSectionsOpen[k] = data.shopSectionsOpen[k];
+    });
+  }
+
+  renderInventory();
+  renderSkips();
+  renderShop();
+  updateStats();
+}
 saveProfileBtn.addEventListener('click', ()=>{
-  if (!autoUnlocked) return;
-  localStorage.setItem('ore_rng_skip_profile', JSON.stringify(Array.from(skipSet)));
-  log('Skip profile saved.', 'warn');
+  try{
+    localStorage.setItem('ore_rng_full_profile', JSON.stringify(createProfileData()));
+    localStorage.setItem('ore_rng_skip_profile', JSON.stringify(Array.from(skipSet))); // keeps old skip-profile compatibility
+    log('Full profile saved.', 'warn');
+  }catch(err){
+    log('Profile save failed. Browser storage may be full or blocked.', 'warn');
+  }
 });
 loadProfileBtn.addEventListener('click', ()=>{
-  if (!autoUnlocked) return;
   try{
-    const raw = localStorage.getItem('ore_rng_skip_profile');
-    if (!raw) return;
+    const raw = localStorage.getItem('ore_rng_full_profile');
+    if (raw){
+      applyProfileData(JSON.parse(raw));
+      log('Full profile loaded.', 'warn');
+      return;
+    }
+
+    // Backwards compatibility for older versions that only saved the skip list.
+    const oldSkips = localStorage.getItem('ore_rng_skip_profile');
+    if (!oldSkips){ log('No saved profile found.', 'warn'); return; }
     skipSet.clear();
-    JSON.parse(raw).forEach(k=>skipSet.add(k));
+    JSON.parse(oldSkips).forEach(k => { if (ORES.some(o => o.key === k)) skipSet.add(k); });
     renderSkips();
-    log('Skip profile loaded.', 'warn');
-  }catch{}
+    log('Old skip-only profile loaded.', 'warn');
+  }catch(err){
+    log('Profile load failed. Saved data may be corrupted.', 'warn');
+  }
 });
 
 /* ===== RNG with modifiers ===== */
