@@ -126,6 +126,57 @@
   .closeBtn{ position:absolute; top:10px; right:12px; background:#0f1430; border:1px solid #2a3a88; color:#e6eeff; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:800; }
   .closeBtn:hover{ filter: brightness(1.1); }
 
+
+  /* Relic mining reveal animation */
+  .showcase.relic-mode{ background: radial-gradient(900px 520px at 50% 42%, color-mix(in srgb, var(--relicColor, #a9fffe) 34%, transparent), rgba(4,3,8,.94) 64%); }
+  .showcase.relic-mode .showcase-inner{
+    width:min(920px, 94vw);
+    background:
+      radial-gradient(500px 300px at 50% 58%, color-mix(in srgb, var(--relicColor, #a9fffe) 28%, transparent), transparent 70%),
+      linear-gradient(180deg, rgba(20,14,10,.9), rgba(5,4,7,.96));
+    border-color:var(--relicColor, #a9fffe);
+    box-shadow:0 0 70px color-mix(in srgb, var(--relicColor, #a9fffe) 38%, transparent), 0 22px 70px rgba(0,0,0,.75);
+  }
+  .relic-scene{ position:absolute; inset:0; display:none; place-items:center; overflow:hidden; }
+  .showcase.relic-mode .relic-scene{ display:grid; }
+  .showcase.relic-mode .ore-card{ display:none; }
+  .relic-title{ position:absolute; top:22px; left:50%; transform:translateX(-50%); text-align:center; font-weight:1000; letter-spacing:.8px; font-size:clamp(1.4rem, 3vw, 2.7rem); color:#fff; text-shadow:0 0 24px var(--relicColor, #a9fffe), 0 4px 10px #000; }
+  .relic-subtitle{ display:block; margin-top:4px; font-size:.9rem; color:var(--muted); letter-spacing:.25px; }
+  .relic-rock{ position:relative; width:min(300px, 46vw); height:min(230px, 34vw); border-radius:48% 52% 42% 58% / 55% 44% 56% 45%; background:radial-gradient(circle at 38% 28%, #62584c, #2a2622 62%, #111 100%); border:3px solid #77614a; box-shadow:inset -22px -26px 48px rgba(0,0,0,.55), 0 28px 70px rgba(0,0,0,.65); transform:translateY(38px); }
+  .relic-rock::before{ content:''; position:absolute; inset:18%; opacity:0; background:var(--relicColor, #a9fffe); filter:blur(24px); border-radius:50%; transition:opacity .35s ease; }
+  .showcase.revealed .relic-rock::before{ opacity:.95; }
+  .crack-line{ position:absolute; left:50%; top:14%; width:5px; height:0; background:linear-gradient(180deg, transparent, var(--relicColor, #a9fffe), #fff); border-radius:99px; filter:drop-shadow(0 0 12px var(--relicColor, #a9fffe)); transform:translateX(-50%) rotate(-8deg); transition:height .35s ease; }
+  .showcase.hit1 .crack-line{ height:34%; }
+  .showcase.hit2 .crack-line{ height:58%; }
+  .showcase.hit3 .crack-line{ height:84%; }
+  .relic-rock-left,.relic-rock-right{ position:absolute; inset:0; border-radius:inherit; background:inherit; transition:transform .75s cubic-bezier(.2,.8,.2,1), opacity .55s ease; }
+  .relic-rock-left{ clip-path:polygon(0 0, 52% 0, 42% 100%, 0 100%); }
+  .relic-rock-right{ clip-path:polygon(50% 0, 100% 0, 100% 100%, 40% 100%); }
+  .showcase.revealed .relic-rock-left{ transform:translate(-85px, 22px) rotate(-16deg); opacity:.82; }
+  .showcase.revealed .relic-rock-right{ transform:translate(85px, 22px) rotate(16deg); opacity:.82; }
+  .relic-pickaxe{ position:absolute; left:50%; top:33%; font-size:7.4rem; transform-origin:78% 82%; filter:drop-shadow(0 12px 10px rgba(0,0,0,.7)); animation:relicPickaxe 2.35s ease-in-out forwards; z-index:4; }
+  @keyframes relicPickaxe{
+    0%,18%{ transform:translate(78px,-72px) rotate(-52deg) scale(1); }
+    25%{ transform:translate(12px,-20px) rotate(18deg) scale(1.05); }
+    33%,47%{ transform:translate(82px,-76px) rotate(-50deg); }
+    54%{ transform:translate(4px,-16px) rotate(20deg) scale(1.06); }
+    62%,75%{ transform:translate(80px,-78px) rotate(-50deg); }
+    82%{ transform:translate(0,-10px) rotate(22deg) scale(1.08); }
+    100%{ transform:translate(120px,-120px) rotate(-60deg); opacity:0; }
+  }
+  .relic-spark{ position:absolute; width:9px; height:9px; border-radius:50%; background:var(--relicColor, #a9fffe); opacity:0; box-shadow:0 0 18px var(--relicColor, #a9fffe); animation:relicSpark 2.4s ease-out forwards; }
+  .relic-spark:nth-child(1){ left:45%; top:51%; --dx:-90px; --dy:-70px; animation-delay:.55s; }
+  .relic-spark:nth-child(2){ left:54%; top:48%; --dx:85px; --dy:-60px; animation-delay:1.25s; }
+  .relic-spark:nth-child(3){ left:50%; top:58%; --dx:0px; --dy:-110px; animation-delay:1.9s; }
+  @keyframes relicSpark{ 0%{ transform:translate(0,0) scale(.4); opacity:0 } 10%{ opacity:1 } 55%{ transform:translate(var(--dx), var(--dy)) scale(1); opacity:.9 } 100%{ opacity:0 } }
+  .relic-reveal{ position:absolute; inset:auto 8% 34px; text-align:center; opacity:0; transform:translateY(22px) scale(.96); transition:opacity .55s ease, transform .55s ease; z-index:5; }
+  .showcase.revealed .relic-reveal{ opacity:1; transform:translateY(0) scale(1); }
+  .relic-ore-name{ font-size:clamp(2rem, 5vw, 4rem); font-weight:1000; color:#fff; text-shadow:0 0 28px var(--relicColor, #a9fffe), 0 4px 12px #000; }
+  .relic-ore-meta{ margin-top:6px; color:#f8ead7; font-weight:900; }
+  .relic-gem{ position:absolute; width:120px; height:120px; left:50%; top:50%; transform:translate(-50%,-20%) scale(.2); border-radius:28px; background:var(--relicColor, #a9fffe); opacity:0; box-shadow:0 0 80px var(--relicColor, #a9fffe), inset 0 0 34px rgba(255,255,255,.35); transition:opacity .5s ease, transform .75s cubic-bezier(.2,.8,.2,1); z-index:3; }
+  .showcase.revealed .relic-gem{ opacity:1; transform:translate(-50%,-62%) scale(1) rotate(45deg); }
+
+
   .shop{ display:grid; gap:10px; }
   .shop .row2{ display:grid; grid-template-columns: 1fr auto; gap:8px; align-items:center; background:#120d09; border:1px solid #3f2818; padding:8px 10px; border-radius:10px; }
   .shop button{ padding:8px 10px; font-weight:800; border-radius:8px; border:1px solid #8a5a2f; background:linear-gradient(180deg, #6b3d20, #2b180d); color:#fff3df; cursor:pointer; transition:transform .08s ease, filter .16s ease, opacity .16s ease; }
@@ -265,6 +316,21 @@
         <div class="income" id="scIncome">+$0.00/s</div>
       </div>
     </div>
+    <div class="relic-scene" id="relicScene">
+      <div class="relic-title">RELIC DISCOVERED<span class="relic-subtitle">The rock is cracking open...</span></div>
+      <div class="relic-pickaxe">⛏️</div>
+      <div class="relic-rock">
+        <div class="relic-rock-left"></div>
+        <div class="relic-rock-right"></div>
+        <div class="crack-line"></div>
+      </div>
+      <div class="relic-gem" id="relicGem"></div>
+      <div class="relic-sparks"><span class="relic-spark"></span><span class="relic-spark"></span><span class="relic-spark"></span></div>
+      <div class="relic-reveal">
+        <div class="relic-ore-name" id="relicName">Relic Ore</div>
+        <div class="relic-ore-meta" id="relicMeta">1/??? • +$0.00/s • You now own #1</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -387,6 +453,9 @@ const scRarity = document.getElementById('scRarity');
 const scCount = document.getElementById('scCount');
 const scIncome = document.getElementById('scIncome');
 const scGem = document.getElementById('scGem');
+const relicName = document.getElementById('relicName');
+const relicMeta = document.getElementById('relicMeta');
+const relicGem = document.getElementById('relicGem');
 
 const shopEl = document.getElementById('shop');
 const toggleSkipsBtn = document.getElementById('toggleSkips');
@@ -518,6 +587,7 @@ function confetti(color){
   }
 }
 function openShowcase(ore, count){
+  showcase.classList.remove('relic-mode','hit1','hit2','hit3','revealed');
   scBadge.style.background = ore.color;
   scName.textContent = ore.name;
   scRarity.textContent = `${ore.rarity} • 1/${ore.oneIn}`;
@@ -527,7 +597,20 @@ function openShowcase(ore, count){
   showcase.classList.add('active');
   showcase.setAttribute('aria-hidden','false');
 }
-function closeShowcaseFn(){ showcase.classList.remove('active'); showcase.setAttribute('aria-hidden','true'); }
+function openRelicShowcase(ore, count){
+  showcase.classList.remove('hit1','hit2','hit3','revealed');
+  showcase.classList.add('active','relic-mode');
+  showcase.style.setProperty('--relicColor', ore.color);
+  relicName.textContent = ore.name;
+  relicMeta.textContent = `${ore.rarity} • 1/${ore.oneIn} • +$${ore.incomePerSec.toFixed(2)}/s • You now own #${count}`;
+  relicGem.style.background = ore.color;
+  showcase.setAttribute('aria-hidden','false');
+  setTimeout(()=>showcase.classList.add('hit1'), 650);
+  setTimeout(()=>showcase.classList.add('hit2'), 1350);
+  setTimeout(()=>showcase.classList.add('hit3'), 2050);
+  setTimeout(()=>showcase.classList.add('revealed'), 2450);
+}
+function closeShowcaseFn(){ showcase.classList.remove('active','relic-mode','hit1','hit2','hit3','revealed'); showcase.setAttribute('aria-hidden','true'); }
 closeShowcase.addEventListener('click', closeShowcaseFn);
 showcase.addEventListener('click', (e)=>{ if (e.target===showcase) closeShowcaseFn(); });
 window.addEventListener('keydown', (e)=>{ if (e.key==='Escape' && showcase.classList.contains('active')) closeShowcaseFn(); });
@@ -608,7 +691,8 @@ function doOneRoll(){
     totalFinds++;
     const newCount = ++inventory[found.key];
     const rank = rarityRank(found.rarity);
-    if (rank >= rarityRank('Epic')) { openShowcase(found, newCount); confetti(found.color); }
+    if (found.rarity === 'Relic') { openRelicShowcase(found, newCount); confetti(found.color); }
+    else if (rank >= rarityRank('Epic')) { openShowcase(found, newCount); confetti(found.color); }
     else { showToast(found, newCount); }
     log(`You found ${found.name}! (+$${found.incomePerSec.toFixed(2)}/s)`, 'got');
     renderInventory(found.key);
@@ -634,7 +718,8 @@ async function doTenRolls(){
       totalFinds++;
       const newCount = ++inventory[found.key];
       const rank = rarityRank(found.rarity);
-      if (rank >= rarityRank('Epic')) { openShowcase(found, newCount); confetti(found.color); }
+      if (found.rarity === 'Relic') { openRelicShowcase(found, newCount); confetti(found.color); }
+      else if (rank >= rarityRank('Epic')) { openShowcase(found, newCount); confetti(found.color); }
       else { showToast(found, newCount); }
       log(`Bundle roll: found ${found.name}! (+$${found.incomePerSec.toFixed(2)}/s)`, 'got');
       renderInventory(found.key);
