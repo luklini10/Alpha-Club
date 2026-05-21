@@ -699,33 +699,79 @@ function applyProfileData(data){
   renderShop();
   updateStats();
 }
+function profileKey(username){
+  return 'ore_rng_profile_' + String(username || '').trim().toLowerCase();
+}
+function simplePasswordHash(password){
+  // Light local-only obfuscation so the password is not saved as plain text.
+  // This is not a secure online login system; it only protects profiles on this browser.
+  let h = 2166136261;
+  const str = String(password || '');
+  for (let i=0; i<str.length; i++){
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(16);
+}
 saveProfileBtn.addEventListener('click', ()=>{
   try{
-    localStorage.setItem('ore_rng_full_profile', JSON.stringify(createProfileData()));
+    const username = prompt('Create / enter username for this save:');
+    if (!username || !username.trim()){ log('Save cancelled. Username required.', 'warn'); return; }
+    const password = prompt('Create / enter password for this save:');
+    if (!password){ log('Save cancelled. Password required.', 'warn'); return; }
+
+    const payload = {
+      username: username.trim(),
+      passwordHash: simplePasswordHash(password),
+      profile: createProfileData()
+    };
+
+    localStorage.setItem(profileKey(username), JSON.stringify(payload));
+    localStorage.setItem('ore_rng_last_username', username.trim());
+    localStorage.setItem('ore_rng_full_profile', JSON.stringify(createProfileData())); // legacy backup
     localStorage.setItem('ore_rng_skip_profile', JSON.stringify(Array.from(skipSet))); // keeps old skip-profile compatibility
-    log('Full profile saved.', 'warn');
+    log(`Profile saved for ${username.trim()}.`, 'warn');
   }catch(err){
     log('Profile save failed. Browser storage may be full or blocked.', 'warn');
   }
 });
 loadProfileBtn.addEventListener('click', ()=>{
   try{
-    const raw = localStorage.getItem('ore_rng_full_profile');
+    const suggested = localStorage.getItem('ore_rng_last_username') || '';
+    const username = prompt('Enter username to load:', suggested);
+    if (!username || !username.trim()){ log('Load cancelled. Username required.', 'warn'); return; }
+    const password = prompt('Enter password:');
+    if (!password){ log('Load cancelled. Password required.', 'warn'); return; }
+
+    const raw = localStorage.getItem(profileKey(username));
     if (raw){
-      applyProfileData(JSON.parse(raw));
-      log('Full profile loaded.', 'warn');
+      const saved = JSON.parse(raw);
+      if (saved.passwordHash !== simplePasswordHash(password)){
+        log('Incorrect username or password.', 'warn');
+        return;
+      }
+      applyProfileData(saved.profile);
+      localStorage.setItem('ore_rng_last_username', username.trim());
+      log(`Profile loaded for ${username.trim()}.`, 'warn');
       return;
     }
 
-    // Backwards compatibility for older versions that only saved the skip list.
+    // Backwards compatibility for older versions that had one unnamed save.
+    const oldRaw = localStorage.getItem('ore_rng_full_profile');
+    if (oldRaw){
+      applyProfileData(JSON.parse(oldRaw));
+      log('Loaded old unnamed profile backup.', 'warn');
+      return;
+    }
+
     const oldSkips = localStorage.getItem('ore_rng_skip_profile');
-    if (!oldSkips){ log('No saved profile found.', 'warn'); return; }
+    if (!oldSkips){ log('No saved profile found for that username.', 'warn'); return; }
     skipSet.clear();
     JSON.parse(oldSkips).forEach(k => { if (ORES.some(o => o.key === k)) skipSet.add(k); });
     renderSkips();
     log('Old skip-only profile loaded.', 'warn');
   }catch(err){
-    log('Profile load failed. Saved data may be corrupted.', 'warn');
+    log('Profile load failed. Username/password save may be corrupted.', 'warn');
   }
 });
 
