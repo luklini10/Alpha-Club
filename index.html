@@ -128,7 +128,9 @@
 
   .shop{ display:grid; gap:10px; }
   .shop .row2{ display:grid; grid-template-columns: 1fr auto; gap:8px; align-items:center; background:#120d09; border:1px solid #3f2818; padding:8px 10px; border-radius:10px; }
-  .shop button{ padding:8px 10px; font-weight:800; border-radius:8px; border:1px solid #8a5a2f; background:linear-gradient(180deg, #6b3d20, #2b180d); color:#fff3df; cursor:pointer; }
+  .shop button{ padding:8px 10px; font-weight:800; border-radius:8px; border:1px solid #8a5a2f; background:linear-gradient(180deg, #6b3d20, #2b180d); color:#fff3df; cursor:pointer; transition:transform .08s ease, filter .16s ease, opacity .16s ease; }
+  .shop button:hover:not(:disabled){ filter:brightness(1.12); }
+  .shop button:active:not(:disabled){ transform:translateY(1px) scale(.98); }
   .shop button:disabled{ opacity:.55; cursor:not-allowed; }
 
   .upgrade-section{ border:1px solid #5b351f; border-radius:12px; overflow:hidden; background:#100b08; box-shadow: inset 0 0 18px rgba(0,0,0,.22); }
@@ -617,6 +619,7 @@ function doOneRoll(){
     onMiss();
   }
   updateStats();
+  syncShopButtons();
   return true;
 }
 
@@ -646,7 +649,9 @@ async function doTenRolls(){
   }
   rollBtn.disabled = money < ROLL_COST;
   auto10Btn.disabled = money < ROLL10_COST;
+  syncShopButtons();
 }
+
 
 /* ===== Income + Buff timers tick ===== */
 function tick(now){
@@ -655,12 +660,19 @@ function tick(now){
   money += computeMPS()*dt;
 
   const t = Date.now()/1000;
-  if (infusionActive && t>=infusionEnds) infusionActive=false;
-  if (focusOre && t>=focusEnds) focusOre=null;
+  let needsShopRefresh = false;
+  if (infusionActive && t>=infusionEnds){ infusionActive=false; needsShopRefresh = true; }
+  if (focusOre && t>=focusEnds){ focusOre=null; needsShopRefresh = true; }
 
   if (!tick._acc) tick._acc=0;
   tick._acc += dt;
-  if (tick._acc>=0.1){ updateStats(); renderInventory(); renderShop(); tick._acc=0; }
+  if (tick._acc>=0.2){
+    updateStats();
+    renderInventory();
+    syncShopButtons();
+    tick._acc=0;
+  }
+  if (needsShopRefresh) renderShop();
   requestAnimationFrame(tick);
 }
 
@@ -700,6 +712,26 @@ function makeShopSection(key, title){
   return content;
 }
 
+/* Keeps buy buttons live without rebuilding the whole shop every frame.
+   Rebuilding the shop constantly was making clicks/dropdowns feel broken. */
+function syncShopButtons(){
+  const now = Date.now()/1000;
+  document.querySelectorAll('[data-money-cost]').forEach(btn=>{
+    const cost = Number(btn.dataset.moneyCost || 0);
+    btn.disabled = money < cost;
+  });
+  document.querySelectorAll('[data-rbp-cost]').forEach(btn=>{
+    const cost = Number(btn.dataset.rbpCost || 0);
+    btn.disabled = rebirthPoints < cost;
+  });
+  const infBtn = document.querySelector('[data-action=luck-infusion]');
+  if (infBtn) infBtn.disabled = money < LUCK_INFUSION_COST || infusionActive || now < infusionCdEnds;
+  const focusBtn = document.querySelector('[data-action=focus-lens]');
+  if (focusBtn) focusBtn.disabled = money < FOCUS_COST || !!focusOre || now < focusCdEnds;
+  const rebirthBtn = document.querySelector('[data-action=rebirth]');
+  if (rebirthBtn) rebirthBtn.disabled = money < getRebirthCost();
+}
+
 /* ===== Shop (Auto, speeds, Luck Infusion, Focus, Beacons, Tier Boosters) ===== */
 function renderShop(){
   shopEl.innerHTML = '';
@@ -713,6 +745,7 @@ function renderShop(){
   autoRow.innerHTML = `<div>${autoUnlocked ? `Auto-Roll unlocked (speed: ${getAutoDelay()}ms)` : `Buy Auto-Roll ($${AUTO_UNLOCK_COST})`}</div>`;
   const autoBtn = document.createElement('button');
   autoBtn.textContent = autoUnlocked ? (autoEnabled?'Disable Auto':'Enable Auto') : 'Buy';
+  autoBtn.dataset.moneyCost = autoUnlocked ? '' : AUTO_UNLOCK_COST;
   autoBtn.disabled = !autoUnlocked && money < AUTO_UNLOCK_COST;
   autoBtn.onclick = ()=>{
     if (!autoUnlocked){
@@ -729,7 +762,7 @@ function renderShop(){
     const cost = AUTO_UPGRADE_COSTS[autoSpeedIndex] || 999999;
     const r = document.createElement('div'); r.className='row2';
     r.innerHTML = `<div>Auto Speed Up (${AUTO_SPEEDS[autoSpeedIndex]}ms → ${AUTO_SPEEDS[autoSpeedIndex+1]}ms) — $${cost}</div>`;
-    const b = document.createElement('button'); b.textContent='Buy'; b.disabled = money < cost;
+    const b = document.createElement('button'); b.textContent='Buy'; b.dataset.moneyCost = cost; b.disabled = money < cost;
     b.onclick=()=>{
       if (money < cost) return;
       money -= cost; autoSpeedIndex++;
@@ -744,7 +777,7 @@ function renderShop(){
   const canInf = (Date.now()/1000) >= infusionCdEnds && !infusionActive;
   const infRow = document.createElement('div'); infRow.className='row2';
   infRow.innerHTML = `<div>Luck Infusion (+${LUCK_INFUSION_BONUS}% Rare+ for ${LUCK_INFUSION_SECS}s) — $${LUCK_INFUSION_COST} ${canInf?'':'(cooldown/active)'}</div>`;
-  const infBtn = document.createElement('button'); infBtn.textContent='Use'; infBtn.disabled = !canInf || money < LUCK_INFUSION_COST;
+  const infBtn = document.createElement('button'); infBtn.textContent='Use'; infBtn.dataset.action = 'luck-infusion'; infBtn.dataset.moneyCost = LUCK_INFUSION_COST; infBtn.disabled = !canInf || money < LUCK_INFUSION_COST;
   infBtn.onclick=()=>{
     if (money < LUCK_INFUSION_COST) return;
     money -= LUCK_INFUSION_COST;
@@ -758,13 +791,13 @@ function renderShop(){
   infRow.appendChild(infBtn); basicSection.appendChild(infRow);
 
   // Focus Lens
-  const focusRow = document.createElement('div'); focusRow.className='row2';
+  const focusRow = document.createElement('div'); focusRow.className='row2'; focusRow.style.gridTemplateColumns='1fr auto auto';
   const sel = document.createElement('select');
   ORES.forEach(o=>{ const opt=document.createElement('option'); opt.value=o.key; opt.textContent=o.name; sel.appendChild(opt); });
   const canFocus = (Date.now()/1000)>=focusCdEnds && !focusOre;
   const info = document.createElement('div');
   info.textContent = `Focus Lens (+${FOCUS_BONUS}% to selected ore for ${FOCUS_SECS}s) — $${FOCUS_COST}`;
-  const focusBtn = document.createElement('button'); focusBtn.textContent='Activate'; focusBtn.disabled = !canFocus || money < FOCUS_COST;
+  const focusBtn = document.createElement('button'); focusBtn.textContent='Activate'; focusBtn.dataset.action = 'focus-lens'; focusBtn.dataset.moneyCost = FOCUS_COST; focusBtn.disabled = !canFocus || money < FOCUS_COST;
   focusBtn.onclick=()=>{
     if (money < FOCUS_COST) return;
     money -= FOCUS_COST;
@@ -783,7 +816,7 @@ function renderShop(){
     const cost = BEACON_COSTS[beacons];
     const row = document.createElement('div'); row.className='row2';
     row.innerHTML = `<div>Beacon +${BEACON_STEP}% global income — $${cost}</div>`;
-    const btn=document.createElement('button'); btn.textContent='Buy'; btn.disabled = money < cost;
+    const btn=document.createElement('button'); btn.textContent='Buy'; btn.dataset.moneyCost = cost; btn.disabled = money < cost;
     btn.onclick=()=>{ if (money<cost) return; money-=cost; beacons++; log(`Beacon purchased. +${beacons*BEACON_STEP}% income.`, 'warn'); updateStats(); renderShop(); };
     row.appendChild(btn); incomeSection.appendChild(row);
   }
@@ -794,7 +827,7 @@ function renderShop(){
     const cost = TIER_BOOST_COSTS[r];
     const row = document.createElement('div'); row.className='row2';
     row.innerHTML = `<div>${r} Booster +${TIER_BOOST}% income — $${cost}</div>`;
-    const btn=document.createElement('button'); btn.textContent='Buy'; btn.disabled = money < cost;
+    const btn=document.createElement('button'); btn.textContent='Buy'; btn.dataset.moneyCost = cost; btn.disabled = money < cost;
     btn.onclick=()=>{ if (money<cost) return; money-=cost; tierBoosts[r]=(tierBoosts[r]||0)+TIER_BOOST; log(`${r} income +${TIER_BOOST}%.`, 'warn'); updateStats(); renderShop(); };
     row.appendChild(btn); incomeSection.appendChild(row);
   });
@@ -803,7 +836,7 @@ function renderShop(){
   const rebirthCost = getRebirthCost();
   const rbRow = document.createElement('div'); rbRow.className='row2';
   rbRow.innerHTML = `<div><strong>Rebirth</strong> — ${formatMoney(rebirthCost)}<br><span class="odds">Resets this run, gives +1 rebirth, +3 RBP, and doubles income forever.</span></div>`;
-  const rbBtn = document.createElement('button'); rbBtn.textContent='Rebirth'; rbBtn.disabled = money < rebirthCost;
+  const rbBtn = document.createElement('button'); rbBtn.textContent='Rebirth'; rbBtn.dataset.action = 'rebirth'; rbBtn.dataset.moneyCost = rebirthCost; rbBtn.disabled = money < rebirthCost;
   rbBtn.onclick=()=>{
     if (money < rebirthCost) return;
     if (!confirm(`Rebirth for ${formatMoney(rebirthCost)}? This resets your current ores, money, upgrades and rolls, but doubles income forever and gives 3 rebirth upgrade points.`)) return;
@@ -827,7 +860,7 @@ function renderShop(){
     const locked = maxLevel <= 0 || level >= maxLevel;
     const row = document.createElement('div'); row.className='row2' + (locked && maxLevel <= 0 ? ' locked' : '');
     row.innerHTML = `<div>${u.name} Lv.${level}/${maxLevel}<br><span class="odds">${u.desc} — Cost: ${u.costBase} RBP</span>${maxLevel <= 0 ? '<div class="lock-note">Requires your first rebirth.</div>' : ''}</div>`;
-    const btn=document.createElement('button'); btn.textContent = maxLevel <= 0 ? 'Locked' : 'Upgrade'; btn.disabled = level >= maxLevel || rebirthPoints < u.costBase;
+    const btn=document.createElement('button'); btn.textContent = maxLevel <= 0 ? 'Locked' : 'Upgrade'; btn.dataset.rbpCost = u.costBase; btn.disabled = level >= maxLevel || rebirthPoints < u.costBase;
     btn.onclick=()=>{
       if (level >= maxLevel || rebirthPoints < u.costBase) return;
       rebirthPoints -= u.costBase;
