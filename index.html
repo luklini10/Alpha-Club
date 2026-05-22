@@ -1830,108 +1830,175 @@
     .arena-grid{ grid-template-columns:1fr; }
   }
 
+
+
+/* === Tournament Arena UI remake === */
+:root{
+  --t-bg:#07111b;
+  --t-panel:#0b1724;
+  --t-panel2:#101d2b;
+  --t-gold:#f7bd42;
+  --t-gold2:#ffe08a;
+  --t-red:#c43125;
+  --t-blue:#42baff;
+  --t-purple:#b66aff;
+  --t-stone:#202a35;
+  --t-line:rgba(255,210,120,.34);
+}
+body{
+  background:
+    radial-gradient(circle at 50% 28%, rgba(255,184,58,.16), transparent 25%),
+    radial-gradient(circle at 35% 35%, rgba(66,186,255,.12), transparent 22%),
+    radial-gradient(circle at 75% 42%, rgba(207,55,41,.13), transparent 23%),
+    linear-gradient(180deg,#07111b 0%,#05080d 100%) !important;
+  color:#f7f1df;
+}
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px) 0 0/52px 52px,
+    linear-gradient(0deg, rgba(255,255,255,.025) 1px, transparent 1px) 0 0/52px 52px;
+  opacity:.45;
+}
+.tournament-topbar{
+  position:sticky; top:0; z-index:20;
+  display:grid; grid-template-columns:290px 1fr auto; align-items:stretch; gap:0;
+  min-height:88px; padding:0 18px;
+  background:linear-gradient(180deg, rgba(8,17,27,.98), rgba(5,10,18,.96));
+  border-bottom:1px solid rgba(255,200,96,.28);
+  box-shadow:0 16px 34px rgba(0,0,0,.36);
+}
+.brand-lockup{display:flex; align-items:center; gap:13px; padding-right:18px;}
+.shuriken-logo{font-size:42px; color:#cdd9e7; filter:drop-shadow(0 0 10px rgba(255,255,255,.24)); transform:rotate(12deg)}
+.brand-text span{display:block; font-size:34px; font-weight:1000; line-height:.9; letter-spacing:.02em; color:var(--t-gold); text-shadow:0 4px 0 rgba(0,0,0,.35); font-style:italic;}
+.brand-text small{display:block; font-size:15px; font-weight:900; color:#fff; letter-spacing:.06em;}
+.tournament-nav{display:flex; position:static; padding:0; gap:0; background:transparent; border:0; align-items:stretch; overflow:auto;}
+.tournament-nav .tab{border:0; border-left:1px solid rgba(255,255,255,.08); border-radius:0; min-width:118px; padding:12px 16px; color:#e6edf5; background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); font-size:13px; font-weight:900; text-transform:uppercase;}
+.tournament-nav .tab span{display:block; font-size:24px; margin-bottom:6px;}
+.tournament-nav .tab.active{background:linear-gradient(180deg,#b82c24,#6d1614); color:#fff4c8; box-shadow:inset 0 -4px 0 var(--t-gold), 0 0 30px rgba(200,46,36,.25);}
+.resource-strip{display:flex; align-items:center; gap:10px; padding-left:16px;}
+.resource-pill{display:flex; align-items:center; gap:8px; min-width:142px; padding:10px 15px; border-radius:999px; border:1px solid var(--t-line); background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); box-shadow:inset 0 1px 0 rgba(255,255,255,.1);}
+.resource-pill span{font-size:22px}.resource-pill strong{font-size:16px; white-space:nowrap}.resource-pill small{display:block; color:#f5c95e; margin-left:2px; font-size:11px; white-space:nowrap}.top-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:#0b1521;border:1px solid rgba(255,255,255,.13);color:#fff;font-size:20px;}
+main{max-width:1900px; padding:14px 16px 24px;}
+.tournament-home-view .panel{background:transparent; border:0; box-shadow:none;}
+.tournament-shell{display:grid; grid-template-columns:330px 1fr 385px; grid-template-rows:minmax(620px, auto) auto; gap:12px;}
+.tournament-panel,.bottom-card{background:linear-gradient(180deg,rgba(15,29,44,.96),rgba(7,15,24,.98)); border:1px solid rgba(255,210,120,.32); border-radius:6px; box-shadow:0 18px 36px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.08);}
+.panel-title-row{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 8px}.panel-title-row h2{margin:0;color:#ffcf58;text-transform:uppercase;font-size:21px;letter-spacing:.03em}.help-dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.25);color:#d7e4f2;font-weight:900}
+.home-active-fighters{display:grid;gap:9px;padding:4px 12px 12px}.fighter-row{display:grid;grid-template-columns:36px 80px 1fr;align-items:center;gap:10px;padding:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.035);border-radius:6px}.fighter-rank{height:34px;border-radius:6px;display:grid;place-items:center;background:linear-gradient(180deg,#ffcf62,#b67521);color:#0d1520;font-weight:1000;font-size:20px}.fighter-icon{height:78px;border-radius:6px;background:rgba(255,255,255,.03);display:grid;place-items:end center;overflow:hidden;border:1px solid rgba(255,255,255,.16)}.fighter-icon .minifig-display{transform:scale(.78);transform-origin:center bottom}.fighter-info strong{display:block;text-transform:uppercase;color:white}.fighter-info small{display:block;color:#aebbd0;margin:2px 0}.stars{color:#ffcf58;letter-spacing:2px}.fighter-income{color:#ffcf58;font-size:20px;font-weight:1000;margin-top:3px}.total-income-card{margin:8px 12px 12px;padding:16px;display:flex;gap:14px;align-items:center;border:1px solid rgba(255,210,120,.25);border-radius:6px;background:linear-gradient(180deg,rgba(255,194,72,.09),rgba(255,194,72,.03))}.coin-stack{font-size:42px}.total-income-card strong{display:block;font-size:32px;color:#ffd76a}.total-income-card small{color:#d8b36c}
+.tournament-center{position:relative;min-height:620px;border:1px solid rgba(255,210,120,.32);border-radius:6px;overflow:hidden;background:radial-gradient(circle at 50% 45%,rgba(255,207,88,.16),transparent 23%),linear-gradient(180deg,rgba(37,42,48,.94),rgba(12,18,25,.97));box-shadow:0 18px 44px rgba(0,0,0,.35)}
+.tournament-center::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px) 0 0/70px 70px, radial-gradient(circle at 50% 48%, transparent 0 24%, rgba(255,255,255,.05) 24.5% 25%, transparent 25.5% 100%);opacity:.8}.arena-title-block{position:relative;text-align:center;padding:20px 10px 6px;z-index:1}.arena-title-block h1{margin:0;font-size:56px;line-height:.95;text-transform:uppercase;color:#ffca4b;letter-spacing:.02em;font-style:italic;text-shadow:0 5px 0 rgba(68,16,10,.85),0 0 20px rgba(255,206,80,.28)}.arena-title-block p{margin:6px 0 0;text-transform:uppercase;color:#fff;font-weight:900;letter-spacing:.1em}.home-arena-rings{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:24px 42px 12px}.home-ring{position:relative;min-height:214px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.07) 0 26%,transparent 27% 100%);}.home-ring::before{content:'';position:absolute;width:min(95%,330px);aspect-ratio:1;border-radius:50%;border:6px solid var(--ringColor);box-shadow:0 0 30px color-mix(in srgb,var(--ringColor) 55%,transparent),inset 0 0 34px rgba(255,255,255,.06);background:radial-gradient(circle,rgba(255,255,255,.12),transparent 60%)}.home-ring::after{content:'';position:absolute;width:min(70%,245px);aspect-ratio:1;border-radius:50%;border:1px dashed rgba(255,255,255,.25)}.ring-banner{position:absolute;top:14px;z-index:2;min-width:118px;padding:9px 12px 12px;text-align:center;border-radius:4px;background:linear-gradient(180deg,rgba(19,31,45,.98),rgba(9,15,23,.98));border:2px solid var(--ringColor);box-shadow:0 8px 20px rgba(0,0,0,.38)}.ring-banner b{display:block;color:#ffcf58;text-transform:uppercase}.ring-banner strong{display:block;font-size:42px;line-height:1;color:#fff}.ring-banner span{display:block;font-size:12px;text-transform:uppercase;font-weight:1000}.ring-fighter{position:relative;z-index:2;margin-top:50px;display:grid;place-items:center}.ring-fighter .minifig-display{transform:scale(1.05);transform-origin:center bottom}.ring-select{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:3;width:min(86%,250px);background:#07111b;border:1px solid var(--ringColor);color:#fff;border-radius:8px;padding:7px 10px}.center-action-row{position:relative;z-index:2;display:flex;justify-content:center;gap:20px;padding:4px 20px 24px}.manage-arena-btn,.secondary-action{border:1px solid rgba(255,210,120,.5);border-radius:4px;text-transform:uppercase;font-weight:1000;color:#ffe6a0;background:linear-gradient(180deg,#1a2a3d,#0b1420);padding:15px 28px}.manage-arena-btn{font-size:18px;background:linear-gradient(180deg,#2a3d55,#0f1d2c);box-shadow:0 0 24px rgba(255,201,87,.12)}
+.bench-roll-panel{display:flex;flex-direction:column}.home-bench-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:6px 12px 10px}.bench-card{min-height:116px;border-radius:6px;border:1px solid var(--rarityColor);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(0,0,0,.14));display:grid;justify-items:center;align-content:end;overflow:hidden;padding:6px;box-shadow:0 0 14px color-mix(in srgb,var(--rarityColor) 20%,transparent)}.bench-card .minifig-display{transform:scale(.72);transform-origin:center bottom}.bench-card strong{font-size:11px;text-align:center;text-transform:uppercase;color:#fff}.bench-card small{font-size:10px;color:#d4dfec}.bench-capacity{margin:0 12px 12px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(255,210,120,.22);border-radius:6px;background:#0b1420;text-transform:uppercase;font-weight:900}.bench-capacity button{width:34px;height:30px}.roll-controls-card{margin:0 12px 12px;border:1px solid rgba(255,210,120,.22);border-radius:6px;background:rgba(0,0,0,.16)}.roll-control-grid{display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:9px;padding:10px 12px}.auto-control,.quick-roll-control{min-height:96px;border:1px solid rgba(255,255,255,.16);border-radius:4px;background:#07111b;color:#fff;font-size:30px}.auto-control small,.quick-roll-control small{display:block;font-size:12px;text-transform:uppercase;color:#d9e3ef}.tournament-roll{min-height:96px;background:linear-gradient(180deg,#ffd46b,#c77b24);color:#17130b;border:2px solid #ffe49b;border-radius:6px;font-size:24px}.tournament-roll strong{display:block;font-size:28px}.tournament-roll small{display:block;color:#5b3108}.luck-boost-strip{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 12px 14px}.luck-boost-strip .progress{height:13px;margin:0}.luck-boost-strip .progress div{background:linear-gradient(90deg,#49d86e,#b3ff5a)}
+.tournament-bottom{grid-column:1/-1;display:grid;grid-template-columns:1.2fr 1.1fr 1fr 1.2fr 1.2fr;gap:10px}.bottom-card{min-height:116px;padding:14px;overflow:hidden}.player-card{display:flex;gap:14px;align-items:center}.mini-main-gem{width:82px;height:82px;min-width:82px;overflow:hidden}.mini-main-gem .minifig-display{transform:scale(.72);transform-origin:center bottom}.bottom-card h3{margin:0 0 6px;color:#ffcf58;text-transform:uppercase}.bottom-card p{margin:0;color:#c5d2e2}.mini-stat-line{display:flex;justify-content:space-between;margin-top:10px}.season-card strong{font-size:26px;color:#ffd96e}.leaderboard-card .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08)}.event-boost-card{background:linear-gradient(135deg,rgba(111,15,10,.96),rgba(14,20,30,.98));display:grid;align-content:center}.boost-big{font-size:68px;line-height:.8;color:#ffd76a;font-weight:1000;text-shadow:0 0 22px rgba(255,196,64,.3)}.hidden-home-controls{position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden}
+#arenaView .arena-grid{grid-template-columns:repeat(2,minmax(240px,1fr));}.arena-summary{background:linear-gradient(180deg,rgba(255,207,88,.06),rgba(255,255,255,.02));border:1px solid rgba(255,210,120,.22);border-radius:10px;padding:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}.arena-card{border-color:rgba(255,210,120,.3)!important;background:linear-gradient(180deg,rgba(13,27,43,.95),rgba(6,14,24,.98))!important}.arena-card select{width:100%;padding:10px;border-radius:8px;background:#07111b;color:white;border:1px solid rgba(255,210,120,.35)}
+@media(max-width:1320px){.tournament-topbar{grid-template-columns:1fr}.resource-strip{padding:10px 0 12px;flex-wrap:wrap}.tournament-shell{grid-template-columns:1fr}.tournament-bottom{grid-template-columns:1fr 1fr}.home-arena-rings{padding:18px}.active-fighters-panel,.bench-roll-panel{order:2}.tournament-center{order:1}}
+@media(max-width:760px){.home-arena-rings,.home-bench-grid{grid-template-columns:1fr}.tournament-bottom{grid-template-columns:1fr}.arena-title-block h1{font-size:38px}.tournament-nav .tab{min-width:95px;font-size:11px}.resource-pill{min-width:110px}.tournament-topbar{padding:0 10px}.home-ring{min-height:240px}}
+
 </style>
 </head>
 <body>
-<header>
-  <h1>Ninjago Character Roller <span class="muted">Future Build</span></h1>
-  <div class="top-stats">
-    <div>Money: <strong id="moneyTop">$0</strong></div>
-    <div>Income: <strong id="mpsTop">$0.00/s</strong></div>
-    <div>Rebirths: <strong id="rebirthTop">0</strong></div>
-    <div>Research: <strong id="rpTop">0 RP</strong></div>
-    <div>Collection: <strong id="collectionTop">0/0</strong></div>
+<header class="tournament-topbar">
+  <div class="brand-lockup">
+    <div class="shuriken-logo">✦</div>
+    <div class="brand-text"><span>NINJA</span><small>CHARACTER ROLLER</small></div>
+  </div>
+  <nav class="tabs tournament-nav" aria-label="Game tabs">
+    <button class="tab active" data-view="mine"><span>🏆</span> Tournament Arena</button>
+    <button class="tab" data-view="collection"><span>🥷</span> Collection</button>
+    <button class="tab" data-view="shop"><span>🧪</span> Potion Shop</button>
+    <button class="tab" data-view="fusion"><span>⚒️</span> Fusion Forge</button>
+    <button class="tab" data-view="research"><span>📜</span> Research</button>
+    <button class="tab" data-view="events"><span>🎯</span> Events</button>
+    <button class="tab" data-view="leaderboard"><span>🏅</span> Leaderboard</button>
+  </nav>
+  <div class="resource-strip">
+    <div class="resource-pill coin"><span>🪙</span><strong id="moneyTop">$0</strong><small id="mpsTop">$0/s</small></div>
+    <div class="resource-pill gem"><span>💎</span><strong id="rpTop">0 RP</strong><small id="rebirthTop">0 RBP</small></div>
+    <div class="resource-pill energy"><span>⚡</span><strong id="collectionTop">0/0</strong><small>Unlocked</small></div>
+    <button class="top-icon">⚙</button>
+    <button class="top-icon">⛶</button>
   </div>
 </header>
-
-<nav class="tabs" aria-label="Game tabs">
-  <button class="tab active" data-view="mine">Mine</button>
-  <button class="tab" data-view="collection">Collection</button>
-  <button class="tab" data-view="research">Research</button>
-  <button class="tab" data-view="shop">Potion Shop</button>
-  <button class="tab" data-view="arena">Arena</button>
-  <button class="tab" data-view="fusion">Fusion</button>
-  <button class="tab" data-view="events">Events</button>
-  <button class="tab" data-view="leaderboard">Leaderboard</button>
-</nav>
-
 <main>
-  <section id="mineView" class="view active">
-    <div class="home-layout">
-      <section class="panel stage">
-        <div class="stage-top">
-          <div class="pill-row">
-            <div class="pill">Luck <strong id="luckPill">0%</strong></div>
-            <div class="pill">Pity <strong id="pityPill">0%</strong></div>
-            <div class="pill">Focus <strong id="focusPill">None</strong></div>
-            <div class="pill">Event <strong id="eventPill">None</strong></div>
-          </div>
-          <div class="muted" id="autoStatus">Auto: OFF</div>
+  <section id="mineView" class="view active tournament-home-view">
+    <div class="tournament-shell">
+      <aside class="tournament-panel active-fighters-panel">
+        <div class="panel-title-row"><h2>Active Fighters</h2><span class="help-dot">?</span></div>
+        <div id="homeActiveFighters" class="home-active-fighters"></div>
+        <div class="total-income-card">
+          <div class="coin-stack">🪙</div>
+          <div><strong id="homeTotalIncome">$0/s</strong><small id="homeDailyIncome">~ $0 / day</small></div>
         </div>
+      </aside>
 
-        <div class="roll-area">
-          <div class="ore-card">
-            <div>
-              <div id="mainGem" class="gem"></div>
-              <h2 id="lastOreName">Ready to Roll</h2>
-              <div class="muted" id="lastOreMeta">Roll to recruit Ninjago heroes and villains, complete goals, and build your roster.</div>
-              <div class="score" id="lastOreIncome">Unlock characters, then place up to 4 of them into the Arena rings to generate income.</div>
-            </div>
-          </div>
-          <div class="roll-stack">
-            <button id="rollBtn" class="roll-btn">ROLL</button>
-            <div class="quick-actions">
-              <button id="roll10Btn">Roll x10</button>
-              <button id="autoBtn">Buy Auto</button>
-            </div>
-            <div class="mini" style="width:min(430px, 100%);">
-              <h3 id="goalTitle">Current Goal</h3>
-              <p id="goalText">Roll your first character.</p>
-              <div class="progress"><div id="goalBar" style="width:0%"></div></div>
-            </div>
-            <div class="mini" style="width:min(430px, 100%);">
-              <h3>Auto Rules</h3>
-              <div class="grid2">
-                <label class="muted"><input id="autoPauseRare" type="checkbox" /> Pause on Epic+</label>
-                <label class="muted"><input id="autoHideCommon" type="checkbox" /> Quiet Common finds</label>
-              </div>
-            </div>
-            <div class="mini" style="width:min(430px, 100%);">
-              <h3>Focus Lens</h3>
-              <p>Boost one selected character for 60 seconds.</p>
-              <div class="quick-actions" style="justify-content:flex-start; margin-top:10px;">
-                <select id="focusSelect" aria-label="Choose focus character"></select>
-                <button id="focusBtn">Focus ($80)</button>
-              </div>
-            </div>
-          </div>
+      <section class="tournament-center">
+        <div class="arena-title-block">
+          <h1>Tournament Arena</h1>
+          <p>4 rings. 4 multipliers. Maximum rewards.</p>
         </div>
-
-        <div class="stage-bottom">
-          <div class="pill-row">
-            <div class="pill">Rolls <strong id="rollsPill">0</strong></div>
-            <div class="pill">Find Rate <strong id="findRatePill">0%</strong></div>
-            <div class="pill">Fusion Energy <strong id="fusionPill">0/100</strong></div>
-            <div class="pill">Next Rebirth <strong id="rebirthCostPill">$0</strong></div>
-          </div>
-          <button id="rebirthBtn">Rebirth</button>
+        <div id="homeArenaRings" class="home-arena-rings"></div>
+        <div class="center-action-row">
+          <button class="secondary-action" data-view-jump="arena">📊 Arena Stats</button>
+          <button class="manage-arena-btn" data-view-jump="arena">⚔ Manage Arena</button>
+          <button class="secondary-action" data-view-jump="events">📜 Battle Log</button>
         </div>
       </section>
 
-      <aside>
-        <section class="panel">
-          <h2>Milestones</h2>
-          <div id="milestoneList" class="list"></div>
-        </section>
-        <section class="panel">
-          <h2>Inventory</h2>
-          <div id="inventoryList" class="list"></div>
-        </section>
-        <section class="panel">
-          <h2>Recent Events</h2>
-          <div id="log" class="log"></div>
-        </section>
+      <aside class="tournament-panel bench-roll-panel">
+        <div class="panel-title-row"><h2>Benched Characters</h2><span class="help-dot">?</span></div>
+        <div id="homeBenchGrid" class="home-bench-grid"></div>
+        <div class="bench-capacity"><span>👥 Bench Capacity</span><strong id="homeBenchCount">0 / 0</strong><button>+</button></div>
+        <div class="roll-controls-card">
+          <div class="panel-title-row"><h2>Roll Controls</h2><span class="help-dot">?</span></div>
+          <div class="roll-control-grid">
+            <button id="autoBtn" class="auto-control">↻<small id="autoStatus">Auto: OFF</small></button>
+            <button id="rollBtn" class="roll-btn tournament-roll">✦<strong>ROLL</strong><small>$1</small></button>
+            <button id="roll10Btn" class="quick-roll-control">▶▶<small>x10</small></button>
+          </div>
+          <div class="luck-boost-strip"><span>🍀 Luck</span><div class="progress"><div id="goalBar" style="width:0%"></div></div><strong id="luckPill">0%</strong></div>
+        </div>
       </aside>
+
+      <div class="tournament-bottom">
+        <section class="bottom-card player-card">
+          <div id="mainGem" class="gem mini-main-gem"></div>
+          <div><h3 id="lastOreName">Ready to Roll</h3><p id="lastOreMeta">Roll to recruit fighters.</p><strong id="lastOreIncome">Arena fighters generate income.</strong></div>
+        </section>
+        <section class="bottom-card quest-card">
+          <h3 id="goalTitle">Daily Quests</h3>
+          <p id="goalText">Complete arena battles and roll new characters.</p>
+          <div class="mini-stat-line"><span>Pity</span><strong id="pityPill">0%</strong></div>
+        </section>
+        <section class="bottom-card season-card">
+          <h3>Tournament Season</h3>
+          <p>Season ends in:</p>
+          <strong>6D 14H 32M</strong>
+          <div class="mini-stat-line"><span>Fusion</span><strong id="fusionPill">0/100</strong></div>
+        </section>
+        <section class="bottom-card leaderboard-card">
+          <h3>Global Leaderboard</h3>
+          <div id="homeLeaderboardMini"></div>
+        </section>
+        <section class="bottom-card event-boost-card">
+          <div class="boost-big">2X</div>
+          <strong>Double Income Event</strong>
+          <small id="eventPill">None</small>
+        </section>
+      </div>
+
+      <div class="hidden-home-controls" aria-hidden="true">
+        <span id="focusPill">None</span>
+        <span id="rollsPill">0</span>
+        <span id="findRatePill">0%</span>
+        <span id="rebirthCostPill">$0</span>
+        <button id="rebirthBtn">Rebirth</button>
+        <select id="focusSelect" aria-label="Choose focus character"></select>
+        <button id="focusBtn">Focus ($80)</button>
+        <label><input id="autoPauseRare" type="checkbox" /> Pause on Epic+</label>
+        <label><input id="autoHideCommon" type="checkbox" /> Quiet Common finds</label>
+        <div id="inventoryList" class="list"></div>
+        <div id="milestoneList" class="list"></div>
+        <div id="log" class="log"></div>
+      </div>
     </div>
   </section>
 
@@ -2448,10 +2515,10 @@ const RBP_UPGRADES = [
 
 
 const ARENA_RINGS = [
-  { name:'Dojo Ring', mult:1.00, color:'#ffd56a', desc:'Basic training ring.' },
-  { name:'Elemental Ring', mult:1.75, color:'#82fff6', desc:'Elemental boost ring.' },
-  { name:'Dragon Ring', mult:2.75, color:'#ff89d6', desc:'High-power dragon arena.' },
-  { name:'Golden Arena', mult:4.25, color:'#fff0ab', desc:'Best ring with the highest cash multiplier.' }
+  { name:'Ring 1', mult:1.00, color:'#43b6ff', desc:'Blue starter arena ring.' },
+  { name:'Ring 2', mult:2.00, color:'#ffd56a', desc:'Golden arena ring.' },
+  { name:'Ring 3', mult:3.00, color:'#ff6f4d', desc:'Crimson boosted ring.' },
+  { name:'Ring 4', mult:5.00, color:'#b986ff', desc:'Highest multiplier ring.' }
 ];
 
 const state = freshState();
@@ -3424,6 +3491,64 @@ function refreshAutoTimer(){
   }
 }
 
+function renderTournamentHome(){
+  const activeWrap = el('homeActiveFighters');
+  const ringsWrap = el('homeArenaRings');
+  const benchWrap = el('homeBenchGrid');
+  if (!activeWrap || !ringsWrap || !benchWrap) return;
+  if (!Array.isArray(state.arenaSlots)) state.arenaSlots = [null,null,null,null];
+  const owned = ORES.filter(o => (state.inventory[o.key] || 0) > 0).sort((a,b)=>rarityRank(b.rarity)-rarityRank(a.rarity) || b.oneIn-a.oneIn);
+  const arenaIncome = computeMPS();
+  const activeRows = ARENA_RINGS.map((ring,i)=>{
+    const key = state.arenaSlots[i];
+    const ore = key ? ORES.find(o=>o.key===key) : null;
+    const income = ore && hasCharacterUnlocked(ore) ? oreIncome(ore) * ring.mult * getIncomeMult() : 0;
+    return `<div class="fighter-row">
+      <div class="fighter-rank">${i+1}</div>
+      <div class="fighter-icon">${buildMinifigMarkup(ore || null, 'mini', !ore)}</div>
+      <div class="fighter-info">
+        <strong>${ore ? ore.name : 'Empty Ring'}</strong>
+        <small>${ring.name} • ${ring.mult}x multiplier</small>
+        <div class="stars">${ore ? '★★★★★' : '☆☆☆☆☆'}</div>
+        <div class="fighter-income">⚔ ${fmtMoney(income)}/s</div>
+      </div>
+    </div>`;
+  }).join('');
+  activeWrap.innerHTML = activeRows;
+  const total = el('homeTotalIncome');
+  const daily = el('homeDailyIncome');
+  if (total) total.textContent = fmtMoney(arenaIncome) + '/s';
+  if (daily) daily.textContent = '~ ' + fmtMoney(arenaIncome * 86400) + ' / day';
+
+  ringsWrap.innerHTML = ARENA_RINGS.map((ring,i)=>{
+    const key = state.arenaSlots[i];
+    const ore = key ? ORES.find(o=>o.key===key) : null;
+    const options = ['<option value="">Empty Ring</option>'].concat(owned.map(o=>`<option value="${o.key}" ${o.key===key?'selected':''} ${state.arenaSlots.includes(o.key) && o.key!==key ? 'disabled' : ''}>${o.name} • ${fmtMoney(oreIncome(o) * ring.mult * getIncomeMult())}/s</option>`)).join('');
+    return `<div class="home-ring" style="--ringColor:${ring.color}">
+      <div class="ring-banner"><b>${ring.name}</b><strong>${ring.mult}x</strong><span>Income Multiplier</span></div>
+      <div class="ring-fighter">${buildMinifigMarkup(ore || null, 'large', !ore)}</div>
+      <select class="ring-select" data-home-ring="${i}">${options}</select>
+    </div>`;
+  }).join('');
+  ringsWrap.querySelectorAll('[data-home-ring]').forEach(sel=>{
+    sel.onchange = () => assignArenaSlot(Number(sel.dataset.homeRing), sel.value || null);
+  });
+
+  const benched = owned.filter(o=>!state.arenaSlots.includes(o.key));
+  benchWrap.innerHTML = (benched.length ? benched.slice(0,9) : owned.slice(0,9)).map(o=>`
+    <div class="bench-card" style="--rarityColor:${RARITY_COLORS[o.rarity] || o.color}">
+      ${buildMinifigMarkup(o, 'mini', false)}
+      <strong>${o.name}</strong>
+      <small>Lv. ${Math.max(1, Math.floor(oreIncome(o)*18))}</small>
+      <div class="stars">${'★'.repeat(Math.min(5, Math.max(1, rarityRank(o.rarity))))}</div>
+    </div>`).join('') || '<div class="muted">Roll characters to fill your bench.</div>';
+  const benchCount = el('homeBenchCount');
+  if (benchCount) benchCount.textContent = `${benched.length} / ${owned.length}`;
+  const miniBoard = el('homeLeaderboardMini');
+  if (miniBoard){
+    miniBoard.innerHTML = `<div class="row"><span>1. ShadowRonin</span><strong>${fmtMoney(arenaIncome*1.18)}/s</strong></div><div class="row"><span>2. NinjaMaster99</span><strong>${fmtMoney(arenaIncome)}/s</strong></div><div class="row"><span>3. SenseiBricks</span><strong>${fmtMoney(arenaIncome*.83)}/s</strong></div>`;
+  }
+}
 function renderAll(){
   const mps = computeMPS();
   refs.moneyTop.textContent = fmtMoney(state.money);
@@ -3455,6 +3580,8 @@ function renderAll(){
   renderShop();
   renderEvents();
   renderLeaderboard();
+  renderArena();
+  renderTournamentHome();
 }
 function renderGoal(){
   const allDone = MILESTONES.every(m=>state.milestones[m.key]);
@@ -3819,6 +3946,14 @@ function init(){
   requestAnimationFrame(t=>{ lastTick = t; tick(t); });
   saveTimer = setInterval(()=>{ state.lastSavedAt = Date.now(); saveCurrentAccount(true); }, 5000);
 }
+document.querySelectorAll('[data-view-jump]').forEach(btn=>{
+  btn.onclick = ()=>{
+    const target = btn.dataset.viewJump;
+    const tab = document.querySelector(`.tab[data-view="${target}"]`);
+    if (tab) tab.click();
+  };
+});
+
 init();
 </script>
 </body>
