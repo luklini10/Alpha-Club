@@ -1123,5 +1123,98 @@ function init(){
 }
 init();
 </script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBSSyvvjrg2p6Lqpj7muYveSyyaBAw4Aho",
+  authDomain: "ore-roller.firebaseapp.com",
+  projectId: "ore-roller",
+  storageBucket: "ore-roller.firebasestorage.app",
+  messagingSenderId: "696765640895",
+  appId: "1:696765640895:web:9572e7e2285f1ec6fa560a"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+window.signup = async function(email, password){
+  try{
+    await createUserWithEmailAndPassword(auth, email, password);
+    alert("Account created!");
+  }catch(err){
+    alert(err.message);
+  }
+}
+
+window.login = async function(email, password){
+  try{
+    await signInWithEmailAndPassword(auth, email, password);
+    alert(err.message);
+  }catch(err){
+    alert(err.message);
+  }
+}
+
+window.saveCloudGame = async function(gameData){
+  const user = auth.currentUser;
+
+  if(!user){
+    alert("Login first.");
+    return;
+  }
+
+  await setDoc(doc(db, "users", user.uid), gameData);
+
+  alert("Cloud save successful!");
+}
+
+window.loadCloudGame = async function(){
+  const user = auth.currentUser;
+
+  if(!user){
+    alert("Login first.");
+    return null;
+  }
+
+  const snap = await getDoc(doc(db, "users", user.uid));
+
+  if(!snap.exists()){
+    alert("No cloud save found.");
+    return null;
+  }
+
+  return snap.data();
+}
+
+window.logout = async function(){
+  await signOut(auth);
+}
+
+onAuthStateChanged(auth, (user)=>{
+  if(user){
+    console.log("Logged in as:", user.email);
+  }else{
+    console.log("No user logged in");
+  }
+});
+</script>
 </body>
 </html>
