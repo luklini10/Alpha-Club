@@ -640,6 +640,53 @@
   .entry.warn{ color:var(--gold); }
   .entry.rare{ color:var(--blue); }
   .entry:last-child{ border-bottom:none; }
+  
+  .rbp-mastery-head{
+    margin-top:22px;
+    padding-top:18px;
+    border-top:1px solid rgba(255,214,142,.16);
+  }
+  .rbp-card{
+    position:relative;
+    overflow:hidden;
+    border-color:rgba(255,213,106,.38) !important;
+    background:
+      radial-gradient(220px 120px at 18% 0%, rgba(255,213,106,.20), transparent 65%),
+      linear-gradient(180deg, rgba(45,32,14,.94), rgba(16,13,12,.96)) !important;
+  }
+  .rbp-card::after{
+    content:'';
+    position:absolute;
+    width:120px;
+    height:120px;
+    right:-40px;
+    top:-50px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,213,106,.24), transparent 70%);
+    pointer-events:none;
+  }
+  .rbp-level{
+    display:inline-block;
+    margin-top:8px;
+    padding:5px 9px;
+    border-radius:999px;
+    border:1px solid rgba(255,213,106,.24);
+    background:rgba(255,213,106,.08);
+    color:#ffe7a3;
+    font-size:.82rem;
+    font-weight:800;
+  }
+  .shop-locked{
+    padding:24px;
+    border-radius:16px;
+    border:1px solid rgba(255,213,106,.18);
+    background:
+      radial-gradient(260px 150px at 50% 0%, rgba(255,213,106,.12), transparent 70%),
+      linear-gradient(180deg, rgba(21,18,15,.92), rgba(8,9,12,.95));
+    text-align:center;
+  }
+  .shop-locked strong{ color:var(--gold); }
+
   .collection-grid{
     display:block;
   }
@@ -774,6 +821,108 @@
     display:grid;
     place-items:center;
   }
+
+  .collection-cabinet{
+    position:relative;
+    padding:24px;
+    border-radius:24px;
+    border:3px solid rgba(204,143,66,.82);
+    background:
+      linear-gradient(90deg, rgba(255,255,255,.10), transparent 12%, transparent 88%, rgba(255,255,255,.07)),
+      radial-gradient(900px 240px at 50% -8%, rgba(255,213,106,.20), transparent 65%),
+      repeating-linear-gradient(90deg, rgba(255,204,126,.06) 0 12px, rgba(83,48,21,.08) 12px 24px),
+      linear-gradient(180deg, rgba(95,62,28,.98), rgba(43,27,14,.99));
+    box-shadow:inset 0 0 0 7px rgba(255,220,156,.10), inset 0 0 40px rgba(0,0,0,.35), 0 20px 50px rgba(0,0,0,.38);
+  }
+  .collection-cabinet::before{
+    content:'LEGO NINJAGO DISPLAY CABINET';
+    position:absolute;
+    left:50%;
+    top:-16px;
+    transform:translateX(-50%);
+    padding:7px 18px;
+    border-radius:999px;
+    border:2px solid rgba(255,220,156,.30);
+    background:linear-gradient(180deg, #5d3416, #27160b);
+    color:#ffe3a3;
+    font-size:.78rem;
+    font-weight:1000;
+    letter-spacing:.18em;
+    box-shadow:0 8px 20px rgba(0,0,0,.28);
+    pointer-events:none;
+  }
+  .collection-cabinet::after{
+    content:'';
+    position:absolute;
+    inset:16px;
+    border-radius:18px;
+    border:1px solid rgba(255,255,255,.16);
+    background:linear-gradient(115deg, rgba(255,255,255,.08), transparent 26%, transparent 72%, rgba(255,255,255,.05));
+    pointer-events:none;
+    mix-blend-mode:screen;
+  }
+  .cabinet-page{ position:relative; z-index:1; }
+  .cabinet-shelf{
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:16px;
+    padding:22px 16px 28px;
+    border:1px solid rgba(255,233,184,.14);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.03) 35%, rgba(0,0,0,.18)),
+      repeating-linear-gradient(90deg, rgba(255,231,179,.05) 0 18px, rgba(0,0,0,0) 18px 36px),
+      linear-gradient(180deg, rgba(119,77,35,.72), rgba(59,38,20,.88));
+    box-shadow:inset 0 -12px 0 rgba(35,20,8,.48), inset 0 2px 0 rgba(255,235,196,.12), 0 10px 22px rgba(0,0,0,.20);
+  }
+  .cabinet-slot{
+    min-height:250px;
+    border:1px solid rgba(255,235,196,.16);
+    background:
+      radial-gradient(circle at 50% 8%, color-mix(in srgb, var(--slotColor, #ffd56a) 26%, transparent), transparent 38%),
+      linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.03) 33%, rgba(0,0,0,.22));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.16), inset 0 -10px 20px rgba(0,0,0,.18);
+  }
+  .cabinet-slot.unlocked{
+    border-color:color-mix(in srgb, var(--slotColor, #ffd56a) 38%, rgba(255,255,255,.18));
+    box-shadow:0 0 22px color-mix(in srgb, var(--slotColor, #ffd56a) 18%, transparent), inset 0 1px 0 rgba(255,255,255,.16), inset 0 -10px 20px rgba(0,0,0,.18);
+  }
+  .cabinet-slot.unlocked::before{
+    content:'';
+    position:absolute;
+    left:18px;
+    right:18px;
+    top:12px;
+    height:70px;
+    border-radius:50%;
+    background:radial-gradient(circle, color-mix(in srgb, var(--slotColor, #ffd56a) 28%, transparent), transparent 70%);
+    filter:blur(8px);
+    pointer-events:none;
+  }
+  .cabinet-slot.locked{
+    opacity:.78;
+    filter:saturate(.18) brightness(.82);
+    background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.22));
+  }
+  .cabinet-slot h3{ font-size:15px; color:#fff3d2; text-shadow:0 2px 8px rgba(0,0,0,.42); }
+  .cabinet-slot .slot-meta{ color:#cbbda7; }
+  .cabinet-slot .slot-income{ color:color-mix(in srgb, var(--slotColor, #ffd56a) 75%, white); }
+  .cabinet-slot .slot-copies{
+    background:linear-gradient(180deg, color-mix(in srgb, var(--slotColor, #ffd56a) 20%, rgba(0,0,0,.1)), rgba(0,0,0,.16));
+    border-color:color-mix(in srgb, var(--slotColor, #ffd56a) 28%, rgba(255,255,255,.12));
+  }
+  .cabinet-rarity-badge{
+    position:relative;
+    z-index:1;
+    padding:4px 8px;
+    border-radius:999px;
+    background:color-mix(in srgb, var(--slotColor, #ffd56a) 18%, rgba(0,0,0,.24));
+    border:1px solid color-mix(in srgb, var(--slotColor, #ffd56a) 36%, rgba(255,255,255,.14));
+    color:color-mix(in srgb, var(--slotColor, #ffd56a) 82%, white);
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
   @media (max-width: 960px){
     .cabinet-shelf{ grid-template-columns:repeat(3, minmax(0, 1fr)); }
   }
@@ -1677,6 +1826,11 @@
       <h2>Research Lab</h2>
       <div class="muted" style="margin-bottom:14px;">Earn RP from milestones, rare character rolls, events, and rebirths. Spend it on permanent run upgrades.</div>
       <div id="researchGrid" class="grid2"></div>
+      <div class="rbp-mastery-head">
+        <h2>RBP Mastery</h2>
+        <div class="muted">Spend Rebirth Points on permanent upgrades that affect every run. Current RBP: <strong id="rbpSpendPill">0</strong></div>
+      </div>
+      <div id="rbpGrid" class="grid2"></div>
     </div>
   </section>
 
@@ -1684,7 +1838,7 @@
     <div class="panel">
       <h2>Potions Shop</h2>
       <div class="muted" style="margin-bottom:14px;">
-        The shop randomly restocks every <strong>3 minutes</strong>. Potions are bought and used instantly.
+        The shop randomly restocks every <strong>3 minutes</strong>. Potions are bought and used instantly. When the shelf sells out, it stays locked until the timer finishes.
         <span class="shop-timer" id="shopTimer">Restocking...</span>
       </div>
       <div id="potionStatus" class="mini" style="margin-bottom:14px;"></div>
@@ -2141,6 +2295,15 @@ const POTIONS = {
   relic_elixir:{ name:'Ultimate Relic Elixir', color:'#fff0ab', cost:50000, desc:'The best potion: your next roll has a 100% chance to pull an eligible Relic character.', weight:2, apply(){ state.guaranteedRelicRolls += 1; } }
 };
 
+const RBP_UPGRADES = [
+  { key:'income', name:'Golden Treasury', max:10, base:1, desc:'+20% global income per level.', effect:lv=>`+${lv*20}% income` },
+  { key:'luck', name:'Destiny Blessing', max:10, base:1, desc:'+3 luck per level.', effect:lv=>`+${lv*3} luck` },
+  { key:'relic', name:'Relic Compass', max:8, base:2, desc:'Relic odds improve by 8% per level.', effect:lv=>`${lv*8}% stronger Relic odds` },
+  { key:'rebirth', name:'Cycle Breaker', max:8, base:2, desc:'Rebirth cost is reduced by 8% per level.', effect:lv=>`${lv*8}% cheaper rebirths` },
+  { key:'shop', name:'Potion Courier', max:6, base:1, desc:'Shop restock timer is 15 seconds shorter per level.', effect:lv=>`${Math.max(60, 180 - lv*15)}s restock timer` },
+  { key:'fusion', name:'Forge Mastery', max:8, base:1, desc:'Fusion energy gain improves by 15% per level.', effect:lv=>`+${lv*15}% fusion energy` }
+];
+
 
 const state = freshState();
 let lastTick = performance.now();
@@ -2173,6 +2336,7 @@ function freshState(){
     pity:0,
     rp:0,
     rbp:0,
+    rbpUpgrades:Object.fromEntries(RBP_UPGRADES.map(u=>[u.key,0])),
     rebirths:0,
     fusionEnergy:0,
     autoUnlocked:false,
@@ -2218,13 +2382,13 @@ function countByRank(s, minRarity){
 }
 function getPityCap(){ return PITY_CAP_BASE + state.research.pity * 4; }
 function getLuck(){
-  let luck = state.research.luck * 2 + state.rebirths * 2;
+  let luck = state.research.luck * 2 + state.rebirths * 2 + getRbpLevel('luck') * 3;
   if (state.event && ['meteor','deep'].includes(state.event)) luck += state.event === 'meteor' ? 18 : 10;
   if ((state.potionLuckRolls || 0) > 0) luck += state.potionLuckBonus || 0;
   return luck;
 }
 function getIncomeMult(){
-  let mult = 1 + state.research.income * 0.12 + state.rebirths * 0.45;
+  let mult = 1 + state.research.income * 0.12 + state.rebirths * 0.45 + getRbpLevel('income') * 0.20;
   if (state.event === 'golden') mult *= 3;
   if ((state.incomePotionEnds || 0) > Date.now()) mult *= 2;
   return mult;
@@ -2233,6 +2397,10 @@ function getAutoDelay(){
   return Math.max(90, Math.floor(AUTO_DELAY_BASE * Math.pow(0.92, state.research.auto) * Math.pow(0.94, state.rebirths)));
 }
 function getOfflineCapHours(){ return 2 + state.research.offline; }
+function getRbpLevel(key){ return (state.rbpUpgrades && state.rbpUpgrades[key]) || 0; }
+function getShopRestockMs(){ return Math.max(60000, SHOP_RESTOCK_MS - getRbpLevel('shop') * 15000); }
+function getFusionEnergyGain(base){ return base * (1 + getRbpLevel('fusion') * 0.15); }
+function getRbpUpgradeCost(u){ return u.base + getRbpLevel(u.key); }
 function oreIncome(ore){ return ore.income * ORE_INCOME_MULT; }
 function hasCharacterUnlocked(ore, s=state){ return (s.inventory[ore.key] || 0) > 0; }
 function computeMPS(){
@@ -2243,7 +2411,7 @@ function computeMPS(){
   return total * getIncomeMult();
 }
 function getRebirthCost(){
-  return REBIRTH_BASE_COST * Math.pow(2.8, state.rebirths);
+  return REBIRTH_BASE_COST * Math.pow(2.8, state.rebirths) * Math.max(0.35, 1 - getRbpLevel('rebirth') * 0.08);
 }
 function score(){
   return Math.floor(state.money + computeMPS()*1200 + state.rebirths*250000 + discoveredCount()*5000 + state.totalFinds*120 + state.totalRolls);
@@ -2261,6 +2429,7 @@ function effectiveOneIn(ore){
   if (state.event === 'meteor' && rank >= rarityRank('Legendary')) eff *= .62;
   if (state.event === 'deep' && rank >= rarityRank('Epic')) eff *= .68;
   if ((state.mythicSurgeRolls || 0) > 0 && rank >= rarityRank('Legendary')) eff *= rank >= rarityRank('Mythic') ? .28 : .48;
+  if (rank >= rarityRank('Relic')) eff *= Math.max(0.4, 1 - getRbpLevel('relic') * 0.08);
   if (state.focus === ore.key && Date.now() < state.focusEnds) eff *= .5;
   return Math.max(1, Math.floor(eff));
 }
@@ -2540,6 +2709,7 @@ function loadAccountState(showOffline=true){
     state.rolledCharacters = data.rolledCharacters || {};
     state.milestones = data.milestones || {};
     state.research = { ...freshState().research, ...(data.research || {}) };
+    state.rbpUpgrades = { ...freshState().rbpUpgrades, ...(data.rbpUpgrades || {}) };
     sanitizeState();
     restockShop(false);
     if (showOffline){
@@ -2696,7 +2866,7 @@ function doRoll(options={}){
     state.pity = 0;
     const rank = rarityRank(found.rarity);
     const energyGain = 1 + Math.max(0, rank - 1) + state.research.fusion + (state.event === 'deep' ? 3 : 0);
-    state.fusionEnergy = Math.min(100, state.fusionEnergy + energyGain);
+    state.fusionEnergy = Math.min(100, state.fusionEnergy + getFusionEnergyGain(energyGain));
     showFound(found, quiet, isNewDiscovery);
     if (state.event === 'meteor' && found.rarity === 'Relic' && !state.eventRelicReward){
       state.eventRelicReward = true;
@@ -2779,6 +2949,37 @@ function buyResearch(key){
   toast('Research upgraded', `${r.name} is now Lv.${level + 1}.`);
   renderAll();
 }
+function buyRbpUpgrade(key){
+  const u = RBP_UPGRADES.find(x=>x.key === key);
+  if (!u) return;
+  const level = getRbpLevel(key);
+  if (level >= u.max) return toast('Maxed out', `${u.name} is already max level.`);
+  const cost = getRbpUpgradeCost(u);
+  if (state.rbp < cost) return toast('Need more RBP', `${u.name} costs ${cost} RBP.`);
+  state.rbp -= cost;
+  state.rbpUpgrades[key] = level + 1;
+  toast('RBP Mastery upgraded', `${u.name} is now Lv.${level + 1}.`);
+  renderAll();
+}
+function renderRbpUpgrades(){
+  const grid = el('rbpGrid');
+  const pill = el('rbpSpendPill');
+  if (!grid) return;
+  if (pill) pill.textContent = state.rbp;
+  grid.innerHTML = RBP_UPGRADES.map(u=>{
+    const level = getRbpLevel(u.key);
+    const cost = getRbpUpgradeCost(u);
+    return `<div class="mini rbp-card">
+      <h3>${u.name} Lv.${level}/${u.max}</h3>
+      <p>${u.desc}</p>
+      <div class="rbp-level">Current: ${u.effect(level)}</div>
+      <div class="quick-actions" style="justify-content:flex-start; margin-top:10px;">
+        <button data-rbp-upgrade="${u.key}" ${level >= u.max || state.rbp < cost ? 'disabled' : ''}>Buy (${cost} RBP)</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('[data-rbp-upgrade]').forEach(b=>b.onclick=()=>buyRbpUpgrade(b.dataset.rbpUpgrade));
+}
 
 function weightedPotionPick(pool){
   const total = pool.reduce((s,k)=>s + POTIONS[k].weight, 0);
@@ -2791,7 +2992,8 @@ function weightedPotionPick(pool){
 }
 function restockShop(force=false){
   const now = Date.now();
-  if (!force && state.shopStock && state.shopStock.length && now < (state.shopRestockAt || 0)) return;
+  const restockAt = state.shopRestockAt || 0;
+  if (!force && restockAt && now < restockAt) return;
   const keys = Object.keys(POTIONS);
   const stock = [];
   const pool = [...keys];
@@ -2800,10 +3002,9 @@ function restockShop(force=false){
     stock.push(pick);
     pool.splice(pool.indexOf(pick), 1);
   }
-  // Tiny chance for a fifth premium slot, otherwise the Relic Elixir still appears rarely through the weighted stock.
   if (!stock.includes('relic_elixir') && Math.random() < 0.12) stock[Math.floor(Math.random()*stock.length)] = 'relic_elixir';
   state.shopStock = stock;
-  state.shopRestockAt = now + SHOP_RESTOCK_MS;
+  state.shopRestockAt = now + getShopRestockMs();
 }
 function buyPotion(key){
   restockShop(false);
@@ -2828,7 +3029,12 @@ function renderShop(){
   if ((state.guaranteedRelicRolls || 0) > 0) active.push(`${state.guaranteedRelicRolls} guaranteed Relic roll${state.guaranteedRelicRolls === 1 ? '' : 's'}`);
   if ((state.incomePotionEnds || 0) > Date.now()) active.push(`2x income for ${Math.ceil((state.incomePotionEnds - Date.now())/1000)}s`);
   refs.potionStatus.innerHTML = `<strong>Active Potions</strong><div class="muted">${active.length ? active.join(' • ') : 'No potions active.'}</div>`;
-  refs.shopList.innerHTML = (state.shopStock || []).map(key=>{
+  const stock = state.shopStock || [];
+  if (!stock.length){
+    refs.shopList.innerHTML = `<div class="shop-locked"><strong>Sold out</strong><div class="muted">The potion shelf is locked until the next 3-minute restock. Time left: ${Math.ceil(left/1000)}s.</div></div>`;
+    return;
+  }
+  refs.shopList.innerHTML = stock.map(key=>{
     const p = POTIONS[key];
     return `<div class="potion-card" style="--potionColor:${p.color}">
       <div class="potion-head">
@@ -2848,28 +3054,28 @@ function fuse(type){
     if (sumOres(commons) < 35) return toast('Not enough copies', 'Need 35 Common character copies.');
     consumeOres(commons, 35);
     awardRandom('Rare');
-    state.fusionEnergy = Math.min(100, state.fusionEnergy + 10 + state.research.fusion);
+    state.fusionEnergy = Math.min(100, state.fusionEnergy + getFusionEnergyGain(10 + state.research.fusion));
   }
   if (type === 'uncommon'){
     const list = ORES.filter(o=>o.rarity === 'Uncommon');
     if (sumOres(list) < 45) return toast('Not enough copies', 'Need 45 Uncommon character copies.');
     consumeOres(list, 45);
     awardRandom('Epic');
-    state.fusionEnergy = Math.min(100, state.fusionEnergy + 14 + state.research.fusion);
+    state.fusionEnergy = Math.min(100, state.fusionEnergy + getFusionEnergyGain(14 + state.research.fusion));
   }
   if (type === 'rare'){
     const list = ORES.filter(o=>o.rarity === 'Rare');
     if (sumOres(list) < 22) return toast('Not enough copies', 'Need 22 Rare character copies.');
     consumeOres(list, 22);
     awardRandom('Epic');
-    state.fusionEnergy = Math.min(100, state.fusionEnergy + 16 + state.research.fusion);
+    state.fusionEnergy = Math.min(100, state.fusionEnergy + getFusionEnergyGain(16 + state.research.fusion));
   }
   if (type === 'epic'){
     const epics = ORES.filter(o=>o.rarity === 'Epic');
     if (sumOres(epics) < 10) return toast('Not enough copies', 'Need 10 Epic character copies.');
     consumeOres(epics, 10);
     awardRandom('Legendary');
-    state.fusionEnergy = Math.min(100, state.fusionEnergy + 18 + state.research.fusion);
+    state.fusionEnergy = Math.min(100, state.fusionEnergy + getFusionEnergyGain(18 + state.research.fusion));
   }
   if (type === 'legendary'){
     const list = ORES.filter(o=>o.rarity === 'Legendary');
@@ -2964,7 +3170,7 @@ function adminPullSelected(){
   state.rolledCharacters[ore.key] = true;
   state.pity = 0;
   state.lastFoundKey = ore.key;
-  state.fusionEnergy = Math.min(100, state.fusionEnergy + 10);
+  state.fusionEnergy = Math.min(100, state.fusionEnergy + getFusionEnergyGain(10));
 
   showFound(ore, false, wasNewDiscovery || forceAnim);
   addLog(`Admin pulled ${ore.name}.`, 'warn');
@@ -3149,7 +3355,8 @@ function renderCollection(){
         const meta = seen ? `${o.rarity} • 1 in ${o.oneIn}` : (lockedByRequirement ? 'Unlock every other character first' : 'Undiscovered');
         const income = seen ? `${fmtMoney(oreIncome(o))}/s base` : (lockedByRequirement ? 'Ultimate unlock' : '???');
         const copies = seen ? `${count} copies` : 'Locked';
-        return `<div class="cabinet-slot ${seen ? '' : 'locked'}">
+        return `<div class="cabinet-slot ${seen ? 'unlocked' : 'locked'}" style="--slotColor:${seen ? o.color : '#8a7a62'}">
+          <div class="cabinet-rarity-badge">${seen ? o.rarity : 'LOCKED'}</div>
           <div class="small-gem">${buildMinifigMarkup(seen ? o : null, 'mini', !seen)}</div>
           <h3>${name}</h3>
           <div class="slot-meta">${meta}</div>
@@ -3178,6 +3385,7 @@ function renderResearch(){
     </div>`;
   }).join('');
   document.querySelectorAll('[data-research]').forEach(b=>b.onclick=()=>buyResearch(b.dataset.research));
+  renderRbpUpgrades();
 }
 function renderFusion(){
   const commonCount = sumOres(ORES.filter(o=>o.rarity === 'Common'));
@@ -3275,6 +3483,8 @@ function sanitizeState(){
   if (!Number.isFinite(state.pity)) state.pity = 0;
   if (!Number.isFinite(state.rp)) state.rp = 0;
   if (!Number.isFinite(state.rbp)) state.rbp = 0;
+  if (!state.rbpUpgrades || typeof state.rbpUpgrades !== 'object') state.rbpUpgrades = Object.fromEntries(RBP_UPGRADES.map(u=>[u.key,0]));
+  for (const u of RBP_UPGRADES){ if (!Number.isFinite(state.rbpUpgrades[u.key])) state.rbpUpgrades[u.key] = 0; }
   if (!Number.isFinite(state.rebirths)) state.rebirths = 0;
   if (!Array.isArray(state.shopStock)) state.shopStock = [];
   if (!Number.isFinite(state.shopRestockAt)) state.shopRestockAt = 0;
