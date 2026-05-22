@@ -235,6 +235,63 @@
     55%{ transform:translateY(-8px) scale(1.08); }
     100%{ transform:translateY(0) scale(1); }
   }
+  .gem.rarity-legendary::after,
+  .gem.rarity-mythic::after,
+  .gem.rarity-relic::after{
+    content:'';
+    position:absolute;
+    inset:22px;
+    border-radius:50%;
+    pointer-events:none;
+    opacity:.9;
+    z-index:-1;
+  }
+  .gem.rarity-legendary::after{
+    inset:18px 34px 34px;
+    border:4px solid color-mix(in srgb, var(--gemColor, #ffd56a) 85%, white);
+    box-shadow:0 0 24px color-mix(in srgb, var(--gemColor, #ffd56a) 55%, transparent), inset 0 0 18px rgba(255,255,255,.35);
+    animation:legendaryOrbit 3.4s linear infinite, legendaryPulse 1.8s ease-in-out infinite;
+  }
+  .gem.rarity-legendary .minifig-figure{
+    animation:legendaryFloat 2.6s ease-in-out infinite;
+  }
+  .gem.rarity-mythic::after{
+    inset:4px 18px 12px;
+    background:
+      radial-gradient(circle at 50% 50%, transparent 41%, color-mix(in srgb, var(--gemColor, #82fff6) 60%, white) 42% 44%, transparent 45%),
+      repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--gemColor, #82fff6) 66%, white) 0 10deg, transparent 10deg 28deg, rgba(255,255,255,.36) 28deg 33deg, transparent 33deg 60deg);
+    filter:drop-shadow(0 0 16px color-mix(in srgb, var(--gemColor, #82fff6) 65%, transparent));
+    animation:mythicSpin 4.2s linear infinite;
+  }
+  .gem.rarity-mythic .minifig-figure{
+    animation:mythicHover 2.2s ease-in-out infinite, mythicGlow 1.4s ease-in-out infinite;
+  }
+  .gem.rarity-relic::after{
+    inset:-6px 2px -6px;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,.78) 0 7%, transparent 8% 100%),
+      repeating-conic-gradient(from 0deg, rgba(255,255,255,.95) 0 5deg, color-mix(in srgb, var(--gemColor, #fff6a3) 82%, white) 5deg 12deg, transparent 12deg 24deg),
+      radial-gradient(circle, transparent 0 52%, color-mix(in srgb, var(--gemColor, #fff6a3) 60%, white) 53% 55%, transparent 56%);
+    filter:drop-shadow(0 0 24px color-mix(in srgb, var(--gemColor, #fff6a3) 90%, transparent));
+    animation:relicHalo 5s linear infinite, relicPulse 1.5s ease-in-out infinite;
+  }
+  .gem.rarity-relic .minifig-figure{
+    animation:relicAscend 1.7s ease-in-out infinite, relicShimmer 1.2s linear infinite;
+  }
+  .gem.rarity-relic .minifig-aura{
+    animation:relicAuraBurst 1.7s ease-in-out infinite;
+  }
+  @keyframes legendaryOrbit{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+  @keyframes legendaryPulse{ 0%,100%{ opacity:.55; scale:.96; } 50%{ opacity:1; scale:1.03; } }
+  @keyframes legendaryFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-8px); } }
+  @keyframes mythicSpin{ from{ transform:rotate(0deg) scale(.98); } to{ transform:rotate(360deg) scale(1.03); } }
+  @keyframes mythicHover{ 0%,100%{ transform:translateY(0) scale(1); } 50%{ transform:translateY(-12px) scale(1.03); } }
+  @keyframes mythicGlow{ 0%,100%{ filter:drop-shadow(0 16px 26px rgba(0,0,0,.34)); } 50%{ filter:drop-shadow(0 0 18px color-mix(in srgb, var(--gemColor, #82fff6) 70%, transparent)) drop-shadow(0 16px 26px rgba(0,0,0,.34)); } }
+  @keyframes relicHalo{ from{ transform:rotate(0deg); } to{ transform:rotate(-360deg); } }
+  @keyframes relicPulse{ 0%,100%{ opacity:.82; scale:.98; } 50%{ opacity:1; scale:1.08; } }
+  @keyframes relicAscend{ 0%,100%{ transform:translateY(0) scale(1); } 50%{ transform:translateY(-16px) scale(1.06); } }
+  @keyframes relicShimmer{ 0%{ filter:brightness(1) drop-shadow(0 16px 26px rgba(0,0,0,.34)); } 50%{ filter:brightness(1.15) drop-shadow(0 0 24px color-mix(in srgb, var(--gemColor, #fff6a3) 82%, transparent)) drop-shadow(0 16px 26px rgba(0,0,0,.34)); } 100%{ filter:brightness(1) drop-shadow(0 16px 26px rgba(0,0,0,.34)); } }
+  @keyframes relicAuraBurst{ 0%,100%{ transform:scale(.94); opacity:.74; } 50%{ transform:scale(1.12); opacity:1; } }
   .minifig-display{
     display:grid;
     gap:10px;
@@ -664,7 +721,7 @@
               <div id="mainGem" class="gem"></div>
               <h2 id="lastOreName">Ready to Roll</h2>
               <div class="muted" id="lastOreMeta">Roll to recruit Ninjago heroes and villains, complete goals, and build your roster.</div>
-              <div class="score" id="lastOreIncome">Every roll brings another minifigure to the Monastery.</div>
+              <div class="score" id="lastOreIncome">Unlock characters for base income — duplicate copies are collectible but do not stack income.</div>
             </div>
           </div>
           <div class="roll-stack">
@@ -985,10 +1042,11 @@ function getAutoDelay(){
 }
 function getOfflineCapHours(){ return 2 + state.research.offline; }
 function oreIncome(ore){ return ore.income * ORE_INCOME_MULT; }
+function hasCharacterUnlocked(ore, s=state){ return (s.inventory[ore.key] || 0) > 0; }
 function computeMPS(){
   let total = 0;
   for (const ore of ORES){
-    total += (state.inventory[ore.key] || 0) * oreIncome(ore);
+    total += hasCharacterUnlocked(ore) ? oreIncome(ore) : 0;
   }
   return total * getIncomeMult();
 }
@@ -1115,6 +1173,11 @@ function buildMinifigMarkup(ore, size='large', locked=false){
 function renderMainCharacter(){
   const ore = ORES.find(o=>o.key === state.lastFoundKey) || null;
   refs.mainGem.style.setProperty('--gemColor', ore ? ore.color : '#ffcf73');
+  refs.mainGem.classList.remove('rarity-legendary','rarity-mythic','rarity-relic');
+  if (ore){
+    const rarityClass = { Legendary:'rarity-legendary', Mythic:'rarity-mythic', Relic:'rarity-relic' }[ore.rarity];
+    if (rarityClass) refs.mainGem.classList.add(rarityClass);
+  }
   refs.mainGem.innerHTML = buildMinifigMarkup(ore, 'large', false);
 }
 function doRoll(options={}){
@@ -1173,7 +1236,7 @@ function showFound(ore, quiet){
   refs.mainGem.classList.add('hit');
   refs.lastOreName.textContent = ore.name + ' Rolled';
   refs.lastOreMeta.textContent = `${ore.rarity} - 1 in ${ore.oneIn} - owned #${count}${ore.requiresAllOthers ? ' - final unlock' : ''}`;
-  refs.lastOreIncome.textContent = `+${fmtMoney(oreIncome(ore) * getIncomeMult())}/s right now`;
+  refs.lastOreIncome.textContent = `Base income: +${fmtMoney(oreIncome(ore) * getIncomeMult())}/s active once unlocked — extra copies do not add more income`;
   const rank = rarityRank(ore.rarity);
   if (!(quiet && state.autoHideCommon && ore.rarity === 'Common')){
     addLog(`Rolled ${ore.name} (${ore.rarity}).`, rank >= rarityRank('Epic') ? 'rare' : 'good');
@@ -1387,7 +1450,7 @@ function renderInventory(){
   refs.inventoryList.innerHTML = owned.length ? owned.slice(0, 12).map(o=>`
     <div class="row">
       <span class="dot" style="background:${o.color}; color:${o.color}"></span>
-      <div><strong>${o.name}</strong><div class="muted">${o.rarity} - ${fmtMoney(oreIncome(o) * getIncomeMult() * state.inventory[o.key])}/s total</div></div>
+      <div><strong>${o.name}</strong><div class="muted">${o.rarity} - ${fmtMoney(oreIncome(o) * getIncomeMult())}/s active base rate</div></div>
       <span class="score">x${state.inventory[o.key]}</span>
     </div>
   `).join('') : '<div class="muted">No characters yet. Start rolling.</div>';
