@@ -1415,6 +1415,60 @@
     50%{ opacity:.76; }
   }
 
+
+  .shop-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+    gap:12px;
+  }
+  .potion-card{
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:16px;
+    padding:14px;
+    background:
+      radial-gradient(180px 110px at 18% 0%, color-mix(in srgb, var(--potionColor, #82fff6) 18%, transparent), transparent 68%),
+      linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.025));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+    display:grid;
+    gap:8px;
+  }
+  .potion-bottle{
+    width:42px;
+    height:52px;
+    border-radius:18px 18px 12px 12px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.55), transparent 18%),
+      linear-gradient(180deg, color-mix(in srgb, var(--potionColor, #82fff6) 85%, white), var(--potionColor, #82fff6));
+    box-shadow:0 0 22px color-mix(in srgb, var(--potionColor, #82fff6) 52%, transparent), inset 0 0 0 3px rgba(255,255,255,.16);
+    position:relative;
+  }
+  .potion-bottle::before{
+    content:'';
+    position:absolute;
+    left:12px;
+    top:-10px;
+    width:18px;
+    height:14px;
+    border-radius:6px 6px 2px 2px;
+    background:#d8c08d;
+    box-shadow:inset 0 2px 0 rgba(255,255,255,.28);
+  }
+  .potion-head{
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+  .potion-effect{
+    min-height:38px;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.35;
+  }
+  .shop-timer{
+    font-weight:800;
+    color:var(--gold);
+  }
+
   .modal{
     position:fixed;
     inset:0;
@@ -1517,6 +1571,7 @@
   <button class="tab active" data-view="mine">Mine</button>
   <button class="tab" data-view="collection">Collection</button>
   <button class="tab" data-view="research">Research</button>
+  <button class="tab" data-view="shop">Potion Shop</button>
   <button class="tab" data-view="fusion">Fusion</button>
   <button class="tab" data-view="events">Events</button>
   <button class="tab" data-view="leaderboard">Leaderboard</button>
@@ -1622,6 +1677,18 @@
       <h2>Research Lab</h2>
       <div class="muted" style="margin-bottom:14px;">Earn RP from milestones, rare character rolls, events, and rebirths. Spend it on permanent run upgrades.</div>
       <div id="researchGrid" class="grid2"></div>
+    </div>
+  </section>
+
+  <section id="shopView" class="view">
+    <div class="panel">
+      <h2>Potions Shop</h2>
+      <div class="muted" style="margin-bottom:14px;">
+        The shop randomly restocks every <strong>3 minutes</strong>. Potions are bought and used instantly.
+        <span class="shop-timer" id="shopTimer">Restocking...</span>
+      </div>
+      <div id="potionStatus" class="mini" style="margin-bottom:14px;"></div>
+      <div id="shopList" class="shop-grid"></div>
     </div>
   </section>
 
@@ -2064,6 +2131,17 @@ const EVENT_TYPES = {
   deep:{ name:'Dragon Rift', cost:15000, duration:80, desc:'Epic+ character odds improve and fusion energy fills faster.', apply:'deep' }
 };
 
+const SHOP_RESTOCK_MS = 180000;
+const POTIONS = {
+  spark_tea:{ name:'Spark Tea', color:'#76f4ff', cost:350, desc:'+20 luck for the next 20 rolls.', weight:30, apply(){ state.potionLuckRolls += 20; state.potionLuckBonus += 20; } },
+  destiny_draught:{ name:'Destiny Draught', color:'#b986ff', cost:1600, desc:'+55 luck for the next 30 rolls.', weight:18, apply(){ state.potionLuckRolls += 30; state.potionLuckBonus += 55; } },
+  golden_income:{ name:'Golden Income Brew', color:'#ffd56a', cost:2200, desc:'2x income for 2 minutes.', weight:20, apply(){ state.incomePotionEnds = Math.max(Date.now(), state.incomePotionEnds || 0) + 120000; } },
+  pity_crystal:{ name:'Pity Crystal Potion', color:'#ff89d6', cost:2600, desc:'Instantly fills your pity to the current cap.', weight:16, apply(){ state.pity = getPityCap(); } },
+  dragon_surge:{ name:'Dragon Surge Elixir', color:'#ff8a2f', cost:9500, desc:'Legendary, Mythic, and Relic odds massively improve for the next 8 rolls.', weight:10, apply(){ state.mythicSurgeRolls += 8; } },
+  relic_elixir:{ name:'Ultimate Relic Elixir', color:'#fff0ab', cost:50000, desc:'The best potion: your next roll has a 100% chance to pull an eligible Relic character.', weight:2, apply(){ state.guaranteedRelicRolls += 1; } }
+};
+
+
 const state = freshState();
 let lastTick = performance.now();
 let autoTimer = null;
@@ -2082,7 +2160,7 @@ const refs = {
   mainGem:el('mainGem'), lastOreName:el('lastOreName'), lastOreMeta:el('lastOreMeta'), lastOreIncome:el('lastOreIncome'),
   goalTitle:el('goalTitle'), goalText:el('goalText'), goalBar:el('goalBar'), rollsPill:el('rollsPill'), findRatePill:el('findRatePill'),
   fusionPill:el('fusionPill'), rebirthCostPill:el('rebirthCostPill'), inventoryList:el('inventoryList'), milestoneList:el('milestoneList'),
-  collectionGrid:el('collectionGrid'), collectionPageInfo:el('collectionPageInfo'), collectionShelfInfo:el('collectionShelfInfo'), collectionPrevBtn:el('collectionPrevBtn'), collectionNextBtn:el('collectionNextBtn'), accountSelect:el('accountSelect'), newAccountName:el('newAccountName'), createAccountBtn:el('createAccountBtn'), deleteAccountBtn:el('deleteAccountBtn'), accountStatus:el('accountStatus'), researchGrid:el('researchGrid'), fusionList:el('fusionList'), log:el('log'), toastWrap:el('toastWrap'),
+  collectionGrid:el('collectionGrid'), collectionPageInfo:el('collectionPageInfo'), collectionShelfInfo:el('collectionShelfInfo'), collectionPrevBtn:el('collectionPrevBtn'), collectionNextBtn:el('collectionNextBtn'), accountSelect:el('accountSelect'), newAccountName:el('newAccountName'), createAccountBtn:el('createAccountBtn'), deleteAccountBtn:el('deleteAccountBtn'), accountStatus:el('accountStatus'), researchGrid:el('researchGrid'), shopList:el('shopList'), shopTimer:el('shopTimer'), potionStatus:el('potionStatus'), fusionList:el('fusionList'), log:el('log'), toastWrap:el('toastWrap'),
   eventDesc:el('eventDesc'), eventBar:el('eventBar'), leaderboardList:el('leaderboardList'), modal:el('modal'), modalTitle:el('modalTitle'), modalText:el('modalText'), summonFx:el('summonFx'), summonFxCard:el('summonFxCard'), summonFxSceneTitle:el('summonFxSceneTitle'), summonFxDialogue:el('summonFxDialogue'), summonFxCaption:el('summonFxCaption')
 };
 
@@ -2112,6 +2190,13 @@ function freshState(){
     focusEnds:0,
     lastFoundKey:null,
     collectionPage:0,
+    shopStock:[],
+    shopRestockAt:0,
+    potionLuckRolls:0,
+    potionLuckBonus:0,
+    mythicSurgeRolls:0,
+    guaranteedRelicRolls:0,
+    incomePotionEnds:0,
     lastSavedAt:Date.now()
   };
 }
@@ -2135,11 +2220,13 @@ function getPityCap(){ return PITY_CAP_BASE + state.research.pity * 4; }
 function getLuck(){
   let luck = state.research.luck * 2 + state.rebirths * 2;
   if (state.event && ['meteor','deep'].includes(state.event)) luck += state.event === 'meteor' ? 18 : 10;
+  if ((state.potionLuckRolls || 0) > 0) luck += state.potionLuckBonus || 0;
   return luck;
 }
 function getIncomeMult(){
   let mult = 1 + state.research.income * 0.12 + state.rebirths * 0.45;
   if (state.event === 'golden') mult *= 3;
+  if ((state.incomePotionEnds || 0) > Date.now()) mult *= 2;
   return mult;
 }
 function getAutoDelay(){
@@ -2173,10 +2260,16 @@ function effectiveOneIn(ore){
   }
   if (state.event === 'meteor' && rank >= rarityRank('Legendary')) eff *= .62;
   if (state.event === 'deep' && rank >= rarityRank('Epic')) eff *= .68;
+  if ((state.mythicSurgeRolls || 0) > 0 && rank >= rarityRank('Legendary')) eff *= rank >= rarityRank('Mythic') ? .28 : .48;
   if (state.focus === ore.key && Date.now() < state.focusEnds) eff *= .5;
   return Math.max(1, Math.floor(eff));
 }
 function rollRNG(){
+  if ((state.guaranteedRelicRolls || 0) > 0){
+    state.guaranteedRelicRolls--;
+    const relics = ORES.filter(o=>o.rarity === 'Relic' && (!o.requiresAllOthers || hasRolledAllOtherCharacters()));
+    if (relics.length) return relics[Math.floor(Math.random() * relics.length)];
+  }
   for (const ore of ORES){
     if (ore.requiresAllOthers && !hasRolledAllOtherCharacters()) continue;
     if (Math.floor(Math.random() * effectiveOneIn(ore)) === 0) return ore;
@@ -2447,6 +2540,8 @@ function loadAccountState(showOffline=true){
     state.rolledCharacters = data.rolledCharacters || {};
     state.milestones = data.milestones || {};
     state.research = { ...freshState().research, ...(data.research || {}) };
+    sanitizeState();
+    restockShop(false);
     if (showOffline){
       const awayMs = Math.max(0, Date.now() - (data.lastSavedAt || Date.now()));
       const awayHours = Math.min(getOfflineCapHours(), awayMs / 3600000);
@@ -2606,7 +2701,7 @@ function doRoll(options={}){
     if (state.event === 'meteor' && found.rarity === 'Relic' && !state.eventRelicReward){
       state.eventRelicReward = true;
       state.rp += 10;
-      toast('Meteor reward', '+5 RP for finding a Relic during Meteor Shower.');
+      toast('Meteor reward', '+10 RP for finding a Relic during Meteor Shower.');
     }
     if (state.autoEnabled && state.autoPauseRare && rank >= rarityRank('Epic')){
       stopAuto();
@@ -2616,6 +2711,11 @@ function doRoll(options={}){
     state.pity = Math.min(getPityCap(), state.pity + PITY_GAIN + state.research.pity * .1);
     if (!quiet) addLog('No character found. Pity increased.', '');
   }
+  if ((state.potionLuckRolls || 0) > 0){
+    state.potionLuckRolls--;
+    if (state.potionLuckRolls <= 0) state.potionLuckBonus = 0;
+  }
+  if ((state.mythicSurgeRolls || 0) > 0) state.mythicSurgeRolls--;
   checkMilestones();
   renderAll();
   return true;
@@ -2679,6 +2779,69 @@ function buyResearch(key){
   toast('Research upgraded', `${r.name} is now Lv.${level + 1}.`);
   renderAll();
 }
+
+function weightedPotionPick(pool){
+  const total = pool.reduce((s,k)=>s + POTIONS[k].weight, 0);
+  let roll = Math.random() * total;
+  for (const key of pool){
+    roll -= POTIONS[key].weight;
+    if (roll <= 0) return key;
+  }
+  return pool[pool.length - 1];
+}
+function restockShop(force=false){
+  const now = Date.now();
+  if (!force && state.shopStock && state.shopStock.length && now < (state.shopRestockAt || 0)) return;
+  const keys = Object.keys(POTIONS);
+  const stock = [];
+  const pool = [...keys];
+  while (stock.length < 4 && pool.length){
+    const pick = weightedPotionPick(pool);
+    stock.push(pick);
+    pool.splice(pool.indexOf(pick), 1);
+  }
+  // Tiny chance for a fifth premium slot, otherwise the Relic Elixir still appears rarely through the weighted stock.
+  if (!stock.includes('relic_elixir') && Math.random() < 0.12) stock[Math.floor(Math.random()*stock.length)] = 'relic_elixir';
+  state.shopStock = stock;
+  state.shopRestockAt = now + SHOP_RESTOCK_MS;
+}
+function buyPotion(key){
+  restockShop(false);
+  const potion = POTIONS[key];
+  if (!potion || !state.shopStock.includes(key)) return toast('Not in stock', 'Wait for the next random restock.');
+  if (state.money < potion.cost) return toast('Need more money', `${potion.name} costs ${fmtMoney(potion.cost)}.`);
+  state.money -= potion.cost;
+  potion.apply();
+  state.shopStock = state.shopStock.filter(k=>k !== key);
+  toast('Potion used', potion.name);
+  addLog(`${potion.name} activated.`, 'good');
+  renderAll();
+}
+function renderShop(){
+  if (!refs.shopList) return;
+  restockShop(false);
+  const left = Math.max(0, (state.shopRestockAt || 0) - Date.now());
+  refs.shopTimer.textContent = `Next restock in ${Math.ceil(left/1000)}s`;
+  const active = [];
+  if ((state.potionLuckRolls || 0) > 0) active.push(`Luck +${state.potionLuckBonus || 0} for ${state.potionLuckRolls} rolls`);
+  if ((state.mythicSurgeRolls || 0) > 0) active.push(`Dragon Surge for ${state.mythicSurgeRolls} rolls`);
+  if ((state.guaranteedRelicRolls || 0) > 0) active.push(`${state.guaranteedRelicRolls} guaranteed Relic roll${state.guaranteedRelicRolls === 1 ? '' : 's'}`);
+  if ((state.incomePotionEnds || 0) > Date.now()) active.push(`2x income for ${Math.ceil((state.incomePotionEnds - Date.now())/1000)}s`);
+  refs.potionStatus.innerHTML = `<strong>Active Potions</strong><div class="muted">${active.length ? active.join(' • ') : 'No potions active.'}</div>`;
+  refs.shopList.innerHTML = (state.shopStock || []).map(key=>{
+    const p = POTIONS[key];
+    return `<div class="potion-card" style="--potionColor:${p.color}">
+      <div class="potion-head">
+        <div class="potion-bottle"></div>
+        <div><strong>${p.name}</strong><div class="muted">${fmtMoney(p.cost)}</div></div>
+      </div>
+      <div class="potion-effect">${p.desc}</div>
+      <button data-buy-potion="${key}" ${state.money < p.cost ? 'disabled' : ''}>Buy & Use</button>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('[data-buy-potion]').forEach(b=>b.onclick=()=>buyPotion(b.dataset.buyPotion));
+}
+
 function fuse(type){
   if (type === 'common'){
     const commons = ORES.filter(o=>o.rarity === 'Common');
@@ -2687,12 +2850,40 @@ function fuse(type){
     awardRandom('Rare');
     state.fusionEnergy = Math.min(100, state.fusionEnergy + 10 + state.research.fusion);
   }
+  if (type === 'uncommon'){
+    const list = ORES.filter(o=>o.rarity === 'Uncommon');
+    if (sumOres(list) < 45) return toast('Not enough copies', 'Need 45 Uncommon character copies.');
+    consumeOres(list, 45);
+    awardRandom('Epic');
+    state.fusionEnergy = Math.min(100, state.fusionEnergy + 14 + state.research.fusion);
+  }
+  if (type === 'rare'){
+    const list = ORES.filter(o=>o.rarity === 'Rare');
+    if (sumOres(list) < 22) return toast('Not enough copies', 'Need 22 Rare character copies.');
+    consumeOres(list, 22);
+    awardRandom('Epic');
+    state.fusionEnergy = Math.min(100, state.fusionEnergy + 16 + state.research.fusion);
+  }
   if (type === 'epic'){
     const epics = ORES.filter(o=>o.rarity === 'Epic');
     if (sumOres(epics) < 10) return toast('Not enough copies', 'Need 10 Epic character copies.');
     consumeOres(epics, 10);
     awardRandom('Legendary');
     state.fusionEnergy = Math.min(100, state.fusionEnergy + 18 + state.research.fusion);
+  }
+  if (type === 'legendary'){
+    const list = ORES.filter(o=>o.rarity === 'Legendary');
+    if (sumOres(list) < 6 || state.fusionEnergy < 50) return toast('Forge not ready', 'Need 6 Legendary copies and 50 fusion energy.');
+    consumeOres(list, 6);
+    state.fusionEnergy -= 50;
+    awardRandom('Mythic');
+  }
+  if (type === 'mythic'){
+    const list = ORES.filter(o=>o.rarity === 'Mythic');
+    if (sumOres(list) < 3 || state.fusionEnergy < 100) return toast('Forge not ready', 'Need 3 Mythic copies and 100 fusion energy.');
+    consumeOres(list, 3);
+    state.fusionEnergy = 0;
+    awardRandom('Relic');
   }
   if (type === 'core'){
     const relics = ORES.filter(o=>o.rarity === 'Relic');
@@ -2702,6 +2893,24 @@ function fuse(type){
     state.rp += 20 + state.research.fusion * 2;
     state.rbp += 1;
     toast('Relic Core forged', '+1 RBP and bonus RP.');
+  }
+  if (type === 'luck'){
+    const rarePlus = ORES.filter(o=>rarityRank(o.rarity) >= rarityRank('Rare'));
+    if (sumOres(rarePlus) < 25) return toast('Not enough copies', 'Need 25 Rare+ duplicate copies.');
+    consumeOres(rarePlus, 25);
+    state.potionLuckRolls += 35;
+    state.potionLuckBonus += 35;
+    toast('Fusion Potion made', '+35 luck for 35 rolls.');
+  }
+  if (type === 'relicpotion'){
+    const mythics = ORES.filter(o=>o.rarity === 'Mythic');
+    const legends = ORES.filter(o=>o.rarity === 'Legendary');
+    if (sumOres(mythics) < 2 || sumOres(legends) < 5 || state.fusionEnergy < 100) return toast('Forge not ready', 'Need 2 Mythic copies, 5 Legendary copies, and 100 energy.');
+    consumeOres(mythics, 2);
+    consumeOres(legends, 5);
+    state.fusionEnergy = 0;
+    state.guaranteedRelicRolls += 1;
+    toast('Relic Elixir forged', 'Your next roll is guaranteed Relic.');
   }
   checkMilestones();
   renderAll();
@@ -2882,6 +3091,7 @@ function renderAll(){
   renderCollection();
   renderResearch();
   renderFusion();
+  renderShop();
   renderEvents();
   renderLeaderboard();
 }
@@ -2971,12 +3181,23 @@ function renderResearch(){
 }
 function renderFusion(){
   const commonCount = sumOres(ORES.filter(o=>o.rarity === 'Common'));
+  const uncommonCount = sumOres(ORES.filter(o=>o.rarity === 'Uncommon'));
+  const rareCount = sumOres(ORES.filter(o=>o.rarity === 'Rare'));
   const epicCount = sumOres(ORES.filter(o=>o.rarity === 'Epic'));
+  const legendaryCount = sumOres(ORES.filter(o=>o.rarity === 'Legendary'));
+  const mythicCount = sumOres(ORES.filter(o=>o.rarity === 'Mythic'));
   const relicCount = sumOres(ORES.filter(o=>o.rarity === 'Relic'));
+  const rarePlusCount = sumOres(ORES.filter(o=>rarityRank(o.rarity) >= rarityRank('Rare')));
   refs.fusionList.innerHTML = `
-    <div class="row two"><div><strong>Common Bundle</strong><div class="muted">${commonCount}/35 Common character copies. Creates a random Rare character.</div></div><button data-fuse="common" ${commonCount < 35 ? 'disabled' : ''}>Fuse</button></div>
-    <div class="row two"><div><strong>Epic Forge</strong><div class="muted">${epicCount}/10 Epic character copies. Creates a random Legendary character.</div></div><button data-fuse="epic" ${epicCount < 10 ? 'disabled' : ''}>Fuse</button></div>
-    <div class="row two"><div><strong>Relic Core</strong><div class="muted">${relicCount}/4 Relic character copies and ${Math.floor(state.fusionEnergy)}/100 energy. Gives +1 RBP and bonus RP.</div></div><button data-fuse="core" ${relicCount < 4 || state.fusionEnergy < 100 ? 'disabled' : ''}>Forge</button></div>
+    <div class="row two"><div><strong>Common Bundle</strong><div class="muted">${commonCount}/35 Common copies → random Rare.</div></div><button data-fuse="common" ${commonCount < 35 ? 'disabled' : ''}>Fuse</button></div>
+    <div class="row two"><div><strong>Uncommon Upgrade</strong><div class="muted">${uncommonCount}/45 Uncommon copies → random Epic.</div></div><button data-fuse="uncommon" ${uncommonCount < 45 ? 'disabled' : ''}>Fuse</button></div>
+    <div class="row two"><div><strong>Rare Crystal Forge</strong><div class="muted">${rareCount}/22 Rare copies → random Epic.</div></div><button data-fuse="rare" ${rareCount < 22 ? 'disabled' : ''}>Fuse</button></div>
+    <div class="row two"><div><strong>Epic Forge</strong><div class="muted">${epicCount}/10 Epic copies → random Legendary.</div></div><button data-fuse="epic" ${epicCount < 10 ? 'disabled' : ''}>Fuse</button></div>
+    <div class="row two"><div><strong>Legendary Ascension</strong><div class="muted">${legendaryCount}/6 Legendary copies + ${Math.floor(state.fusionEnergy)}/50 energy → random Mythic.</div></div><button data-fuse="legendary" ${legendaryCount < 6 || state.fusionEnergy < 50 ? 'disabled' : ''}>Fuse</button></div>
+    <div class="row two"><div><strong>Mythic Relic Gate</strong><div class="muted">${mythicCount}/3 Mythic copies + ${Math.floor(state.fusionEnergy)}/100 energy → random Relic.</div></div><button data-fuse="mythic" ${mythicCount < 3 || state.fusionEnergy < 100 ? 'disabled' : ''}>Fuse</button></div>
+    <div class="row two"><div><strong>Relic Core</strong><div class="muted">${relicCount}/4 Relic copies + ${Math.floor(state.fusionEnergy)}/100 energy → +1 RBP and bonus RP.</div></div><button data-fuse="core" ${relicCount < 4 || state.fusionEnergy < 100 ? 'disabled' : ''}>Forge</button></div>
+    <div class="row two"><div><strong>Lucky Fusion Potion</strong><div class="muted">${rarePlusCount}/25 Rare+ copies → +35 luck for 35 rolls.</div></div><button data-fuse="luck" ${rarePlusCount < 25 ? 'disabled' : ''}>Brew</button></div>
+    <div class="row two"><div><strong>Craft Ultimate Relic Elixir</strong><div class="muted">${mythicCount}/2 Mythic, ${legendaryCount}/5 Legendary, and ${Math.floor(state.fusionEnergy)}/100 energy → guaranteed Relic next roll.</div></div><button data-fuse="relicpotion" ${mythicCount < 2 || legendaryCount < 5 || state.fusionEnergy < 100 ? 'disabled' : ''}>Brew</button></div>
   `;
   document.querySelectorAll('[data-fuse]').forEach(b=>b.onclick=()=>fuse(b.dataset.fuse));
 }
@@ -3012,6 +3233,7 @@ function tick(now){
   const dt = Math.max(0, (now - lastTick) / 1000);
   lastTick = now;
   if (state.event && Date.now() >= state.eventEnds) endEvent();
+  if (state.shopRestockAt && Date.now() >= state.shopRestockAt) restockShop(true);
   if (state.focus && Date.now() >= state.focusEnds){
     state.focus = null;
     state.focusEnds = 0;
@@ -3045,6 +3267,8 @@ function loadGame(){
   migrateOldSaveToDefault();
   updateAccountUI();
   loadAccountState(true);
+  sanitizeState();
+  restockShop(false);
 }
 function sanitizeState(){
   if (!Number.isFinite(state.money)) state.money = 10;
@@ -3052,6 +3276,13 @@ function sanitizeState(){
   if (!Number.isFinite(state.rp)) state.rp = 0;
   if (!Number.isFinite(state.rbp)) state.rbp = 0;
   if (!Number.isFinite(state.rebirths)) state.rebirths = 0;
+  if (!Array.isArray(state.shopStock)) state.shopStock = [];
+  if (!Number.isFinite(state.shopRestockAt)) state.shopRestockAt = 0;
+  if (!Number.isFinite(state.potionLuckRolls)) state.potionLuckRolls = 0;
+  if (!Number.isFinite(state.potionLuckBonus)) state.potionLuckBonus = 0;
+  if (!Number.isFinite(state.mythicSurgeRolls)) state.mythicSurgeRolls = 0;
+  if (!Number.isFinite(state.guaranteedRelicRolls)) state.guaranteedRelicRolls = 0;
+  if (!Number.isFinite(state.incomePotionEnds)) state.incomePotionEnds = 0;
   if (state.money < ROLL_COST && computeMPS() <= 0){
     state.money = 10;
   }
