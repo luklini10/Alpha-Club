@@ -911,6 +911,20 @@
     letter-spacing:.08em;
     color:rgba(255,255,255,.88);
   }
+  .summon-fx__omen{
+    font-size:clamp(16px, 2vw, 28px);
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    font-weight:900;
+    color:rgba(255,255,255,.9);
+    text-shadow:0 0 22px color-mix(in srgb, var(--fxAccent) 68%, transparent);
+  }
+  .summon-fx__flavor{
+    font-size:clamp(14px, 1.45vw, 18px);
+    max-width:min(80vw, 900px);
+    color:rgba(255,255,255,.82);
+    letter-spacing:.06em;
+  }
   .summon-fx__figure{
     transform:scale(1.24);
     margin:8px 0 16px;
@@ -930,6 +944,91 @@
   .summon-fx.rarity-relic .summon-fx__figure{ animation:fxFloat 1.4s ease-in-out infinite; }
   .summon-fx.rarity-mythic .summon-fx__rays{ filter:blur(1px) drop-shadow(0 0 28px color-mix(in srgb, var(--fxColor) 82%, transparent)); }
   .summon-fx.rarity-relic .summon-fx__rays{ filter:blur(0px) drop-shadow(0 0 34px color-mix(in srgb, var(--fxColor) 95%, transparent)); }
+
+  .summon-fx.style-fire{ background:#130505; }
+  .summon-fx.style-fire::before{ background:radial-gradient(circle at 50% 50%, rgba(255,129,68,.28) 0%, transparent 30%), linear-gradient(180deg, rgba(26,5,4,.88), rgba(10,2,2,.96)); }
+  .summon-fx.style-fire .summon-fx__storm{ background:repeating-conic-gradient(from 0deg, rgba(255,115,54,.38) 0 7deg, transparent 7deg 16deg), radial-gradient(circle at 50% 50%, rgba(255,204,84,.2) 0 10%, transparent 24% 100%); }
+  .summon-fx.style-fire.active .summon-fx__storm{ animation:fxSurge var(--fxDuration) ease-out forwards; }
+  .summon-fx.style-fire.active .summon-fx__burst{ animation:fxBurstFire var(--fxDuration) ease-out forwards; }
+
+  .summon-fx.style-lightning{ background:#030813; }
+  .summon-fx.style-lightning::before{ background:radial-gradient(circle at 50% 50%, rgba(129,205,255,.22) 0%, transparent 32%), linear-gradient(180deg, rgba(3,8,19,.9), rgba(2,4,10,.98)); }
+  .summon-fx.style-lightning .summon-fx__storm{ background:linear-gradient(125deg, transparent 0 42%, rgba(255,255,255,.88) 46% 48%, transparent 52% 100%), linear-gradient(55deg, transparent 0 54%, rgba(128,196,255,.65) 56% 58%, transparent 62% 100%), repeating-conic-gradient(from 0deg, rgba(116,190,255,.28) 0 6deg, transparent 6deg 16deg); }
+  .summon-fx.style-lightning.active .summon-fx__storm{ animation:fxBoltStorm var(--fxDuration) ease-out forwards; }
+  .summon-fx.style-lightning.active .summon-fx__burst{ animation:fxBurstBolt var(--fxDuration) ease-out forwards; }
+
+  .summon-fx.style-earth{ background:#110a05; }
+  .summon-fx.style-earth::before{ background:radial-gradient(circle at 50% 70%, rgba(193,137,64,.22) 0%, transparent 28%), linear-gradient(180deg, rgba(24,15,8,.92), rgba(10,7,4,.98)); }
+  .summon-fx.style-earth .summon-fx__rings{ background:radial-gradient(circle at 50% 50%, transparent 0 18%, rgba(216,160,89,.72) 18.5% 20%, transparent 21% 32%, rgba(126,92,54,.58) 32.5% 34%, transparent 35% 100%); }
+  .summon-fx.style-earth.active .summon-fx__rings{ animation:fxTectonic var(--fxDuration) ease-out forwards; }
+  .summon-fx.style-earth.active .summon-fx__card{ animation:fxCard var(--fxDuration) ease-out forwards, fxHeavyShake calc(var(--fxDuration) * .35) ease-out 1; }
+
+  .summon-fx.style-ice{ background:#051016; }
+  .summon-fx.style-ice::before{ background:radial-gradient(circle at 50% 45%, rgba(165,243,255,.18) 0%, transparent 32%), linear-gradient(180deg, rgba(4,14,20,.9), rgba(2,8,12,.98)); }
+  .summon-fx.style-ice .summon-fx__sigils{ background:repeating-conic-gradient(from 0deg, transparent 0 16deg, rgba(232,255,255,.66) 16deg 18deg, transparent 18deg 30deg), radial-gradient(circle at 50% 50%, transparent 0 24%, rgba(184,250,255,.42) 24.5% 25.5%, transparent 26% 100%); }
+  .summon-fx.style-ice.active .summon-fx__sigils{ animation:fxCrystal var(--fxDuration) ease-out forwards; }
+
+  .summon-fx.style-water{ background:#031018; }
+  .summon-fx.style-water::before{ background:radial-gradient(circle at 50% 60%, rgba(73,221,255,.16) 0%, transparent 32%), linear-gradient(180deg, rgba(3,16,24,.92), rgba(1,7,11,.98)); }
+  .summon-fx.style-water .summon-fx__rings{ background:radial-gradient(circle at 50% 50%, transparent 0 18%, rgba(122,235,255,.78) 18.5% 19.5%, transparent 20% 30%, rgba(66,182,219,.45) 30.5% 31.5%, transparent 32% 42%, rgba(170,245,255,.24) 42.5% 43.5%, transparent 44% 100%); }
+  .summon-fx.style-water.active .summon-fx__rings{ animation:fxWave var(--fxDuration) ease-out forwards; }
+
+  .summon-fx.style-wind{ background:#04110b; }
+  .summon-fx.style-wind::before{ background:radial-gradient(circle at 50% 50%, rgba(122,255,196,.18) 0%, transparent 30%), linear-gradient(180deg, rgba(3,16,12,.92), rgba(1,8,5,.98)); }
+  .summon-fx.style-wind .summon-fx__sigils{ background:repeating-conic-gradient(from 0deg, transparent 0 11deg, rgba(188,255,222,.56) 11deg 14deg, transparent 14deg 26deg), radial-gradient(circle at 50% 50%, transparent 0 20%, rgba(85,229,172,.24) 20.5% 26%, transparent 32% 100%); }
+  .summon-fx.style-wind.active .summon-fx__sigils{ animation:fxCyclone var(--fxDuration) ease-out forwards; }
+
+  .summon-fx.style-tech{ background:#070711; }
+  .summon-fx.style-tech::before{ background:linear-gradient(180deg, rgba(7,7,17,.88), rgba(4,4,12,.98)), linear-gradient(90deg, rgba(255,102,204,.08), rgba(87,238,255,.08)); }
+  .summon-fx.style-tech .summon-fx__storm{ background:repeating-linear-gradient(90deg, rgba(255,255,255,.0) 0 18px, rgba(93,240,255,.22) 18px 20px, rgba(255,255,255,0) 20px 38px), repeating-linear-gradient(0deg, rgba(255,255,255,.0) 0 18px, rgba(255,115,198,.18) 18px 20px, rgba(255,255,255,0) 20px 38px); }
+  .summon-fx.style-tech.active .summon-fx__storm{ animation:fxGlitchLayer var(--fxDuration) linear forwards; }
+  .summon-fx.style-tech.active .summon-fx__card{ animation:fxCard var(--fxDuration) ease-out forwards, fxDataGlitch calc(var(--fxDuration) * .6) steps(2,end) 1; }
+
+  .summon-fx.style-time{ background:#0f0506; }
+  .summon-fx.style-time::before{ background:radial-gradient(circle at 38% 50%, rgba(91,194,244,.17) 0%, transparent 22%), radial-gradient(circle at 62% 50%, rgba(197,47,47,.17) 0%, transparent 22%), linear-gradient(180deg, rgba(13,5,7,.92), rgba(6,2,3,.98)); }
+  .summon-fx.style-time .summon-fx__rings{ background:radial-gradient(circle at 50% 50%, transparent 0 14%, rgba(255,255,255,.68) 14.5% 15.5%, transparent 16% 24%, rgba(92,194,244,.5) 24.5% 25.5%, transparent 26% 36%, rgba(197,47,47,.45) 36.5% 37.5%, transparent 38% 100%), repeating-conic-gradient(from 0deg, transparent 0 12deg, rgba(255,255,255,.35) 12deg 13deg, transparent 13deg 24deg); }
+  .summon-fx.style-time.active .summon-fx__rings{ animation:fxClock var(--fxDuration) ease-out forwards; }
+
+  .summon-fx.style-shadow{ background:#07050d; }
+  .summon-fx.style-shadow::before{ background:radial-gradient(circle at 50% 50%, rgba(155,92,255,.18) 0%, transparent 30%), linear-gradient(180deg, rgba(8,5,13,.94), rgba(3,2,7,.99)); }
+  .summon-fx.style-shadow .summon-fx__storm{ background:radial-gradient(circle at 50% 50%, rgba(116,57,170,.22) 0 16%, transparent 28% 100%), repeating-conic-gradient(from 0deg, rgba(129,83,193,.24) 0 8deg, transparent 8deg 20deg); filter:blur(6px) drop-shadow(0 0 26px rgba(121,71,204,.35)); }
+  .summon-fx.style-shadow.active .summon-fx__storm{ animation:fxAbyss var(--fxDuration) ease-out forwards; }
+
+  .summon-fx.style-royal{ background:#071109; }
+  .summon-fx.style-royal::before{ background:radial-gradient(circle at 50% 48%, rgba(122,210,92,.16) 0%, transparent 28%), linear-gradient(180deg, rgba(5,15,9,.92), rgba(2,7,4,.98)); }
+  .summon-fx.style-royal .summon-fx__sigils{ background:repeating-conic-gradient(from 0deg, transparent 0 18deg, rgba(195,255,172,.38) 18deg 20deg, transparent 20deg 36deg), radial-gradient(circle at 40% 40%, rgba(255,255,255,.22) 0 2%, transparent 3% 100%), radial-gradient(circle at 60% 60%, rgba(255,255,255,.14) 0 2%, transparent 3% 100%); }
+  .summon-fx.style-royal.active .summon-fx__sigils{ animation:fxBloom var(--fxDuration) ease-out forwards; }
+
+  .summon-fx.style-snake{ background:#071004; }
+  .summon-fx.style-snake::before{ background:radial-gradient(circle at 50% 50%, rgba(175,255,83,.18) 0%, transparent 28%), linear-gradient(180deg, rgba(7,16,4,.92), rgba(3,8,2,.98)); }
+  .summon-fx.style-snake .summon-fx__rays{ background:repeating-conic-gradient(from 0deg, rgba(193,255,103,.38) 0 7deg, transparent 7deg 13deg, rgba(132,183,64,.18) 13deg 18deg, transparent 18deg 24deg); }
+  .summon-fx.style-snake.active .summon-fx__rays{ animation:fxCoil var(--fxDuration) ease-out forwards; }
+
+  .summon-fx.style-steel{ background:#090c10; }
+  .summon-fx.style-steel::before{ background:radial-gradient(circle at 50% 50%, rgba(192,209,230,.16) 0%, transparent 28%), linear-gradient(180deg, rgba(9,12,16,.92), rgba(4,6,9,.98)); }
+  .summon-fx.style-steel .summon-fx__storm{ background:repeating-linear-gradient(125deg, rgba(255,255,255,0) 0 18px, rgba(224,238,255,.22) 18px 20px, rgba(255,255,255,0) 20px 38px), radial-gradient(circle at 50% 50%, rgba(170,192,214,.12) 0 24%, transparent 34% 100%); }
+  .summon-fx.style-steel.active .summon-fx__storm{ animation:fxForge var(--fxDuration) ease-out forwards; }
+
+  .summon-fx.style-dragon{ background:#0d0804; }
+  .summon-fx.style-dragon::before{ background:radial-gradient(circle at 50% 50%, rgba(255,188,91,.18) 0%, transparent 28%), radial-gradient(circle at 50% 50%, rgba(126,255,193,.10) 0%, transparent 48%), linear-gradient(180deg, rgba(13,8,4,.92), rgba(6,4,2,.98)); }
+  .summon-fx.style-dragon .summon-fx__rays{ background:repeating-conic-gradient(from 0deg, rgba(255,255,255,.22) 0 2deg, transparent 2deg 10deg, color-mix(in srgb, var(--fxColor) 48%, transparent) 10deg 14deg, transparent 14deg 24deg), radial-gradient(circle at 50% 50%, transparent 0 20%, rgba(255,231,179,.12) 21% 22%, transparent 23% 100%); }
+  .summon-fx.style-dragon.active .summon-fx__rays{ animation:fxDragon var(--fxDuration) ease-out forwards; }
+
+  .summon-fx.style-golden{ background:#100d04; }
+  .summon-fx.style-golden::before{ background:radial-gradient(circle at 50% 48%, rgba(255,232,123,.22) 0%, transparent 28%), linear-gradient(180deg, rgba(16,13,4,.9), rgba(8,6,2,.98)); }
+  .summon-fx.style-golden .summon-fx__rings{ background:radial-gradient(circle at 50% 50%, transparent 0 14%, rgba(255,255,255,.78) 14.5% 15.5%, transparent 16% 26%, rgba(255,225,106,.66) 26.5% 27.5%, transparent 28% 38%, rgba(255,255,255,.24) 38.5% 39.5%, transparent 40% 100%); }
+  .summon-fx.style-golden.active .summon-fx__rings{ animation:fxSolar var(--fxDuration) ease-out forwards; }
+
+  .summon-fx.style-master{ background:#0a0906; }
+  .summon-fx.style-master::before{ background:radial-gradient(circle at 50% 48%, rgba(255,241,196,.18) 0%, transparent 28%), linear-gradient(180deg, rgba(10,9,6,.92), rgba(4,4,3,.98)); }
+  .summon-fx.style-master .summon-fx__sigils{ background:repeating-conic-gradient(from 0deg, transparent 0 14deg, rgba(255,249,224,.46) 14deg 16deg, transparent 16deg 28deg), radial-gradient(circle at 50% 50%, transparent 0 18%, rgba(255,225,156,.24) 18.5% 24%, transparent 29% 100%); }
+  .summon-fx.style-master.active .summon-fx__sigils{ animation:fxSolar var(--fxDuration) ease-out forwards; }
+
+  .summon-fx.style-oni{ background:#0b050f; }
+  .summon-fx.style-oni::before{ background:radial-gradient(circle at 50% 50%, rgba(176,118,255,.18) 0%, transparent 28%), linear-gradient(180deg, rgba(11,5,15,.94), rgba(5,2,8,.99)); }
+  .summon-fx.style-oni .summon-fx__storm{ background:radial-gradient(circle at 50% 50%, rgba(123,71,182,.18) 0 16%, transparent 28% 100%), repeating-conic-gradient(from 0deg, rgba(200,106,255,.22) 0 6deg, transparent 6deg 14deg), linear-gradient(125deg, transparent 0 44%, rgba(255,255,255,.18) 48% 49%, transparent 53% 100%); }
+  .summon-fx.style-oni.active .summon-fx__storm{ animation:fxRift var(--fxDuration) ease-out forwards; }
+
   .summon-fx.ultimate-master{
     --fxDuration:15000ms;
     background:#020207;
@@ -1040,6 +1139,25 @@
   @keyframes fxBurst{ 0%,16%,100%{ opacity:0; transform:scale(.2); } 20%{ opacity:1; transform:scale(1); } 38%{ opacity:.22; transform:scale(1.7); } 100%{ opacity:0; transform:scale(2.1); } }
   @keyframes fxCard{ 0%{ opacity:0; transform:translateY(26px) scale(.86); } 18%{ opacity:1; transform:translateY(0) scale(1); } 85%{ opacity:1; } 100%{ opacity:0; transform:translateY(-14px) scale(1.03); } }
   @keyframes fxFloat{ 0%,100%{ transform:scale(1.24) translateY(0); } 50%{ transform:scale(1.28) translateY(-10px); } }
+  @keyframes fxSurge{ 0%{ opacity:0; transform:scale(.3) rotate(0deg); } 22%{ opacity:.95; } 100%{ opacity:0; transform:scale(1.25) rotate(180deg); } }
+  @keyframes fxBurstFire{ 0%,14%,100%{ opacity:0; transform:scale(.2); } 18%{ opacity:1; transform:scale(1); } 26%{ opacity:.35; transform:scale(1.75); } 100%{ opacity:0; transform:scale(2.2); } }
+  @keyframes fxBoltStorm{ 0%{ opacity:0; transform:scale(.48); } 12%{ opacity:1; } 26%{ opacity:.35; } 36%{ opacity:1; } 100%{ opacity:0; transform:scale(1.28); } }
+  @keyframes fxBurstBolt{ 0%,8%,100%{ opacity:0; transform:scale(.2); } 10%{ opacity:1; transform:scale(.9); } 14%{ opacity:0; transform:scale(1.25); } 18%{ opacity:1; transform:scale(1.05); } 26%{ opacity:.2; transform:scale(1.7); } 100%{ opacity:0; transform:scale(2.05); } }
+  @keyframes fxTectonic{ 0%{ opacity:0; transform:scale(.25); } 18%{ opacity:1; transform:scale(.72); } 55%{ opacity:.95; transform:scale(1); } 100%{ opacity:0; transform:scale(1.24); } }
+  @keyframes fxHeavyShake{ 0%,100%{ transform:translate(0,0); } 16%{ transform:translate(-8px,2px); } 32%{ transform:translate(7px,-3px); } 48%{ transform:translate(-5px,1px); } 64%{ transform:translate(4px,-2px); } 80%{ transform:translate(-2px,1px); } }
+  @keyframes fxCrystal{ 0%{ opacity:0; transform:scale(.22) rotate(0deg); filter:blur(2px); } 24%{ opacity:1; transform:scale(.84) rotate(110deg); } 100%{ opacity:0; transform:scale(1.25) rotate(260deg); filter:blur(0); } }
+  @keyframes fxWave{ 0%{ opacity:0; transform:scale(.18); } 20%{ opacity:1; } 64%{ opacity:.95; } 100%{ opacity:0; transform:scale(1.32); } }
+  @keyframes fxCyclone{ 0%{ opacity:0; transform:scale(.16) rotate(0deg); } 20%{ opacity:.95; } 100%{ opacity:0; transform:scale(1.28) rotate(360deg); } }
+  @keyframes fxGlitchLayer{ 0%{ opacity:0; transform:scale(.8) translateX(0); } 10%{ opacity:.85; transform:scale(1) translateX(-18px); } 12%{ transform:scale(1) translateX(12px); } 18%{ transform:scale(1) translateX(-8px); } 100%{ opacity:0; transform:scale(1.1) translateX(0); } }
+  @keyframes fxDataGlitch{ 0%,100%{ transform:translateY(0) scale(1); filter:none; } 18%{ transform:translateX(-6px) translateY(2px) scale(1.02); filter:hue-rotate(15deg); } 19%{ transform:translateX(8px) translateY(-2px) scale(.99); } 20%{ transform:translateX(-4px) translateY(0) scale(1.01); } 44%{ transform:translateX(6px) translateY(1px) scale(1.03); filter:hue-rotate(-18deg); } 45%{ transform:translateX(-7px) translateY(-1px) scale(.98); } }
+  @keyframes fxClock{ 0%{ opacity:0; transform:scale(.15) rotate(0deg); } 18%{ opacity:1; transform:scale(.7) rotate(90deg); } 52%{ opacity:1; transform:scale(1) rotate(480deg); } 100%{ opacity:0; transform:scale(1.3) rotate(1080deg); } }
+  @keyframes fxAbyss{ 0%{ opacity:0; transform:scale(.2); } 16%{ opacity:.85; } 68%{ opacity:.95; transform:scale(1.05); } 100%{ opacity:0; transform:scale(1.32); } }
+  @keyframes fxBloom{ 0%{ opacity:0; transform:scale(.18) rotate(0deg); } 22%{ opacity:.92; } 100%{ opacity:0; transform:scale(1.3) rotate(220deg); } }
+  @keyframes fxCoil{ 0%{ opacity:0; transform:scale(.12) rotate(0deg); } 20%{ opacity:1; transform:scale(.72) rotate(90deg); } 76%{ opacity:.94; transform:scale(1.08) rotate(620deg); } 100%{ opacity:0; transform:scale(1.3) rotate(860deg); } }
+  @keyframes fxForge{ 0%{ opacity:0; transform:scale(.45) translateY(0); } 18%{ opacity:1; transform:scale(.78) translateY(-4px); } 100%{ opacity:0; transform:scale(1.18) translateY(-10px); } }
+  @keyframes fxDragon{ 0%{ opacity:0; transform:scale(.14) rotate(0deg); } 18%{ opacity:1; transform:scale(.72) rotate(150deg); } 72%{ opacity:.95; transform:scale(1.12) rotate(780deg); } 100%{ opacity:0; transform:scale(1.42) rotate(1080deg); } }
+  @keyframes fxSolar{ 0%{ opacity:0; transform:scale(.12); } 20%{ opacity:1; transform:scale(.75); } 78%{ opacity:.95; transform:scale(1.1); } 100%{ opacity:0; transform:scale(1.34); } }
+  @keyframes fxRift{ 0%{ opacity:0; transform:scale(.22) rotate(0deg); } 15%{ opacity:1; } 40%{ opacity:.45; } 54%{ opacity:1; } 100%{ opacity:0; transform:scale(1.34) rotate(260deg); } }
   @keyframes solsRaysUltimate{
     0%{ opacity:0; transform:scale(.08) rotate(0deg); filter:blur(10px) brightness(.7); }
     6%{ opacity:.08; transform:scale(.18) rotate(30deg); }
@@ -1432,6 +1550,72 @@ const RARITY_COLORS = {
   Relic:'#ff89d6'
 };
 
+const SUMMON_SIGNATURES = {
+  kai:{ style:'fire', banner:"BLAZE ASCENT", flavor:"Crimson sparks tear open the sky." },
+  jay:{ style:'lightning', banner:"THUNDER CALL", flavor:"Blue-white current crashes into the summon circle." },
+  cole:{ style:'earth', banner:"STONE PULSE", flavor:"A grounded shockwave rises from the cabinet floor." },
+  zane:{ style:'ice', banner:"FROST VECTOR", flavor:"Cold light forms a crystal-lined reveal." },
+  nya:{ style:'water', banner:"TIDAL ECHO", flavor:"A clean ripple surges into a deep ocean pull." },
+  lloyd:{ style:'dragon', banner:"GREEN DESTINY", flavor:"The energy of destiny coils around the reveal." },
+  pixal:{ style:'tech', banner:"SYSTEM BOOT", flavor:"Digital scanlines compile the signal into form." },
+  sensei_wu:{ style:'master', banner:"MASTER CHANT", flavor:"Ancient balance settles over the arena." },
+  samurai_x_nya:{ style:'steel', banner:"SAMURAI DRIVE", flavor:"Steel sparks strike as the armor locks in." },
+  skylor:{ style:'fire', banner:"AMBER COPY", flavor:"A hot amber flare mirrors every motion." },
+  dareth:{ style:'golden', banner:"BROWN NINJA", flavor:"A heroic spotlight insists this is legendary." },
+  misako:{ style:'royal', banner:"ARCHIVE VEIL", flavor:"Ancient knowledge opens like a quiet blossom." },
+  nelson:{ style:'lightning', banner:"YELLOW RUSH", flavor:"A fast heroic burst races across the screen." },
+  ronin:{ style:'shadow', banner:"MERCENARY SHADE", flavor:"A low smoky cut slides through the reveal." },
+  pythor:{ style:'snake', banner:"VENOM COIL", flavor:"Acid coils circle the pull with serpent menace." },
+  arin:{ style:'dragon', banner:"RISING START", flavor:"A new dragon current spirals higher and higher." },
+  sora:{ style:'tech', banner:"HACKER NOVA", flavor:"Pink neon fragments stitch a coded reveal." },
+  wyldfyre:{ style:'fire', banner:"WILDFIRE ROAR", flavor:"Wild flame pops and snaps in every direction." },
+  morro:{ style:'wind', banner:"GHOST TEMPEST", flavor:"Wind sigils spin like a haunted cyclone." },
+  harumi:{ style:'royal', banner:"LOTUS MASK", flavor:"A polished royal bloom hides a sharper edge." },
+  acronix:{ style:'time', banner:"TIME SPLIT", flavor:"Blue time fractures rush in from the future." },
+  krux:{ style:'time', banner:"TIME SPLIT", flavor:"Red time fractures drag the clock backwards." },
+  aspheera:{ style:'snake', banner:"SERPENT FIRE", flavor:"A scorching serpent spiral lunges from the circle." },
+  clouse:{ style:'shadow', banner:"DARK SPELL", flavor:"A cursed purple haze folds in on itself." },
+  euphrasia:{ style:'wind', banner:"SKY SWIRL", flavor:"Bright air ribbons lift the whole summon upward." },
+  zeatrix:{ style:'royal', banner:"ROYAL COMMAND", flavor:"A cold imperial glow locks onto the stage." },
+  kai_zx:{ style:'fire', banner:"ZX IGNITION", flavor:"Old-school flame power slams in with force." },
+  jay_zx:{ style:'lightning', banner:"ZX VOLT", flavor:"Retro lightning shatters the silence instantly." },
+  cole_zx:{ style:'earth', banner:"ZX IMPACT", flavor:"A chunky tectonic burst lands with weight." },
+  zane_zx:{ style:'ice', banner:"ZX FREEZE", flavor:"Retro frost rings spread with a sharp flash." },
+  nya_zx:{ style:'water', banner:"ZX CURRENT", flavor:"A retro tide threads through the summon gate." },
+  lloyd_zx:{ style:'dragon', banner:"ZX DESTINY", flavor:"A classic green surge echoes the ninja legacy." },
+  lord_garmadon:{ style:'oni', banner:"WARLORD RIFT", flavor:"A corrupted rift cracks open behind the figure." },
+  young_wu:{ style:'master', banner:"YOUNG WISDOM", flavor:"Calm gold light reveals the student master." },
+  ice_emperor_zane:{ style:'ice', banner:"EMPEROR ZERO", flavor:"Frozen authority crystallizes across the whole screen." },
+  prime_empire_jay:{ style:'tech', banner:"ARCADE OVERDRIVE", flavor:"Neon game-lines cascade into a charged reveal." },
+  digi_kai:{ style:'tech', banner:"DIGI BLAZE", flavor:"Cyber flame renders in sharp red grids." },
+  digi_nya:{ style:'tech', banner:"DIGI TIDE", flavor:"A cyan interface opens into a liquid scan." },
+  island_lloyd:{ style:'dragon', banner:"ISLAND DESTINY", flavor:"Tropical wind and dragon energy collide." },
+  island_nya:{ style:'water', banner:"ISLAND TIDE", flavor:"Foamy blue rings wash across the reveal." },
+  golden_lloyd:{ style:'golden', banner:"GOLDEN DAWN", flavor:"A holy solar halo erupts into gold." },
+  oni_lloyd:{ style:'oni', banner:"ONI AWAKENING", flavor:"A violent demon aura twists through the light." },
+  possessed_lloyd:{ style:'shadow', banner:"POSSESSION", flavor:"A spectral green void overtakes the field." },
+  dragon_power_kai:{ style:'dragon', banner:"DRAGON INFERNO", flavor:"Dragon flame tears a bright path overhead." },
+  dragon_power_jay:{ style:'dragon', banner:"DRAGON STORM", flavor:"A thunder-dragon circuit wraps around the card." },
+  dragon_power_cole:{ style:'dragon', banner:"DRAGON QUAKE", flavor:"Heavy dragon force hits like a landslide." },
+  dragon_power_zane:{ style:'dragon', banner:"DRAGON GLACIER", flavor:"A dragon frost halo expands in silence." },
+  dragon_power_nya:{ style:'dragon', banner:"DRAGON TIDE", flavor:"Ocean energy and dragon light move as one." },
+  seabound_nya:{ style:'water', banner:"SEABOUND", flavor:"An abyssal tide rises and crowns the reveal." },
+  oni_garmadon:{ style:'oni', banner:"ONI DOMINION", flavor:"A huge corrupted storm consumes the summon field." },
+  forbidden_kai:{ style:'fire', banner:"FORBIDDEN FLAME", flavor:"Volatile crimson fire lashes in unstable arcs." },
+  forbidden_jay:{ style:'lightning', banner:"FORBIDDEN STORM", flavor:"A violent stormbreak crackles with forbidden power." },
+  forbidden_zane:{ style:'ice', banner:"FORBIDDEN FROST", flavor:"Deep frozen light seals the circle in white." },
+  rising_dragon_arin:{ style:'dragon', banner:"RISING DRAGON", flavor:"A bright ascending spiral pierces the sky." },
+  rising_dragon_sora:{ style:'tech', banner:"RISING CODE", flavor:"A dragon-coded waveform builds into neon flight." },
+  dragon_form_kai:{ style:'dragon', banner:"FORM AWAKENED", flavor:"The fire dragon crowns the summon in light." },
+  dragon_form_jay:{ style:'dragon', banner:"FORM AWAKENED", flavor:"A lightning dragon tears across the reveal." },
+  dragon_form_cole:{ style:'dragon', banner:"FORM AWAKENED", flavor:"An earth dragon pulse slams into the floor." },
+  dragon_form_zane:{ style:'dragon', banner:"FORM AWAKENED", flavor:"An ice dragon bloom freezes the whole frame." },
+  ultimate_spinjitzu_master:{ style:'master', banner:"BREAKTHROUGH", flavor:"A heavenly aura has chosen you." },
+};
+function getSummonSignature(ore){
+  return SUMMON_SIGNATURES[ore.key] || { style:'master', banner:ore.rarity, flavor:`${ore.name} enters the summon field.` };
+}
+
 const ORES = [
   { key:'kai', name:'Kai', oneIn:2, rarity:'Common', income:0.05, color:'#ef2b23' },
   { key:'jay', name:'Jay', oneIn:3, rarity:'Common', income:0.06, color:'#3886f1' },
@@ -1737,15 +1921,20 @@ function showSummonFx(ore){
   if (!refs.summonFx || !refs.summonFxCard) return;
   const visual = getVisualForCharacter(ore);
   const rarityClass = 'rarity-' + ore.rarity.toLowerCase();
+  const signature = getSummonSignature(ore);
   const isUltimate = ore.key === 'ultimate_spinjitzu_master';
-  refs.summonFx.className = 'summon-fx ' + rarityClass + (isUltimate ? ' ultimate-master' : '');
+  const styleClass = 'style-' + signature.style;
+  refs.summonFx.className = 'summon-fx ' + rarityClass + ' ' + styleClass + (isUltimate ? ' ultimate-master' : '');
   refs.summonFx.style.setProperty('--fxColor', ore.color);
   refs.summonFx.style.setProperty('--fxAccent', visual.accent);
   refs.summonFx.style.setProperty('--fxWeapon', visual.weapon);
+  refs.summonFx.style.setProperty('--fxTrim', visual.trim);
   refs.summonFxCard.innerHTML = `
     <div class="summon-fx__rarity">${isUltimate ? 'BREAKTHROUGH' : ore.rarity}</div>
+    <div class="summon-fx__omen">${signature.banner}</div>
     <div class="summon-fx__name">${ore.name}</div>
     <div class="summon-fx__figure">${buildMinifigMarkup(ore, 'large', false)}</div>
+    <div class="summon-fx__flavor">${signature.flavor}</div>
     <div class="summon-fx__meta">${isUltimate ? 'A heavenly aura has chosen you • 15 second sols-inspired reveal' : `1 in ${ore.oneIn}${ore.requiresAllOthers ? ' • Final Unlock' : ''}`}</div>
   `;
   void refs.summonFx.offsetWidth;
