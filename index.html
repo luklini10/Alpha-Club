@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ore Roller RNG - Future Build</title>
+<title>Ninjago Character Roller - Future Build</title>
 <style>
   :root{
     --bg:#100c09;
@@ -27,11 +27,47 @@
     min-height:100vh;
     font-family:system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
     color:var(--text);
+    position:relative;
+    overflow-x:hidden;
     background:
-      radial-gradient(900px 500px at 50% -20%, rgba(255,179,71,.18), transparent 60%),
-      linear-gradient(90deg, rgba(0,0,0,.34) 0 8%, transparent 8% 92%, rgba(0,0,0,.34) 92% 100%),
-      repeating-linear-gradient(90deg, rgba(90,51,29,.24) 0 18px, rgba(44,23,12,.24) 18px 36px),
-      linear-gradient(180deg, #21140c, #090706);
+      radial-gradient(900px 440px at 50% -10%, rgba(255,236,170,.82), transparent 60%),
+      radial-gradient(760px 320px at 50% 18%, rgba(255,186,92,.42), transparent 62%),
+      linear-gradient(180deg, #f6d59a 0%, #ee9b52 28%, #456579 58%, #16222b 100%);
+  }
+  body::before{
+    content:'';
+    position:fixed;
+    inset:auto 0 0 0;
+    height:52vh;
+    pointer-events:none;
+    background:
+      radial-gradient(140px 82px at 50% 36%, rgba(255,215,122,.28), transparent 70%),
+      linear-gradient(180deg, transparent 0 15%, rgba(0,0,0,.05) 15% 100%),
+      radial-gradient(55% 74% at 14% 100%, rgba(18,35,40,.98) 0 52%, transparent 53%),
+      radial-gradient(48% 82% at 88% 100%, rgba(21,39,43,.98) 0 53%, transparent 54%),
+      radial-gradient(34% 58% at 50% 100%, rgba(27,43,47,.98) 0 63%, transparent 64%),
+      linear-gradient(180deg, transparent 0 60%, rgba(8,11,16,.42) 60% 100%);
+    z-index:-2;
+  }
+  body::after{
+    content:'';
+    position:fixed;
+    left:50%;
+    bottom:16vh;
+    width:min(46vw, 560px);
+    aspect-ratio:1.6 / 1;
+    transform:translateX(-50%);
+    pointer-events:none;
+    opacity:.92;
+    background:
+      linear-gradient(180deg, transparent 0 42%, rgba(33,22,14,.98) 42% 100%),
+      linear-gradient(130deg, transparent 0 40%, rgba(33,22,14,.98) 40% 58%, transparent 58% 100%),
+      linear-gradient(230deg, transparent 0 40%, rgba(33,22,14,.98) 40% 58%, transparent 58% 100%),
+      linear-gradient(180deg, transparent 0 55%, rgba(68,42,20,.98) 55% 66%, transparent 66% 100%),
+      radial-gradient(28% 38% at 50% 28%, rgba(33,22,14,.98) 0 60%, transparent 61%),
+      linear-gradient(90deg, transparent 0 31%, rgba(33,22,14,.98) 31% 35%, transparent 35% 65%, rgba(33,22,14,.98) 65% 69%, transparent 69% 100%);
+    filter:drop-shadow(0 16px 28px rgba(0,0,0,.35));
+    z-index:-1;
   }
   button, select, input{
     font:inherit;
@@ -147,35 +183,283 @@
   }
   .ore-card{
     min-height:380px;
-    border:1px solid #31505d;
+    border:1px solid #85633a;
     border-radius:14px;
     background:
-      radial-gradient(260px 220px at 50% 42%, rgba(158,252,255,.18), transparent 68%),
-      linear-gradient(180deg, #101a20, #0b0a10);
+      radial-gradient(320px 220px at 50% 18%, rgba(255,225,146,.22), transparent 65%),
+      linear-gradient(180deg, rgba(58,42,28,.72), rgba(22,16,11,.94)),
+      repeating-linear-gradient(90deg, rgba(255,219,153,.07) 0 22px, rgba(0,0,0,0) 22px 44px);
     display:grid;
     place-items:center;
     text-align:center;
     padding:18px;
     overflow:hidden;
+    position:relative;
+  }
+  .ore-card::before{
+    content:'';
+    position:absolute;
+    inset:auto 0 0 0;
+    height:34%;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(33,22,14,.05) 6%, rgba(33,22,14,.26) 100%),
+      repeating-linear-gradient(90deg, rgba(245,206,139,.11) 0 16px, rgba(75,48,26,.18) 16px 18px);
+    border-top:1px solid rgba(245,206,139,.16);
   }
   .gem{
-    width:160px;
-    height:160px;
-    border-radius:30px;
-    transform:rotate(45deg);
-    background:linear-gradient(135deg, #e6ffff, var(--gemColor, var(--relic)) 38%, #4da3ff 72%, #271d58);
-    box-shadow:0 0 60px color-mix(in srgb, var(--gemColor, var(--relic)) 45%, transparent), inset 0 0 32px rgba(255,255,255,.35);
-    margin:18px auto 34px;
-    transition:background .2s ease, box-shadow .2s ease;
+    width:min(300px, 100%);
+    min-height:270px;
+    margin:0 auto 16px;
+    transition:filter .2s ease, transform .2s ease;
+    position:relative;
+    display:grid;
+    place-items:end center;
+    isolation:isolate;
   }
-  .gem.hit{
-    animation:pop .28s ease;
+  .gem::before{
+    content:'';
+    position:absolute;
+    width:220px;
+    height:220px;
+    border-radius:50%;
+    background:radial-gradient(circle, color-mix(in srgb, var(--gemColor, var(--relic)) 55%, rgba(255,255,255,.26)) 0%, rgba(255,255,255,.12) 26%, transparent 70%);
+    filter:blur(8px);
+    top:6px;
+    z-index:-1;
   }
-  @keyframes pop{
-    0%{ transform:rotate(45deg) scale(.9); }
-    55%{ transform:rotate(45deg) scale(1.1); }
-    100%{ transform:rotate(45deg) scale(1); }
+  .gem.hit .minifig-figure{
+    animation:minifigPop .32s ease;
   }
+  @keyframes minifigPop{
+    0%{ transform:translateY(10px) scale(.88); }
+    55%{ transform:translateY(-8px) scale(1.08); }
+    100%{ transform:translateY(0) scale(1); }
+  }
+  .minifig-display{
+    display:grid;
+    gap:10px;
+    justify-items:center;
+  }
+  .minifig-figure{
+    position:relative;
+    width:150px;
+    height:198px;
+    filter:drop-shadow(0 16px 26px rgba(0,0,0,.34));
+  }
+  .minifig-mini .minifig-figure{
+    width:58px;
+    height:74px;
+    filter:drop-shadow(0 8px 12px rgba(0,0,0,.18));
+  }
+  .minifig-base{
+    width:146px;
+    height:18px;
+    border-radius:999px;
+    background:linear-gradient(180deg, rgba(255,238,188,.95), rgba(131,92,39,.92));
+    box-shadow:0 6px 18px rgba(0,0,0,.22);
+  }
+  .minifig-mini .minifig-base{
+    width:50px;
+    height:8px;
+  }
+  .minifig-head{
+    position:absolute;
+    left:50%;
+    top:22px;
+    width:46px;
+    height:42px;
+    transform:translateX(-50%);
+    background:var(--skinColor, #ffd39f);
+    border-radius:14px 14px 12px 12px;
+    border:2px solid rgba(0,0,0,.16);
+    overflow:hidden;
+  }
+  .minifig-mini .minifig-head{
+    top:7px;
+    width:18px;
+    height:16px;
+    border-width:1px;
+    border-radius:6px 6px 5px 5px;
+  }
+  .minifig-face{
+    position:absolute;
+    inset:0;
+  }
+  .minifig-face::before, .minifig-face::after{
+    content:'';
+    position:absolute;
+    top:13px;
+    width:5px;
+    height:5px;
+    background:#222;
+    border-radius:50%;
+  }
+  .minifig-face::before{ left:12px; }
+  .minifig-face::after{ right:12px; }
+  .minifig-face .mouth{
+    position:absolute;
+    left:50%;
+    bottom:8px;
+    width:18px;
+    height:8px;
+    border-bottom:3px solid #222;
+    border-radius:0 0 14px 14px;
+    transform:translateX(-50%);
+  }
+  .minifig-face .eyebrow{
+    position:absolute;
+    top:8px;
+    width:11px;
+    height:2px;
+    background:#222;
+    border-radius:999px;
+  }
+  .minifig-face .eyebrow.left{ left:8px; transform:rotate(-12deg); }
+  .minifig-face .eyebrow.right{ right:8px; transform:rotate(12deg); }
+  .minifig-face .beard{
+    position:absolute;
+    left:50%;
+    bottom:-2px;
+    width:28px;
+    height:18px;
+    background:var(--beardColor, #fff);
+    transform:translateX(-50%);
+    clip-path:polygon(0 0, 100% 0, 84% 36%, 72% 100%, 50% 62%, 28% 100%, 16% 36%);
+    opacity:.95;
+  }
+  .minifig-mini .minifig-face::before, .minifig-mini .minifig-face::after{ top:5px; width:2px; height:2px; }
+  .minifig-mini .minifig-face::before{ left:4px; }
+  .minifig-mini .minifig-face::after{ right:4px; }
+  .minifig-mini .minifig-face .mouth{ bottom:3px; width:8px; height:3px; border-bottom-width:1px; }
+  .minifig-mini .minifig-face .eyebrow{ top:2px; width:4px; height:1px; }
+  .minifig-mini .minifig-face .eyebrow.left{ left:3px; }
+  .minifig-mini .minifig-face .eyebrow.right{ right:3px; }
+  .minifig-mini .minifig-face .beard{ width:10px; height:7px; }
+  .minifig-headgear{
+    position:absolute;
+    left:50%;
+    top:4px;
+    transform:translateX(-50%);
+    width:72px;
+    height:44px;
+    background:var(--hoodColor, transparent);
+    border-radius:24px 24px 14px 14px;
+    clip-path:polygon(10% 100%, 0 24%, 18% 0, 82% 0, 100% 24%, 90% 100%, 72% 90%, 28% 90%);
+    box-shadow:inset 0 -6px 0 rgba(0,0,0,.14);
+  }
+  .minifig-headgear.hair{
+    clip-path:polygon(10% 100%, 6% 26%, 20% 0, 48% 8%, 66% 0, 88% 20%, 94% 76%, 76% 92%, 24% 92%);
+  }
+  .minifig-headgear.none{ display:none; }
+  .minifig-mini .minifig-headgear{ top:1px; width:28px; height:16px; box-shadow:inset 0 -2px 0 rgba(0,0,0,.14); }
+  .minifig-torso{
+    position:absolute;
+    left:50%;
+    top:68px;
+    width:72px;
+    height:64px;
+    transform:translateX(-50%);
+    background:linear-gradient(180deg, color-mix(in srgb, var(--torsoColor, #d33) 88%, white), var(--torsoColor, #d33));
+    border-radius:12px 12px 10px 10px;
+    border:2px solid rgba(0,0,0,.18);
+    overflow:hidden;
+  }
+  .minifig-torso::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(90deg, transparent 0 47%, rgba(255,255,255,.18) 47% 53%, transparent 53% 100%),
+      linear-gradient(180deg, transparent 0 24%, rgba(0,0,0,.10) 24% 28%, transparent 28% 100%);
+  }
+  .minifig-emblem{
+    position:absolute;
+    left:50%;
+    top:16px;
+    transform:translateX(-50%);
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    background:color-mix(in srgb, var(--accentColor, #fff) 78%, white);
+    color:#101010;
+    font-size:17px;
+    display:grid;
+    place-items:center;
+    box-shadow:0 0 0 3px rgba(255,255,255,.12);
+  }
+  .minifig-mini .minifig-torso{ top:27px; width:28px; height:24px; border-width:1px; border-radius:5px; }
+  .minifig-mini .minifig-emblem{ top:5px; width:12px; height:12px; font-size:8px; box-shadow:none; }
+  .minifig-arm{
+    position:absolute;
+    top:72px;
+    width:22px;
+    height:60px;
+    background:linear-gradient(180deg, color-mix(in srgb, var(--armColor, var(--torsoColor, #d33)) 92%, white), var(--armColor, var(--torsoColor, #d33)));
+    border:2px solid rgba(0,0,0,.16);
+    border-radius:14px;
+  }
+  .minifig-arm.left{ left:25px; transform:rotate(12deg); }
+  .minifig-arm.right{ right:25px; transform:rotate(-12deg); }
+  .minifig-hand{
+    position:absolute;
+    bottom:-8px;
+    left:50%;
+    transform:translateX(-50%);
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:var(--skinColor, #ffd39f);
+    border:2px solid rgba(0,0,0,.12);
+  }
+  .minifig-mini .minifig-arm{ top:29px; width:8px; height:23px; border-width:1px; border-radius:4px; }
+  .minifig-mini .minifig-arm.left{ left:9px; }
+  .minifig-mini .minifig-arm.right{ right:9px; }
+  .minifig-mini .minifig-hand{ width:6px; height:6px; bottom:-3px; border-width:1px; }
+  .minifig-hips{
+    position:absolute;
+    left:50%;
+    top:128px;
+    width:74px;
+    height:18px;
+    transform:translateX(-50%);
+    background:linear-gradient(180deg, color-mix(in srgb, var(--legColor, #555) 82%, white), var(--legColor, #555));
+    border-radius:10px 10px 8px 8px;
+  }
+  .minifig-legs{
+    position:absolute;
+    left:50%;
+    top:144px;
+    width:74px;
+    height:50px;
+    transform:translateX(-50%);
+  }
+  .minifig-leg{
+    position:absolute;
+    top:0;
+    width:32px;
+    height:50px;
+    background:linear-gradient(180deg, color-mix(in srgb, var(--legColor, #555) 88%, white), var(--legColor, #555));
+    border-radius:8px 8px 6px 6px;
+    border:2px solid rgba(0,0,0,.16);
+  }
+  .minifig-leg.left{ left:3px; }
+  .minifig-leg.right{ right:3px; }
+  .minifig-mini .minifig-hips{ top:49px; width:28px; height:7px; border-radius:4px; }
+  .minifig-mini .minifig-legs{ top:55px; width:28px; height:18px; }
+  .minifig-mini .minifig-leg{ width:12px; height:18px; border-width:1px; border-radius:3px; }
+  .minifig-mini .minifig-leg.left{ left:1px; }
+  .minifig-mini .minifig-leg.right{ right:1px; }
+  .minifig-aura{
+    position:absolute;
+    inset:18px 10px 24px;
+    border-radius:50%;
+    background:radial-gradient(circle, color-mix(in srgb, var(--auraColor, var(--gemColor, #fff)) 34%, rgba(255,255,255,.2)) 0%, transparent 72%);
+    filter:blur(6px);
+    opacity:.9;
+    z-index:-1;
+  }
+  .minifig-display.locked .minifig-figure{ opacity:.42; filter:blur(.4px) drop-shadow(0 8px 18px rgba(0,0,0,.2)); }
+  .minifig-display.locked .minifig-aura{ opacity:.28; }
   .roll-stack{
     display:grid;
     gap:12px;
@@ -274,12 +558,9 @@
     align-items:center;
   }
   .small-gem{
-    width:28px;
-    height:28px;
-    border-radius:8px;
-    transform:rotate(45deg);
-    background:var(--oreColor, var(--gold));
-    box-shadow:0 0 18px color-mix(in srgb, var(--oreColor, var(--gold)) 45%, transparent);
+    width:58px;
+    display:grid;
+    place-items:center;
   }
   .toast-wrap{
     position:fixed;
@@ -344,7 +625,7 @@
 </head>
 <body>
 <header>
-  <h1>Ore Roller RNG <span class="muted">Future Build</span></h1>
+  <h1>Ninjago Character Roller <span class="muted">Future Build</span></h1>
   <div class="top-stats">
     <div>Money: <strong id="moneyTop">$0</strong></div>
     <div>Income: <strong id="mpsTop">$0.00/s</strong></div>
@@ -381,9 +662,9 @@
           <div class="ore-card">
             <div>
               <div id="mainGem" class="gem"></div>
-              <h2 id="lastOreName">Ready to Mine</h2>
-              <div class="muted" id="lastOreMeta">Roll to discover ores, complete goals, and build your mine.</div>
-              <div class="score" id="lastOreIncome">Every roll moves something forward.</div>
+              <h2 id="lastOreName">Ready to Roll</h2>
+              <div class="muted" id="lastOreMeta">Roll to recruit Ninjago heroes and villains, complete goals, and build your roster.</div>
+              <div class="score" id="lastOreIncome">Every roll brings another minifigure to the Monastery.</div>
             </div>
           </div>
           <div class="roll-stack">
@@ -395,7 +676,7 @@
             </div>
             <div class="mini" style="width:min(430px, 100%);">
               <h3 id="goalTitle">Current Goal</h3>
-              <p id="goalText">Find your first ore.</p>
+              <p id="goalText">Roll your first character.</p>
               <div class="progress"><div id="goalBar" style="width:0%"></div></div>
             </div>
             <div class="mini" style="width:min(430px, 100%);">
@@ -407,9 +688,9 @@
             </div>
             <div class="mini" style="width:min(430px, 100%);">
               <h3>Focus Lens</h3>
-              <p>Boost one selected ore for 60 seconds.</p>
+              <p>Boost one selected character for 60 seconds.</p>
               <div class="quick-actions" style="justify-content:flex-start; margin-top:10px;">
-                <select id="focusSelect" aria-label="Choose focus ore"></select>
+                <select id="focusSelect" aria-label="Choose focus character"></select>
                 <button id="focusBtn">Focus ($80)</button>
               </div>
             </div>
@@ -446,8 +727,8 @@
 
   <section id="collectionView" class="view">
     <div class="panel">
-      <h2>Ore Collection Book</h2>
-      <div class="muted" style="margin-bottom:14px;">Discovered ores reveal their odds, income, and copies owned. Undiscovered ores stay shadowed.</div>
+      <h2>Ninjago Character Collection</h2>
+      <div class="muted" style="margin-bottom:14px;">Discovered characters reveal their odds, income, and copies owned. Undiscovered characters stay shadowed.</div>
       <div id="collectionGrid" class="collection-grid"></div>
     </div>
   </section>
@@ -455,31 +736,31 @@
   <section id="researchView" class="view">
     <div class="panel">
       <h2>Research Lab</h2>
-      <div class="muted" style="margin-bottom:14px;">Earn RP from milestones, rare discoveries, events, and rebirths. Spend it on permanent run upgrades.</div>
+      <div class="muted" style="margin-bottom:14px;">Earn RP from milestones, rare character rolls, events, and rebirths. Spend it on permanent run upgrades.</div>
       <div id="researchGrid" class="grid2"></div>
     </div>
   </section>
 
   <section id="fusionView" class="view">
     <div class="panel">
-      <h2>Ore Fusion Forge</h2>
-      <div class="muted" style="margin-bottom:14px;">Turn duplicate ores into better rewards so weak rolls still matter.</div>
+      <h2>Character Fusion Forge</h2>
+      <div class="muted" style="margin-bottom:14px;">Turn duplicate characters into better rewards so weak rolls still matter.</div>
       <div id="fusionList" class="list"></div>
     </div>
   </section>
 
   <section id="eventsView" class="view">
     <div class="panel">
-      <h2>Mine Events</h2>
+      <h2>Ninjago Events</h2>
       <div class="grid2">
         <div class="mini">
           <h3>Active Event</h3>
-          <p id="eventDesc">No event is active. Start one when the mine is ready.</p>
+          <p id="eventDesc">No event is active. Start one when your roster is ready.</p>
           <div class="progress"><div id="eventBar" style="width:0%"></div></div>
         </div>
         <div class="mini">
           <h3>Start an Event</h3>
-          <p>Events create short bursts of high-value play. They cost money but can pay back with RP, rare ores, or huge income.</p>
+          <p>Events create short bursts of high-value play. They cost money but can pay back with RP, rare characters, or huge income.</p>
           <div class="quick-actions" style="justify-content:flex-start; margin-top:10px;">
             <button data-event="meteor">Meteor Shower</button>
             <button data-event="golden">Golden Vein</button>
@@ -534,8 +815,8 @@ const PITY_GAIN = 0.45;
 const PITY_CAP_BASE = 20;
 const REBIRTH_BASE_COST = 50000;
 const ORE_INCOME_MULT = 10;
-const SAVE_KEY = 'ore_roller_future_build_save_v1';
-const BOARD_KEY = 'ore_roller_future_build_board_v1';
+const SAVE_KEY = 'ninjago_character_roller_save_v2';
+const BOARD_KEY = 'ninjago_character_roller_board_v2';
 
 const RARITIES = ['Common','Uncommon','Rare','Epic','Legendary','Mythic','Relic'];
 const RARITY_COLORS = {
@@ -549,54 +830,82 @@ const RARITY_COLORS = {
 };
 
 const ORES = [
-  { key:'dirt', name:'Dirt', oneIn:2, rarity:'Common', income:0.02, color:'#8b5a2b' },
-  { key:'rock', name:'Rock', oneIn:4, rarity:'Common', income:0.02, color:'#7a7f87' },
-  { key:'coal', name:'Coal', oneIn:6, rarity:'Common', income:0.03, color:'#2f3136' },
-  { key:'clay', name:'Clay', oneIn:8, rarity:'Common', income:0.04, color:'#b0705a' },
-  { key:'copper', name:'Copper', oneIn:10, rarity:'Uncommon', income:0.08, color:'#c77943' },
-  { key:'tin', name:'Tin', oneIn:12, rarity:'Uncommon', income:0.09, color:'#b6c3c8' },
-  { key:'iron', name:'Iron', oneIn:16, rarity:'Uncommon', income:0.11, color:'#b8bfc7' },
-  { key:'nickel', name:'Nickel', oneIn:20, rarity:'Uncommon', income:0.13, color:'#9fb3be' },
-  { key:'silver', name:'Silver', oneIn:24, rarity:'Uncommon', income:0.16, color:'#dfe6ee' },
-  { key:'gold', name:'Gold', oneIn:40, rarity:'Rare', income:0.28, color:'#ffd24a' },
-  { key:'platinum', name:'Platinum', oneIn:55, rarity:'Rare', income:0.36, color:'#e4f1ff' },
-  { key:'ruby', name:'Ruby', oneIn:80, rarity:'Epic', income:0.75, color:'#ff4d6d' },
-  { key:'sapphire', name:'Sapphire', oneIn:120, rarity:'Epic', income:0.92, color:'#4da3ff' },
-  { key:'emerald', name:'Emerald', oneIn:165, rarity:'Legendary', income:1.6, color:'#40e0a8' },
-  { key:'diamond', name:'Diamond', oneIn:240, rarity:'Mythic', income:2.8, color:'#82fff6' },
-  { key:'obsidian', name:'Obsidian', oneIn:360, rarity:'Mythic', income:3.25, color:'#3a0c5a' },
-  { key:'mythril', name:'Mythril', oneIn:520, rarity:'Relic', income:6.2, color:'#a9fffe' },
-  { key:'starlite', name:'Starlite', oneIn:800, rarity:'Relic', income:7.6, color:'#b986ff' },
-  { key:'nebulite', name:'Nebulite', oneIn:1300, rarity:'Relic', income:9.4, color:'#9efcff' },
-  { key:'voidcore', name:'Voidcore', oneIn:2200, rarity:'Relic', income:12.0, color:'#6c36ff' },
-  { key:'sunstone', name:'Sunstone', oneIn:3200, rarity:'Relic', income:15.5, color:'#ffb347' },
-  { key:'chronite', name:'Chronite', oneIn:5000, rarity:'Relic', income:21.0, color:'#d9fff6' }
+  { key:'kai', name:'Kai', oneIn:2, rarity:'Common', income:0.04, color:'#ff3b30' },
+  { key:'jay', name:'Jay', oneIn:4, rarity:'Common', income:0.05, color:'#2f80ff' },
+  { key:'cole', name:'Cole', oneIn:6, rarity:'Common', income:0.06, color:'#4b3621' },
+  { key:'zane', name:'Zane', oneIn:8, rarity:'Common', income:0.07, color:'#d9f6ff' },
+  { key:'nya', name:'Nya', oneIn:10, rarity:'Uncommon', income:0.11, color:'#37c9ff' },
+  { key:'pixal', name:'PIXAL', oneIn:14, rarity:'Uncommon', income:0.13, color:'#9be7ff' },
+  { key:'sensei_wu', name:'Sensei Wu', oneIn:18, rarity:'Uncommon', income:0.16, color:'#fff2b2' },
+  { key:'nya_samurai_x', name:'Samurai X Nya', oneIn:25, rarity:'Uncommon', income:0.22, color:'#c70039' },
+  { key:'lloyd', name:'Lloyd', oneIn:35, rarity:'Rare', income:0.35, color:'#5dff66' },
+  { key:'skylor', name:'Skylor', oneIn:55, rarity:'Rare', income:0.48, color:'#ff9f43' },
+  { key:'ronin', name:'Ronin', oneIn:75, rarity:'Rare', income:0.62, color:'#7f8c8d' },
+  { key:'harumi', name:'Harumi', oneIn:110, rarity:'Epic', income:1.05, color:'#f4f4f4' },
+  { key:'morro', name:'Morro', oneIn:155, rarity:'Epic', income:1.35, color:'#3ee07f' },
+  { key:'ultra_violet', name:'Ultra Violet', oneIn:220, rarity:'Epic', income:1.75, color:'#b986ff' },
+  { key:'lord_garmadon', name:'Lord Garmadon', oneIn:330, rarity:'Legendary', income:2.7, color:'#6c36ff' },
+  { key:'golden_lloyd', name:'Golden Lloyd', oneIn:520, rarity:'Legendary', income:4.1, color:'#ffd56a' },
+  { key:'nya_seabound', name:'Seabound Nya', oneIn:850, rarity:'Mythic', income:6.8, color:'#00e5ff' },
+  { key:'oni_garmadon', name:'Oni Garmadon', oneIn:1300, rarity:'Mythic', income:9.2, color:'#151515' },
+  { key:'dragon_form_kai', name:'Dragon Form Kai', oneIn:2100, rarity:'Relic', income:13.5, color:'#ff6a00' },
+  { key:'dragon_form_jay', name:'Dragon Form Jay', oneIn:3000, rarity:'Relic', income:17.5, color:'#00a6ff' },
+  { key:'dragon_form_cole', name:'Dragon Form Cole', oneIn:4200, rarity:'Relic', income:23.0, color:'#9b6a2f' },
+  { key:'dragon_form_zane', name:'Dragon Form Zane', oneIn:5600, rarity:'Relic', income:31.0, color:'#e6ffff' },
+  { key:'ultimate_spinjitzu_master', name:'Ultimate Spinjitzu Master', oneIn:12000, rarity:'Relic', income:75.0, color:'#fff6a3', requiresAllOthers:true }
 ];
+
+const CHARACTER_VISUALS = {
+  kai:{ torso:'#b61f17', arm:'#c92a22', leg:'#301616', hood:'#b61f17', accent:'#ffd04a', emblem:'🔥', skin:'#ffd39f', vibe:'hood' },
+  jay:{ torso:'#1f66d1', arm:'#2d79ef', leg:'#16315e', hood:'#1f66d1', accent:'#f7ea54', emblem:'⚡', skin:'#ffd39f', vibe:'hood' },
+  cole:{ torso:'#2d2d2d', arm:'#343434', leg:'#111111', hood:'#2d2d2d', accent:'#ffb347', emblem:'⛰', skin:'#ffd39f', vibe:'hood' },
+  zane:{ torso:'#e8f3f8', arm:'#e8f3f8', leg:'#bcc7d0', hood:'#f8ffff', accent:'#8edcff', emblem:'❄', skin:'#f4f7fa', vibe:'hood' },
+  nya:{ torso:'#1aa3d8', arm:'#29b6e6', leg:'#19445d', hood:'#1aa3d8', accent:'#b7f2ff', emblem:'💧', skin:'#ffd39f', vibe:'hood' },
+  pixal:{ torso:'#dbeef7', arm:'#dbeef7', leg:'#7ea4b0', hood:'#c5dbe3', accent:'#6ae3ff', emblem:'✦', skin:'#e4edf2', vibe:'hood' },
+  sensei_wu:{ torso:'#f2f0e6', arm:'#f2f0e6', leg:'#d5c7a1', hood:'#d8b55b', accent:'#ffdd77', emblem:'☯', skin:'#ffd39f', beard:'#fffdf3', vibe:'hood' },
+  nya_samurai_x:{ torso:'#b61f17', arm:'#b61f17', leg:'#545b66', hood:'#808892', accent:'#f1f5ff', emblem:'⚙', skin:'#ffd39f', vibe:'hood' },
+  lloyd:{ torso:'#47a91d', arm:'#5fd629', leg:'#224816', hood:'#47a91d', accent:'#f6ff93', emblem:'🐉', skin:'#ffd39f', vibe:'hood' },
+  skylor:{ torso:'#f48c2f', arm:'#f49a48', leg:'#5b2d17', hood:'#f48c2f', accent:'#ffe169', emblem:'🔥', skin:'#ffd39f', hair:'#7b2a18', vibe:'hair' },
+  ronin:{ torso:'#666c73', arm:'#666c73', leg:'#2c333a', hood:'#4f555d', accent:'#cfd8dc', emblem:'🗡', skin:'#ffd39f', beard:'#665243', vibe:'hood' },
+  harumi:{ torso:'#f1f1f1', arm:'#f1f1f1', leg:'#7b847f', hood:'#d3ddcb', accent:'#7ad857', emblem:'🌿', skin:'#ffd39f', hair:'#efe8dd', vibe:'hair' },
+  morro:{ torso:'#2aa85d', arm:'#2db868', leg:'#1b2f27', hood:'#2aa85d', accent:'#dbffe9', emblem:'🌀', skin:'#d7eada', vibe:'hood' },
+  ultra_violet:{ torso:'#8a4de2', arm:'#9a5ef1', leg:'#2b183f', hood:'#8a4de2', accent:'#ff98ff', emblem:'☣', skin:'#ffd39f', hair:'#f7f0ff', vibe:'hair' },
+  lord_garmadon:{ torso:'#45206e', arm:'#4c2579', leg:'#16101f', hood:'#2d1d44', accent:'#d0a6ff', emblem:'👹', skin:'#e9d0ff', beard:'#2a1739', vibe:'hood' },
+  golden_lloyd:{ torso:'#ffcb37', arm:'#ffcb37', leg:'#7a5b00', hood:'#ffd84e', accent:'#fff6c8', emblem:'⭐', skin:'#ffd39f', vibe:'hood' },
+  nya_seabound:{ torso:'#00c0d9', arm:'#00d4ef', leg:'#06465c', hood:'#00b2cc', accent:'#e0ffff', emblem:'🌊', skin:'#d7fbff', vibe:'hood' },
+  oni_garmadon:{ torso:'#1e1e1e', arm:'#242424', leg:'#060606', hood:'#2d2d2d', accent:'#c145ff', emblem:'☠', skin:'#b0a3c2', vibe:'hood' },
+  dragon_form_kai:{ torso:'#db4d13', arm:'#db4d13', leg:'#511f12', hood:'#ff6a00', accent:'#ffef7f', emblem:'🐲', skin:'#ffe0b0', vibe:'hood' },
+  dragon_form_jay:{ torso:'#1381df', arm:'#1381df', leg:'#17325d', hood:'#00a6ff', accent:'#d3f2ff', emblem:'🐲', skin:'#ffe0b0', vibe:'hood' },
+  dragon_form_cole:{ torso:'#7f5325', arm:'#7f5325', leg:'#2c1b0e', hood:'#9b6a2f', accent:'#ffddb7', emblem:'🐲', skin:'#ffe0b0', vibe:'hood' },
+  dragon_form_zane:{ torso:'#e3f8ff', arm:'#e3f8ff', leg:'#9aaeb5', hood:'#f2feff', accent:'#7ed8ff', emblem:'🐲', skin:'#f7fbfd', vibe:'hood' },
+  ultimate_spinjitzu_master:{ torso:'#ffe77a', arm:'#ffe77a', leg:'#d0aa27', hood:'#fff6a3', accent:'#ffffff', emblem:'✨', skin:'#ffe7b0', beard:'#fff4d6', vibe:'hood' }
+};
+const PLACEHOLDER_VISUAL = { torso:'#75502d', arm:'#75502d', leg:'#2f2115', hood:'#9e7840', accent:'#ffde9f', emblem:'忍', skin:'#f1d1a0', vibe:'hood' };
 
 const RESEARCH = [
   { key:'luck', name:'Lucky Samples', desc:'+2% Rare+ odds per level.', max:12, base:2, effect:s=>`${s.research.luck * 2}% Rare+ luck` },
   { key:'income', name:'Efficient Smelting', desc:'+12% global income per level.', max:15, base:2, effect:s=>`+${s.research.income * 12}% income` },
   { key:'pity', name:'Pity Core', desc:'+4% pity cap and +0.1 pity gain per level.', max:8, base:3, effect:s=>`${getPityCap()}% cap` },
   { key:'auto', name:'Automation Logic', desc:'Auto-roll gets 8% faster per level.', max:8, base:3, effect:s=>`${getAutoDelay()}ms auto delay` },
-  { key:'offline', name:'Mine Scheduler', desc:'+1 hour offline income cap per level.', max:8, base:2, effect:s=>`${getOfflineCapHours()}h offline cap` },
+  { key:'offline', name:'Roster Scheduler', desc:'+1 hour offline income cap per level.', max:8, base:2, effect:s=>`${getOfflineCapHours()}h offline cap` },
   { key:'fusion', name:'Forge Heat', desc:'Fusion rewards improve and fusion energy fills faster.', max:8, base:2, effect:s=>`Lv.${s.research.fusion}` }
 ];
 
 const MILESTONES = [
-  { key:'firstOre', name:'First Find', desc:'Find any ore.', reward:'2 RP', target:s=>s.totalFinds, need:1, grant:s=>s.rp+=2 },
-  { key:'roll100', name:'Mine Apprentice', desc:'Roll 100 times.', reward:'3 RP', target:s=>s.totalRolls, need:100, grant:s=>s.rp+=3 },
-  { key:'firstRare', name:'Blue Spark', desc:'Find any Rare ore.', reward:'4 RP', target:s=>countByRank(s, 'Rare'), need:1, grant:s=>s.rp+=4 },
-  { key:'firstEpic', name:'Deep Shine', desc:'Find any Epic ore.', reward:'5 RP', target:s=>countByRank(s, 'Epic'), need:1, grant:s=>s.rp+=5 },
-  { key:'collector10', name:'Collector I', desc:'Discover 10 unique ores.', reward:'6 RP', target:s=>discoveredCount(s), need:10, grant:s=>s.rp+=6 },
-  { key:'firstRelic', name:'Relic Breakthrough', desc:'Find any Relic ore.', reward:'1 RBP and 10 RP', target:s=>countByRank(s, 'Relic'), need:1, grant:s=>{s.rbp+=1; s.rp+=10;} },
-  { key:'rebirth1', name:'Reborn Miner', desc:'Rebirth once.', reward:'8 RP', target:s=>s.rebirths, need:1, grant:s=>s.rp+=8 },
-  { key:'income500', name:'Industrial Mine', desc:'Reach $500/s income.', reward:'10 RP', target:s=>computeMPS(), need:500, grant:s=>s.rp+=10 }
+  { key:'firstOre', name:'First Find', desc:'Roll any character.', reward:'2 RP', target:s=>s.totalFinds, need:1, grant:s=>s.rp+=2 },
+  { key:'roll100', name:'Ninja Apprentice', desc:'Roll 100 times.', reward:'3 RP', target:s=>s.totalRolls, need:100, grant:s=>s.rp+=3 },
+  { key:'firstRare', name:'Blue Spark', desc:'Roll any Rare character.', reward:'4 RP', target:s=>countByRank(s, 'Rare'), need:1, grant:s=>s.rp+=4 },
+  { key:'firstEpic', name:'Deep Shine', desc:'Roll any Epic character.', reward:'5 RP', target:s=>countByRank(s, 'Epic'), need:1, grant:s=>s.rp+=5 },
+  { key:'collector10', name:'Collector I', desc:'Discover 10 unique characters.', reward:'6 RP', target:s=>discoveredCount(s), need:10, grant:s=>s.rp+=6 },
+  { key:'firstRelic', name:'Relic Breakthrough', desc:'Roll any Relic character.', reward:'1 RBP and 10 RP', target:s=>countByRank(s, 'Relic'), need:1, grant:s=>{s.rbp+=1; s.rp+=10;} },
+  { key:'rebirth1', name:'Reborn Ninja', desc:'Rebirth once.', reward:'8 RP', target:s=>s.rebirths, need:1, grant:s=>s.rp+=8 },
+  { key:'income500', name:'Powerful Roster', desc:'Reach $500/s income.', reward:'10 RP', target:s=>computeMPS(), need:500, grant:s=>s.rp+=10 }
 ];
 
 const EVENT_TYPES = {
-  meteor:{ name:'Meteor Shower', cost:2500, duration:90, desc:'Relic and Mythic odds improve. First Relic during this event gives +5 RP.', apply:'rare' },
+  meteor:{ name:'Meteor Shower', cost:2500, duration:90, desc:'Relic and Mythic character odds improve. First Relic during this event gives +5 RP.', apply:'rare' },
   golden:{ name:'Golden Vein', cost:1500, duration:75, desc:'Income is doubled while active.', apply:'income' },
-  deep:{ name:'Deep Cave', cost:2000, duration:80, desc:'Epic+ odds improve and fusion energy fills faster.', apply:'deep' }
+  deep:{ name:'Deep Cave', cost:2000, duration:80, desc:'Epic+ character odds improve and fusion energy fills faster.', apply:'deep' }
 };
 
 const state = freshState();
@@ -633,12 +942,14 @@ function freshState(){
     autoHideCommon:false,
     focus:null,
     discoveries:{},
+    rolledCharacters:{},
     milestones:{},
     research:Object.fromEntries(RESEARCH.map(r=>[r.key,0])),
     event:null,
     eventEnds:0,
     eventRelicReward:false,
     focusEnds:0,
+    lastFoundKey:null,
     lastSavedAt:Date.now()
   };
 }
@@ -652,7 +963,8 @@ function fmtMoney(x){
   return '$' + x.toFixed(2);
 }
 function rarityRank(r){ return RARITIES.indexOf(r); }
-function discoveredCount(s=state){ return Object.keys(s.discoveries).length; }
+function discoveredCount(s=state){ return ORES.filter(o=>s.discoveries[o.key]).length; }
+function hasRolledAllOtherCharacters(s=state){ return ORES.filter(o=>!o.requiresAllOthers).every(o=>(s.rolledCharacters && s.rolledCharacters[o.key]) || (s.discoveries && s.discoveries[o.key])); }
 function countByRank(s, minRarity){
   const min = rarityRank(minRarity);
   return ORES.filter(o=>rarityRank(o.rarity) >= min).reduce((sum,o)=>sum + (s.inventory[o.key] || 0), 0);
@@ -703,6 +1015,7 @@ function effectiveOneIn(ore){
 }
 function rollRNG(){
   for (const ore of ORES){
+    if (ore.requiresAllOthers && !hasRolledAllOtherCharacters()) continue;
     if (Math.floor(Math.random() * effectiveOneIn(ore)) === 0) return ore;
   }
   return null;
@@ -748,6 +1061,62 @@ function storageRemove(key){
   catch{}
 }
 
+
+function getVisualForCharacter(ore){
+  if (!ore) return PLACEHOLDER_VISUAL;
+  const v = CHARACTER_VISUALS[ore.key] || {};
+  return {
+    skin:v.skin || '#ffd39f',
+    hood:v.hood || ore.color,
+    hair:v.hair || v.hood || ore.color,
+    torso:v.torso || ore.color,
+    arm:v.arm || v.torso || ore.color,
+    leg:v.leg || '#353535',
+    accent:v.accent || '#fff3c2',
+    emblem:v.emblem || '忍',
+    beard:v.beard || '',
+    vibe:v.vibe || 'hood'
+  };
+}
+function hasRequirementLock(ore){
+  return !!(ore && ore.requiresAllOthers && !hasRolledAllOtherCharacters());
+}
+function buildMinifigMarkup(ore, size='large', locked=false){
+  const visual = getVisualForCharacter(ore);
+  const wrapperClass = size === 'mini' ? 'minifig-display minifig-mini' : 'minifig-display';
+  const lockClass = locked ? ' locked' : '';
+  const headgearColor = visual.vibe === 'hair' ? visual.hair : visual.hood;
+  const headgearClass = visual.vibe === 'hair' ? 'minifig-headgear hair' : (headgearColor ? 'minifig-headgear' : 'minifig-headgear none');
+  return `
+    <div class="${wrapperClass}${lockClass}" style="--skinColor:${visual.skin}; --hoodColor:${headgearColor}; --torsoColor:${visual.torso}; --armColor:${visual.arm}; --legColor:${visual.leg}; --accentColor:${visual.accent}; --auraColor:${ore ? ore.color : '#ffdd99'}; --beardColor:${visual.beard || '#fff'};">
+      <div class="minifig-figure">
+        <div class="minifig-aura"></div>
+        <div class="${headgearClass}"></div>
+        <div class="minifig-head">
+          <div class="minifig-face">
+            <span class="eyebrow left"></span>
+            <span class="eyebrow right"></span>
+            <span class="mouth"></span>
+            ${visual.beard ? '<span class="beard"></span>' : ''}
+          </div>
+        </div>
+        <div class="minifig-arm left"><span class="minifig-hand"></span></div>
+        <div class="minifig-arm right"><span class="minifig-hand"></span></div>
+        <div class="minifig-torso"><span class="minifig-emblem">${visual.emblem}</span></div>
+        <div class="minifig-hips"></div>
+        <div class="minifig-legs">
+          <div class="minifig-leg left"></div>
+          <div class="minifig-leg right"></div>
+        </div>
+      </div>
+      <div class="minifig-base"></div>
+    </div>`;
+}
+function renderMainCharacter(){
+  const ore = ORES.find(o=>o.key === state.lastFoundKey) || null;
+  refs.mainGem.style.setProperty('--gemColor', ore ? ore.color : '#ffcf73');
+  refs.mainGem.innerHTML = buildMinifigMarkup(ore, 'large', false);
+}
 function doRoll(options={}){
   const quiet = !!options.quiet;
   if (state.money < ROLL_COST){
@@ -761,6 +1130,7 @@ function doRoll(options={}){
     state.totalFinds++;
     state.inventory[found.key] = (state.inventory[found.key] || 0) + 1;
     state.discoveries[found.key] = true;
+    state.rolledCharacters[found.key] = true;
     state.pity = 0;
     const rank = rarityRank(found.rarity);
     const energyGain = 1 + Math.max(0, rank - 1) + state.research.fusion + (state.event === 'deep' ? 3 : 0);
@@ -777,7 +1147,7 @@ function doRoll(options={}){
     }
   } else {
     state.pity = Math.min(getPityCap(), state.pity + PITY_GAIN + state.research.pity * .1);
-    if (!quiet) addLog('No ore found. Pity increased.', '');
+    if (!quiet) addLog('No character found. Pity increased.', '');
   }
   checkMilestones();
   renderAll();
@@ -796,22 +1166,23 @@ async function doManyRolls(amount, cost){
 }
 function showFound(ore, quiet){
   const count = state.inventory[ore.key];
-  refs.mainGem.style.setProperty('--gemColor', ore.color);
+  state.lastFoundKey = ore.key;
+  renderMainCharacter();
   refs.mainGem.classList.remove('hit');
   void refs.mainGem.offsetWidth;
   refs.mainGem.classList.add('hit');
-  refs.lastOreName.textContent = ore.name + ' Discovered';
-  refs.lastOreMeta.textContent = `${ore.rarity} - 1 in ${ore.oneIn} - owned #${count}`;
+  refs.lastOreName.textContent = ore.name + ' Rolled';
+  refs.lastOreMeta.textContent = `${ore.rarity} - 1 in ${ore.oneIn} - owned #${count}${ore.requiresAllOthers ? ' - final unlock' : ''}`;
   refs.lastOreIncome.textContent = `+${fmtMoney(oreIncome(ore) * getIncomeMult())}/s right now`;
   const rank = rarityRank(ore.rarity);
   if (!(quiet && state.autoHideCommon && ore.rarity === 'Common')){
-    addLog(`Found ${ore.name} (${ore.rarity}).`, rank >= rarityRank('Epic') ? 'rare' : 'good');
+    addLog(`Rolled ${ore.name} (${ore.rarity}).`, rank >= rarityRank('Epic') ? 'rare' : 'good');
   }
   if (!quiet || rank >= rarityRank('Epic')){
     toast(ore.name, `${ore.rarity}, owned #${count}`);
   }
   if (rank >= rarityRank('Mythic')){
-    openModal(`${ore.rarity} Discovery`, `${ore.name} entered your collection. This is a major find.`);
+    openModal(`${ore.rarity} Discovery`, `${ore.name} entered your collection. This is a major roll.`);
   }
 }
 function checkMilestones(){
@@ -843,21 +1214,21 @@ function buyResearch(key){
 function fuse(type){
   if (type === 'common'){
     const commons = ORES.filter(o=>o.rarity === 'Common');
-    if (sumOres(commons) < 25) return toast('Not enough ore', 'Need 25 Common ores.');
+    if (sumOres(commons) < 25) return toast('Not enough copies', 'Need 25 Common character copies.');
     consumeOres(commons, 25);
     awardRandom('Rare');
     state.fusionEnergy = Math.min(100, state.fusionEnergy + 8);
   }
   if (type === 'epic'){
     const epics = ORES.filter(o=>o.rarity === 'Epic');
-    if (sumOres(epics) < 5) return toast('Not enough ore', 'Need 5 Epic ores.');
+    if (sumOres(epics) < 5) return toast('Not enough copies', 'Need 5 Epic character copies.');
     consumeOres(epics, 5);
     awardRandom('Legendary');
     state.fusionEnergy = Math.min(100, state.fusionEnergy + 14);
   }
   if (type === 'core'){
     const relics = ORES.filter(o=>o.rarity === 'Relic');
-    if (sumOres(relics) < 3 || state.fusionEnergy < 100) return toast('Forge not ready', 'Need 3 Relics and 100 fusion energy.');
+    if (sumOres(relics) < 3 || state.fusionEnergy < 100) return toast('Forge not ready', 'Need 3 Relic character copies and 100 fusion energy.');
     consumeOres(relics, 3);
     state.fusionEnergy = 0;
     state.rp += 10 + state.research.fusion;
@@ -878,7 +1249,7 @@ function consumeOres(list, amount){
   }
 }
 function awardRandom(rarity){
-  const choices = ORES.filter(o=>o.rarity === rarity);
+  const choices = ORES.filter(o=>o.rarity === rarity && (!o.requiresAllOthers || hasRolledAllOtherCharacters()));
   const ore = choices[Math.floor(Math.random() * choices.length)];
   state.inventory[ore.key] = (state.inventory[ore.key] || 0) + 1;
   state.discoveries[ore.key] = true;
@@ -921,7 +1292,7 @@ function endEvent(){
 function rebirth(){
   const cost = getRebirthCost();
   if (state.money < cost) return toast('Not ready', `Need ${fmtMoney(cost)} to rebirth.`);
-  if (!confirm('Rebirth resets money, ores, rolls, event, auto unlock, and pity. You keep research, collection discoveries, rebirth count, RBP, and milestones. Continue?')) return;
+  if (!confirm('Rebirth resets money, character copies, rolls, event, auto unlock, and pity. You keep research, collection discoveries, rebirth count, RBP, and milestones. Continue?')) return;
   state.money = 10;
   state.inventory = Object.fromEntries(ORES.map(o=>[o.key,0]));
   state.totalRolls = 0;
@@ -977,6 +1348,7 @@ function renderAll(){
   refs.focusPill.textContent = state.focus && Date.now() < state.focusEnds ? ORES.find(o=>o.key===state.focus).name : 'None';
   refs.eventPill.textContent = state.event ? EVENT_TYPES[state.event].name : 'None';
   refs.autoStatus.textContent = state.autoUnlocked ? `Auto: ${state.autoEnabled ? 'ON' : 'OFF'} - ${getAutoDelay()}ms` : 'Auto: locked';
+  renderMainCharacter();
   refs.rollsPill.textContent = state.totalRolls;
   refs.findRatePill.textContent = (state.totalRolls ? state.totalFinds/state.totalRolls*100 : 0).toFixed(1) + '%';
   refs.fusionPill.textContent = `${Math.floor(state.fusionEnergy)}/100`;
@@ -1018,7 +1390,7 @@ function renderInventory(){
       <div><strong>${o.name}</strong><div class="muted">${o.rarity} - ${fmtMoney(oreIncome(o) * getIncomeMult() * state.inventory[o.key])}/s total</div></div>
       <span class="score">x${state.inventory[o.key]}</span>
     </div>
-  `).join('') : '<div class="muted">No ores yet. Start rolling.</div>';
+  `).join('') : '<div class="muted">No characters yet. Start rolling.</div>';
 }
 function renderMilestones(){
   refs.milestoneList.innerHTML = MILESTONES.slice(0, 5).map(m=>{
@@ -1035,13 +1407,16 @@ function renderCollection(){
   refs.collectionGrid.innerHTML = ORES.map(o=>{
     const seen = !!state.discoveries[o.key];
     const count = state.inventory[o.key] || 0;
+    const lockedByRequirement = hasRequirementLock(o) && !seen;
+    const subtitle = seen ? `${o.rarity} - 1 in ${o.oneIn}` : (lockedByRequirement ? 'Locked until all other characters are rolled' : 'Undiscovered');
+    const scoreLine = seen ? `${count} owned - ${fmtMoney(oreIncome(o))}/s base` : (lockedByRequirement ? 'Final unlock character' : '???');
     return `<div class="ore-tile ${seen ? '' : 'locked'}">
       <div class="tile-head">
-        <div class="small-gem" style="--oreColor:${seen ? o.color : '#4a4038'}"></div>
-        <strong>${seen ? o.name : 'Unknown Ore'}</strong>
+        <div class="small-gem">${buildMinifigMarkup(seen ? o : null, 'mini', !seen)}</div>
+        <strong>${seen ? o.name : (lockedByRequirement ? 'Ultimate Master Locked' : 'Unknown Character')}</strong>
       </div>
-      <div class="muted">${seen ? `${o.rarity} - 1 in ${o.oneIn}` : 'Undiscovered'}</div>
-      <div class="score">${seen ? `${count} owned - ${fmtMoney(oreIncome(o))}/s base` : '???'}</div>
+      <div class="muted">${subtitle}</div>
+      <div class="score">${scoreLine}</div>
     </div>`;
   }).join('');
 }
@@ -1065,15 +1440,15 @@ function renderFusion(){
   const epicCount = sumOres(ORES.filter(o=>o.rarity === 'Epic'));
   const relicCount = sumOres(ORES.filter(o=>o.rarity === 'Relic'));
   refs.fusionList.innerHTML = `
-    <div class="row two"><div><strong>Common Bundle</strong><div class="muted">${commonCount}/25 Common ores. Creates a random Rare ore.</div></div><button data-fuse="common" ${commonCount < 25 ? 'disabled' : ''}>Fuse</button></div>
-    <div class="row two"><div><strong>Epic Forge</strong><div class="muted">${epicCount}/5 Epic ores. Creates a random Legendary ore.</div></div><button data-fuse="epic" ${epicCount < 5 ? 'disabled' : ''}>Fuse</button></div>
-    <div class="row two"><div><strong>Relic Core</strong><div class="muted">${relicCount}/3 Relic ores and ${Math.floor(state.fusionEnergy)}/100 energy. Gives +1 RBP and RP.</div></div><button data-fuse="core" ${relicCount < 3 || state.fusionEnergy < 100 ? 'disabled' : ''}>Forge</button></div>
+    <div class="row two"><div><strong>Common Bundle</strong><div class="muted">${commonCount}/25 Common character copies. Creates a random Rare character.</div></div><button data-fuse="common" ${commonCount < 25 ? 'disabled' : ''}>Fuse</button></div>
+    <div class="row two"><div><strong>Epic Forge</strong><div class="muted">${epicCount}/5 Epic character copies. Creates a random Legendary character.</div></div><button data-fuse="epic" ${epicCount < 5 ? 'disabled' : ''}>Fuse</button></div>
+    <div class="row two"><div><strong>Relic Core</strong><div class="muted">${relicCount}/3 Relic character copies and ${Math.floor(state.fusionEnergy)}/100 energy. Gives +1 RBP and RP.</div></div><button data-fuse="core" ${relicCount < 3 || state.fusionEnergy < 100 ? 'disabled' : ''}>Forge</button></div>
   `;
   document.querySelectorAll('[data-fuse]').forEach(b=>b.onclick=()=>fuse(b.dataset.fuse));
 }
 function renderEvents(){
   if (!state.event){
-    refs.eventDesc.textContent = 'No event is active. Start one when the mine is ready.';
+    refs.eventDesc.textContent = 'No event is active. Start one when your roster is ready.';
     refs.eventBar.style.width = '0%';
   } else {
     const ev = EVENT_TYPES[state.event];
@@ -1131,7 +1506,7 @@ function startIncomeLoop(){
 }
 function saveGame(){
   state.lastSavedAt = Date.now();
-  if (storageSet(SAVE_KEY, JSON.stringify(state))) toast('Saved', 'Your mine was saved locally.');
+  if (storageSet(SAVE_KEY, JSON.stringify(state))) toast('Saved', 'Your game was saved locally.');
   else toast('Save unavailable', 'The game is still playable, but this browser blocked local file saving.');
 }
 function loadGame(){
@@ -1142,6 +1517,7 @@ function loadGame(){
     Object.assign(state, freshState(), data);
     state.inventory = { ...freshState().inventory, ...(data.inventory || {}) };
     state.discoveries = data.discoveries || {};
+    state.rolledCharacters = data.rolledCharacters || {};
     state.milestones = data.milestones || {};
     state.research = { ...freshState().research, ...(data.research || {}) };
     const awayMs = Math.max(0, Date.now() - (data.lastSavedAt || Date.now()));
@@ -1149,7 +1525,7 @@ function loadGame(){
     const earned = computeMPS() * awayHours * 3600;
     if (earned > 1){
       state.money += earned;
-      setTimeout(()=>openModal('Offline Earnings', `Your mine earned ${fmtMoney(earned)} while you were away.`), 400);
+      setTimeout(()=>openModal('Offline Earnings', `Your roster earned ${fmtMoney(earned)} while you were away.`), 400);
     }
   }catch(err){
     console.warn(err);
@@ -1185,7 +1561,7 @@ function getBoard(){
   catch{ return []; }
 }
 function submitScore(){
-  const name = prompt('Miner name:', 'Miner') || 'Miner';
+  const name = prompt('Player name:', 'Ninja') || 'Ninja';
   const board = getBoard();
   board.push({ name:name.slice(0,24), score:score(), rebirths:state.rebirths, rolls:state.totalRolls, collection:discoveredCount(), time:Date.now() });
   board.sort((a,b)=>b.score-a.score);
@@ -1199,7 +1575,7 @@ function hardReset(){
   Object.assign(state, freshState());
   storageRemove(SAVE_KEY);
   refs.log.innerHTML = '';
-  addLog('New mine started.', 'warn');
+  addLog('New Ninjago run started.', 'warn');
   renderAll();
 }
 
@@ -1240,7 +1616,7 @@ function init(){
   el('focusSelect').innerHTML = ORES.map(o=>`<option value="${o.key}">${o.name} (${o.rarity})</option>`).join('');
   el('autoPauseRare').checked = state.autoPauseRare;
   el('autoHideCommon').checked = state.autoHideCommon;
-  addLog('Welcome to the Future Build. Roll, research, fuse, and rebirth deeper.', 'warn');
+  addLog('Welcome to the Ninjago Build. Roll characters, research, fuse, and rebirth deeper.', 'warn');
   checkMilestones();
   renderAll();
   startIncomeLoop();
