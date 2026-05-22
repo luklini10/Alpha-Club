@@ -1702,6 +1702,134 @@
     .ore-card{ min-height:300px; }
     .roll-btn{ width:190px; height:190px; }
   }
+
+  .arena-summary{
+    margin-bottom:16px;
+    padding:14px;
+    border-radius:16px;
+    border:1px solid rgba(255,235,189,.14);
+    background:
+      radial-gradient(circle at 20% 0%, rgba(255,214,106,.16), transparent 34%),
+      linear-gradient(180deg, rgba(28,30,38,.92), rgba(14,14,18,.96));
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .arena-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:16px;
+  }
+  .arena-ring{
+    position:relative;
+    min-height:250px;
+    overflow:hidden;
+    border-radius:20px;
+    padding:16px;
+    border:1px solid rgba(255,231,176,.16);
+    background:
+      radial-gradient(circle at 50% 22%, color-mix(in srgb, var(--ringColor, #ffd56a) 20%, transparent), transparent 42%),
+      linear-gradient(180deg, rgba(35,29,22,.94), rgba(10,12,16,.96));
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.05), 0 12px 28px rgba(0,0,0,.24);
+  }
+  .arena-ring::before{
+    content:'';
+    position:absolute;
+    left:50%;
+    bottom:42px;
+    width:76%;
+    height:86px;
+    transform:translateX(-50%) perspective(240px) rotateX(64deg);
+    border-radius:50%;
+    border:8px solid color-mix(in srgb, var(--ringColor, #ffd56a) 72%, rgba(255,255,255,.2));
+    background:
+      radial-gradient(circle, transparent 0 46%, rgba(255,255,255,.06) 48% 52%, transparent 53%),
+      repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--ringColor, #ffd56a) 30%, transparent) 0 12deg, transparent 12deg 24deg);
+    filter:drop-shadow(0 0 18px color-mix(in srgb, var(--ringColor, #ffd56a) 55%, transparent));
+    opacity:.85;
+  }
+  .arena-ring::after{
+    content:'';
+    position:absolute;
+    left:12%;
+    right:12%;
+    bottom:34px;
+    height:22px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(0,0,0,.5), rgba(0,0,0,0) 70%);
+    filter:blur(4px);
+  }
+  .arena-head{
+    position:relative;
+    z-index:2;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:flex-start;
+    margin-bottom:10px;
+  }
+  .arena-head h3{
+    margin:0;
+    font-size:18px;
+  }
+  .arena-mult{
+    font-weight:1000;
+    padding:6px 10px;
+    border-radius:999px;
+    background:color-mix(in srgb, var(--ringColor, #ffd56a) 18%, rgba(255,255,255,.06));
+    border:1px solid color-mix(in srgb, var(--ringColor, #ffd56a) 40%, rgba(255,255,255,.08));
+    color:color-mix(in srgb, var(--ringColor, #ffd56a) 86%, white);
+  }
+  .arena-fighter{
+    position:relative;
+    z-index:2;
+    display:grid;
+    place-items:center;
+    min-height:126px;
+    margin:6px 0 12px;
+  }
+  .arena-fighter .minifig-display{
+    transform:scale(1.18);
+    transform-origin:center bottom;
+  }
+  .arena-empty{
+    position:relative;
+    z-index:2;
+    display:grid;
+    place-items:center;
+    min-height:124px;
+    color:var(--muted);
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+  .arena-select{
+    position:relative;
+    z-index:3;
+    width:100%;
+    margin-top:8px;
+  }
+  .arena-select select{
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.16);
+    background:#11151b;
+    color:var(--text);
+    font-weight:700;
+  }
+  .arena-income-line{
+    position:relative;
+    z-index:2;
+    color:var(--muted);
+    font-size:13px;
+    min-height:34px;
+  }
+  @media (max-width: 860px){
+    .arena-grid{ grid-template-columns:1fr; }
+  }
+
 </style>
 </head>
 <body>
@@ -1721,6 +1849,7 @@
   <button class="tab" data-view="collection">Collection</button>
   <button class="tab" data-view="research">Research</button>
   <button class="tab" data-view="shop">Potion Shop</button>
+  <button class="tab" data-view="arena">Arena</button>
   <button class="tab" data-view="fusion">Fusion</button>
   <button class="tab" data-view="events">Events</button>
   <button class="tab" data-view="leaderboard">Leaderboard</button>
@@ -1746,7 +1875,7 @@
               <div id="mainGem" class="gem"></div>
               <h2 id="lastOreName">Ready to Roll</h2>
               <div class="muted" id="lastOreMeta">Roll to recruit Ninjago heroes and villains, complete goals, and build your roster.</div>
-              <div class="score" id="lastOreIncome">Unlock more of the Ninjago roster for base income — duplicate copies are collectible, fuseable, and great for milestones.</div>
+              <div class="score" id="lastOreIncome">Unlock characters, then place up to 4 of them into the Arena rings to generate income.</div>
             </div>
           </div>
           <div class="roll-stack">
@@ -1843,6 +1972,18 @@
       </div>
       <div id="potionStatus" class="mini" style="margin-bottom:14px;"></div>
       <div id="shopList" class="shop-grid"></div>
+    </div>
+  </section>
+
+
+  <section id="arenaView" class="view">
+    <div class="panel">
+      <h2>Ninjago Battle Arena</h2>
+      <div class="muted" style="margin-bottom:14px;">
+        Characters only generate income when they are placed into one of the arena rings. Pick your strongest income characters for the highest multiplier rings.
+      </div>
+      <div id="arenaSummary" class="arena-summary"></div>
+      <div id="arenaGrid" class="arena-grid"></div>
     </div>
   </section>
 
@@ -2305,6 +2446,14 @@ const RBP_UPGRADES = [
 ];
 
 
+
+const ARENA_RINGS = [
+  { name:'Dojo Ring', mult:1.00, color:'#ffd56a', desc:'Basic training ring.' },
+  { name:'Elemental Ring', mult:1.75, color:'#82fff6', desc:'Elemental boost ring.' },
+  { name:'Dragon Ring', mult:2.75, color:'#ff89d6', desc:'High-power dragon arena.' },
+  { name:'Golden Arena', mult:4.25, color:'#fff0ab', desc:'Best ring with the highest cash multiplier.' }
+];
+
 const state = freshState();
 let lastTick = performance.now();
 let autoTimer = null;
@@ -2323,7 +2472,7 @@ const refs = {
   mainGem:el('mainGem'), lastOreName:el('lastOreName'), lastOreMeta:el('lastOreMeta'), lastOreIncome:el('lastOreIncome'),
   goalTitle:el('goalTitle'), goalText:el('goalText'), goalBar:el('goalBar'), rollsPill:el('rollsPill'), findRatePill:el('findRatePill'),
   fusionPill:el('fusionPill'), rebirthCostPill:el('rebirthCostPill'), inventoryList:el('inventoryList'), milestoneList:el('milestoneList'),
-  collectionGrid:el('collectionGrid'), collectionPageInfo:el('collectionPageInfo'), collectionShelfInfo:el('collectionShelfInfo'), collectionPrevBtn:el('collectionPrevBtn'), collectionNextBtn:el('collectionNextBtn'), accountSelect:el('accountSelect'), newAccountName:el('newAccountName'), createAccountBtn:el('createAccountBtn'), deleteAccountBtn:el('deleteAccountBtn'), accountStatus:el('accountStatus'), researchGrid:el('researchGrid'), shopList:el('shopList'), shopTimer:el('shopTimer'), potionStatus:el('potionStatus'), fusionList:el('fusionList'), log:el('log'), toastWrap:el('toastWrap'),
+  collectionGrid:el('collectionGrid'), collectionPageInfo:el('collectionPageInfo'), collectionShelfInfo:el('collectionShelfInfo'), collectionPrevBtn:el('collectionPrevBtn'), collectionNextBtn:el('collectionNextBtn'), accountSelect:el('accountSelect'), newAccountName:el('newAccountName'), createAccountBtn:el('createAccountBtn'), deleteAccountBtn:el('deleteAccountBtn'), accountStatus:el('accountStatus'), researchGrid:el('researchGrid'), shopList:el('shopList'), shopTimer:el('shopTimer'), potionStatus:el('potionStatus'), arenaGrid:el('arenaGrid'), arenaSummary:el('arenaSummary'), fusionList:el('fusionList'), log:el('log'), toastWrap:el('toastWrap'),
   eventDesc:el('eventDesc'), eventBar:el('eventBar'), leaderboardList:el('leaderboardList'), modal:el('modal'), modalTitle:el('modalTitle'), modalText:el('modalText'), summonFx:el('summonFx'), summonFxCard:el('summonFxCard'), summonFxSceneTitle:el('summonFxSceneTitle'), summonFxDialogue:el('summonFxDialogue'), summonFxCaption:el('summonFxCaption')
 };
 
@@ -2354,6 +2503,7 @@ function freshState(){
     focusEnds:0,
     lastFoundKey:null,
     collectionPage:0,
+    arenaSlots:[null,null,null,null],
     shopStock:[],
     shopRestockAt:0,
     potionLuckRolls:0,
@@ -2405,8 +2555,13 @@ function oreIncome(ore){ return ore.income * ORE_INCOME_MULT; }
 function hasCharacterUnlocked(ore, s=state){ return (s.inventory[ore.key] || 0) > 0; }
 function computeMPS(){
   let total = 0;
-  for (const ore of ORES){
-    total += hasCharacterUnlocked(ore) ? oreIncome(ore) : 0;
+  const slots = Array.isArray(state.arenaSlots) ? state.arenaSlots : [];
+  for (let i = 0; i < ARENA_RINGS.length; i++){
+    const key = slots[i];
+    if (!key) continue;
+    const ore = ORES.find(o=>o.key === key);
+    if (!ore || !hasCharacterUnlocked(ore)) continue;
+    total += oreIncome(ore) * ARENA_RINGS[i].mult;
   }
   return total * getIncomeMult();
 }
@@ -3320,7 +3475,7 @@ function renderInventory(){
   refs.inventoryList.innerHTML = owned.length ? owned.slice(0, 12).map(o=>`
     <div class="row">
       <span class="dot" style="background:${o.color}; color:${o.color}"></span>
-      <div><strong>${o.name}</strong><div class="muted">${o.rarity} - ${fmtMoney(oreIncome(o) * getIncomeMult())}/s active base rate</div></div>
+      <div><strong>${o.name}</strong><div class="muted">${o.rarity} - ${fmtMoney(oreIncome(o) * getIncomeMult())}/s base • place in Arena to earn</div></div>
       <span class="score">x${state.inventory[o.key]}</span>
     </div>
   `).join('') : '<div class="muted">No characters yet. Start rolling.</div>';
@@ -3387,6 +3542,73 @@ function renderResearch(){
   document.querySelectorAll('[data-research]').forEach(b=>b.onclick=()=>buyResearch(b.dataset.research));
   renderRbpUpgrades();
 }
+
+function getAvailableArenaCharacters(slotIndex){
+  const used = new Set((state.arenaSlots || []).filter(Boolean));
+  const current = state.arenaSlots && state.arenaSlots[slotIndex];
+  if (current) used.delete(current);
+  return ORES
+    .filter(o=>(state.inventory[o.key] || 0) > 0 && !used.has(o.key))
+    .sort((a,b)=>oreIncome(b)-oreIncome(a) || rarityRank(b.rarity)-rarityRank(a.rarity) || b.oneIn-a.oneIn);
+}
+function setArenaSlot(index, key){
+  if (!Array.isArray(state.arenaSlots)) state.arenaSlots = [null,null,null,null];
+  key = key || null;
+  if (key && (state.inventory[key] || 0) <= 0) return toast('Not unlocked', 'You need to own that character first.');
+  if (key){
+    state.arenaSlots = state.arenaSlots.map((v,i)=>i !== index && v === key ? null : v);
+  }
+  state.arenaSlots[index] = key;
+  saveCurrentAccount(true);
+  renderAll();
+  toast('Arena updated', key ? `${ORES.find(o=>o.key===key).name} entered ${ARENA_RINGS[index].name}.` : `${ARENA_RINGS[index].name} is empty.`);
+}
+function renderArena(){
+  if (!refs.arenaGrid || !refs.arenaSummary) return;
+  if (!Array.isArray(state.arenaSlots)) state.arenaSlots = [null,null,null,null];
+  const active = state.arenaSlots.filter(k=>k && (state.inventory[k] || 0) > 0).length;
+  const arenaBase = state.arenaSlots.reduce((sum,key,i)=>{
+    const ore = ORES.find(o=>o.key === key);
+    return sum + (ore && (state.inventory[key] || 0) > 0 ? oreIncome(ore) * ARENA_RINGS[i].mult : 0);
+  },0);
+  const lockedPotential = ORES.filter(o=>(state.inventory[o.key] || 0) > 0 && !state.arenaSlots.includes(o.key))
+    .reduce((s,o)=>s+oreIncome(o),0);
+  refs.arenaSummary.innerHTML = `
+    <div><strong>${active}/4 fighters active</strong><div class="muted">Only arena fighters generate cash.</div></div>
+    <div><strong>${fmtMoney(computeMPS())}/s total</strong><div class="muted">Arena base before global multiplier: ${fmtMoney(arenaBase)}/s</div></div>
+    <div><strong>${fmtMoney(lockedPotential)}/s benched base</strong><div class="muted">Unlocked characters outside the arena earn $0.</div></div>
+  `;
+  refs.arenaGrid.innerHTML = ARENA_RINGS.map((ring,i)=>{
+    const key = state.arenaSlots[i];
+    const ore = key ? ORES.find(o=>o.key===key) : null;
+    const validOre = ore && (state.inventory[ore.key] || 0) > 0 ? ore : null;
+    const options = getAvailableArenaCharacters(i);
+    const income = validOre ? oreIncome(validOre) * ring.mult * getIncomeMult() : 0;
+    return `<div class="arena-ring" style="--ringColor:${ring.color}">
+      <div class="arena-head">
+        <div><h3>${ring.name}</h3><div class="muted">${ring.desc}</div></div>
+        <div class="arena-mult">x${ring.mult.toFixed(2)}</div>
+      </div>
+      <div class="arena-fighter">
+        ${validOre ? buildMinifigMarkup(validOre, 'mini', false) : '<div class="arena-empty">Empty Ring</div>'}
+      </div>
+      <div class="arena-income-line">
+        ${validOre ? `<strong>${validOre.name}</strong> earns ${fmtMoney(income)}/s here.<br><span class="muted">Base ${fmtMoney(oreIncome(validOre))}/s × ${ring.mult.toFixed(2)} × bonuses</span>` : 'Choose a character for this ring to start earning income.'}
+      </div>
+      <div class="arena-select">
+        <select data-arena-slot="${i}">
+          <option value="">-- Empty / no income --</option>
+          ${validOre && !options.some(o=>o.key===validOre.key) ? `<option value="${validOre.key}" selected>${validOre.name} • ${validOre.rarity} • ${fmtMoney(oreIncome(validOre))}/s base</option>` : ''}
+          ${options.map(o=>`<option value="${o.key}" ${validOre && validOre.key===o.key ? 'selected' : ''}>${o.name} • ${o.rarity} • ${fmtMoney(oreIncome(o))}/s base</option>`).join('')}
+        </select>
+      </div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('[data-arena-slot]').forEach(sel=>{
+    sel.onchange = ()=>setArenaSlot(Number(sel.dataset.arenaSlot), sel.value);
+  });
+}
+
 function renderFusion(){
   const commonCount = sumOres(ORES.filter(o=>o.rarity === 'Common'));
   const uncommonCount = sumOres(ORES.filter(o=>o.rarity === 'Uncommon'));
@@ -3486,6 +3708,10 @@ function sanitizeState(){
   if (!state.rbpUpgrades || typeof state.rbpUpgrades !== 'object') state.rbpUpgrades = Object.fromEntries(RBP_UPGRADES.map(u=>[u.key,0]));
   for (const u of RBP_UPGRADES){ if (!Number.isFinite(state.rbpUpgrades[u.key])) state.rbpUpgrades[u.key] = 0; }
   if (!Number.isFinite(state.rebirths)) state.rebirths = 0;
+  if (!Array.isArray(state.arenaSlots)) state.arenaSlots = [null,null,null,null];
+  state.arenaSlots = state.arenaSlots.slice(0, ARENA_RINGS.length);
+  while (state.arenaSlots.length < ARENA_RINGS.length) state.arenaSlots.push(null);
+  state.arenaSlots = state.arenaSlots.map(k=>k && (state.inventory[k] || 0) > 0 ? k : null);
   if (!Array.isArray(state.shopStock)) state.shopStock = [];
   if (!Number.isFinite(state.shopRestockAt)) state.shopRestockAt = 0;
   if (!Number.isFinite(state.potionLuckRolls)) state.potionLuckRolls = 0;
