@@ -1943,6 +1943,124 @@ button:focus-visible, select:focus-visible, input:focus-visible{outline:2px soli
   .resource-pill{min-width:92px;}
 }
 
+
+/* === Ultra compact top bar + reliable arena picker patch === */
+.tournament-topbar.compact-ready{
+  min-height:50px !important;
+  height:50px !important;
+  grid-template-columns:175px minmax(0,1fr) auto !important;
+  padding:0 8px !important;
+  align-items:center !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.32) !important;
+}
+.tournament-topbar .brand-lockup{gap:7px !important; padding-right:8px !important; min-width:0 !important;}
+.tournament-topbar .shuriken-logo{font-size:24px !important; line-height:1 !important;}
+.tournament-topbar .brand-text span{font-size:22px !important; line-height:.82 !important; text-shadow:0 2px 0 rgba(0,0,0,.35) !important;}
+.tournament-topbar .brand-text small{font-size:9px !important; letter-spacing:.04em !important;}
+.tournament-nav{height:50px !important; align-items:stretch !important;}
+.tournament-nav .tab{
+  min-width:68px !important;
+  max-width:92px !important;
+  padding:5px 7px !important;
+  font-size:10px !important;
+  line-height:1.05 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  align-items:center !important;
+  gap:1px !important;
+}
+.tournament-nav .tab span{font-size:15px !important; margin:0 !important; display:block !important; line-height:1 !important;}
+.resource-strip{gap:5px !important; padding-left:8px !important; height:50px !important;}
+.resource-pill{
+  min-width:82px !important;
+  padding:4px 7px !important;
+  gap:4px !important;
+  border-radius:14px !important;
+}
+.resource-pill span{font-size:15px !important;}
+.resource-pill strong{font-size:11px !important;}
+.resource-pill small{font-size:8px !important;}
+.top-icon{width:29px !important; height:29px !important; border-radius:9px !important; font-size:14px !important; padding:0 !important;}
+main{padding-top:8px !important;}
+.ring-select{display:none !important;}
+.ring-pick-btn,.arena-pick-btn{
+  position:relative;
+  z-index:8;
+  border:1px solid var(--ringColor, #ffd56a) !important;
+  background:linear-gradient(180deg, rgba(255,207,88,.95), rgba(174,102,24,.98)) !important;
+  color:#111820 !important;
+  box-shadow:0 0 18px color-mix(in srgb,var(--ringColor,#ffd56a) 34%, transparent), inset 0 1px 0 rgba(255,255,255,.4) !important;
+  font-weight:1000 !important;
+  text-transform:uppercase !important;
+}
+.home-ring .ring-pick-btn{
+  position:absolute;
+  bottom:14px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(86%,240px);
+  padding:8px 10px !important;
+  border-radius:10px !important;
+}
+.home-ring .ring-picked-label{
+  position:absolute;
+  bottom:52px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:7;
+  width:min(88%,260px);
+  text-align:center;
+  padding:5px 8px;
+  border-radius:999px;
+  color:#fff;
+  background:rgba(5,13,22,.82);
+  border:1px solid rgba(255,255,255,.13);
+  font-size:11px;
+  font-weight:900;
+  pointer-events:none;
+}
+.arena-picker-card{max-width:920px !important; width:min(94vw,920px) !important;}
+.arena-picker-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  gap:10px;
+  max-height:62vh;
+  overflow:auto;
+  padding:6px 4px 4px;
+}
+.arena-choice-btn{
+  display:grid;
+  grid-template-columns:54px 1fr;
+  align-items:center;
+  gap:10px;
+  text-align:left;
+  min-height:86px;
+  padding:8px !important;
+  border-radius:14px !important;
+  border:1px solid color-mix(in srgb, var(--rarityColor,#ffd56a) 70%, rgba(255,255,255,.1)) !important;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--rarityColor,#ffd56a) 18%, #111820), rgba(8,14,22,.96)) !important;
+  color:#fff !important;
+}
+.arena-choice-btn:hover{filter:brightness(1.18) !important; transform:translateY(-1px);}
+.arena-choice-btn .minifig-display{transform:scale(.66); transform-origin:center bottom;}
+.arena-choice-info strong{display:block; font-size:13px;}
+.arena-choice-info small{display:block; color:#b8c5d8; margin-top:2px; font-size:11px;}
+.arena-empty-choice{
+  grid-column:1/-1;
+  min-height:48px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  border-style:dashed !important;
+}
+.arena-select .arena-pick-btn{width:100%; padding:10px 12px !important; border-radius:12px !important;}
+@media (max-width: 1050px){
+  .tournament-topbar.compact-ready{grid-template-columns:150px 1fr !important; height:auto !important; min-height:48px !important;}
+  .resource-strip{grid-column:1/-1; height:36px !important; justify-content:flex-end !important; padding:0 !important;}
+  .tournament-nav .tab{min-width:58px !important; font-size:9px !important;}
+}
+
 </style>
 </head>
 <body>
@@ -2156,6 +2274,17 @@ button:focus-visible, select:focus-visible, input:focus-visible{outline:2px soli
     <p id="modalText" class="muted"></p>
     <div class="modal-actions">
       <button id="modalClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="arenaPickerModal" class="modal" aria-hidden="true">
+  <div class="modal-card arena-picker-card">
+    <h2 id="arenaPickerTitle">Pick Fighter</h2>
+    <p id="arenaPickerSub" class="muted">Choose one unlocked character for this arena ring.</p>
+    <div id="arenaPickerList" class="arena-picker-list"></div>
+    <div class="modal-actions">
+      <button id="arenaPickerCloseBtn">Close</button>
     </div>
   </div>
 </div>
@@ -3578,11 +3707,12 @@ function renderTournamentHome(){
     return `<div class="home-ring" style="--ringColor:${ring.color}">
       <div class="ring-banner"><b>${ring.name}</b><strong>${ring.mult}x</strong><span>Income Multiplier</span></div>
       <div class="ring-fighter">${buildMinifigMarkup(ore || null, 'large', !ore)}</div>
-      <select class="ring-select" data-home-ring="${i}">${options}</select>
+      <div class="ring-picked-label">${ore ? ore.name : 'No fighter selected'}</div>
+      <button class="ring-pick-btn" data-pick-ring="${i}" style="--ringColor:${ring.color}">${ore ? 'Change Fighter' : 'Pick Fighter'}</button>
     </div>`;
   }).join('');
-  ringsWrap.querySelectorAll('[data-home-ring]').forEach(sel=>{
-    sel.onchange = () => setArenaSlot(Number(sel.dataset.homeRing), sel.value || null);
+  ringsWrap.querySelectorAll('[data-pick-ring]').forEach(btn=>{
+    btn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); openArenaPicker(Number(btn.dataset.pickRing)); };
   });
 
   const benched = owned.filter(o=>!state.arenaSlots.includes(o.key));
@@ -3729,6 +3859,49 @@ function getAvailableArenaCharacters(slotIndex){
     .filter(o=>(state.inventory[o.key] || 0) > 0 && !used.has(o.key))
     .sort((a,b)=>oreIncome(b)-oreIncome(a) || rarityRank(b.rarity)-rarityRank(a.rarity) || b.oneIn-a.oneIn);
 }
+let currentArenaPickerIndex = 0;
+function openArenaPicker(index){
+  currentArenaPickerIndex = Math.max(0, Math.min(3, Number(index) || 0));
+  renderArenaPicker();
+  const modal = el('arenaPickerModal');
+  if (!modal) return;
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden','false');
+}
+function closeArenaPicker(){
+  const modal = el('arenaPickerModal');
+  if (!modal) return;
+  modal.classList.remove('active');
+  modal.setAttribute('aria-hidden','true');
+}
+function renderArenaPicker(){
+  const ring = ARENA_RINGS[currentArenaPickerIndex];
+  const title = el('arenaPickerTitle');
+  const sub = el('arenaPickerSub');
+  const list = el('arenaPickerList');
+  if (!ring || !list) return;
+  if (title) title.textContent = `Pick Fighter for ${ring.name} (${ring.mult}x)`;
+  if (sub) sub.textContent = 'Only fighters placed in the 4 arena rings generate income. Benched characters earn $0.';
+  const owned = ORES.filter(o => (state.inventory[o.key] || 0) > 0)
+    .sort((a,b)=>rarityRank(b.rarity)-rarityRank(a.rarity) || b.oneIn-a.oneIn || a.name.localeCompare(b.name));
+  const available = owned.filter(o => !state.arenaSlots.includes(o.key) || state.arenaSlots[currentArenaPickerIndex] === o.key);
+  const emptyButton = `<button class="arena-choice-btn arena-empty-choice" data-arena-choice=""><strong>Empty this ring</strong></button>`;
+  const choices = available.map(o=>{
+    const income = oreIncome(o) * ring.mult * getIncomeMult();
+    return `<button class="arena-choice-btn" data-arena-choice="${o.key}" style="--rarityColor:${RARITY_COLORS[o.rarity] || o.color}">
+      <span>${buildMinifigMarkup(o, 'mini', false)}</span>
+      <span class="arena-choice-info"><strong>${o.name}</strong><small>${o.rarity} • ${fmtMoney(income)}/s in this ring</small><small>Owned: ${state.inventory[o.key] || 0}</small></span>
+    </button>`;
+  }).join('');
+  list.innerHTML = emptyButton + (choices || '<div class="muted">Roll a character first, then place them in the arena.</div>');
+  list.querySelectorAll('[data-arena-choice]').forEach(btn=>{
+    btn.onclick = (e)=>{
+      e.preventDefault();
+      setArenaSlot(currentArenaPickerIndex, btn.dataset.arenaChoice || null);
+      closeArenaPicker();
+    };
+  });
+}
 function setArenaSlot(index, key){
   if (!Array.isArray(state.arenaSlots)) state.arenaSlots = [null,null,null,null];
   key = key || null;
@@ -3774,16 +3947,12 @@ function renderArena(){
         ${validOre ? `<strong>${validOre.name}</strong> earns ${fmtMoney(income)}/s here.<br><span class="muted">Base ${fmtMoney(oreIncome(validOre))}/s × ${ring.mult.toFixed(2)} × bonuses</span>` : 'Choose a character for this ring to start earning income.'}
       </div>
       <div class="arena-select">
-        <select data-arena-slot="${i}">
-          <option value="">-- Empty / no income --</option>
-          ${validOre && !options.some(o=>o.key===validOre.key) ? `<option value="${validOre.key}" selected>${validOre.name} • ${validOre.rarity} • ${fmtMoney(oreIncome(validOre))}/s base</option>` : ''}
-          ${options.map(o=>`<option value="${o.key}" ${validOre && validOre.key===o.key ? 'selected' : ''}>${o.name} • ${o.rarity} • ${fmtMoney(oreIncome(o))}/s base</option>`).join('')}
-        </select>
+        <button class="arena-pick-btn" data-pick-ring="${i}" style="--ringColor:${ring.color}">${validOre ? 'Change Fighter' : 'Pick Fighter'}</button>
       </div>
     </div>`;
   }).join('');
-  document.querySelectorAll('[data-arena-slot]').forEach(sel=>{
-    sel.onchange = ()=>setArenaSlot(Number(sel.dataset.arenaSlot), sel.value);
+  refs.arenaGrid.querySelectorAll('[data-pick-ring]').forEach(btn=>{
+    btn.onclick = (e)=>{ e.preventDefault(); e.stopPropagation(); openArenaPicker(Number(btn.dataset.pickRing)); };
   });
 }
 
@@ -3963,6 +4132,8 @@ el('autoPauseRare').onchange = e=>{ state.autoPauseRare = e.target.checked; rend
 el('autoHideCommon').onchange = e=>{ state.autoHideCommon = e.target.checked; renderAll(); };
 el('modalClose').onclick = closeModal;
 refs.modal.addEventListener('click', e=>{ if (e.target === refs.modal) closeModal(); });
+el('arenaPickerCloseBtn').onclick = closeArenaPicker;
+el('arenaPickerModal').addEventListener('click', e=>{ if (e.target === el('arenaPickerModal')) closeArenaPicker(); });
 el('adminBtn').onclick = openAdminModal;
 el('adminPullBtn').onclick = adminPullSelected;
 el('adminCloseBtn').onclick = closeAdminModal;
@@ -3985,6 +4156,7 @@ window.addEventListener('keydown', e=>{
   if (e.key === 'Escape'){
     closeModal();
     closeAdminModal();
+    closeArenaPicker();
   }
 });
 
