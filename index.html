@@ -968,6 +968,24 @@
     letter-spacing:.34em;
     color:rgba(255,255,255,.7);
   }
+  .summon-fx.with-scene.active:not(.ultimate-master) .summon-fx__scene-title{
+    animation:summonScenePulse var(--fxDuration) linear forwards;
+  }
+  .summon-fx.intense .summon-fx__name{
+    text-shadow:0 0 28px color-mix(in srgb, var(--fxColor) 82%, transparent), 0 10px 32px rgba(0,0,0,.54);
+  }
+  .summon-fx.intense .summon-fx__figure{
+    filter:drop-shadow(0 0 56px color-mix(in srgb, var(--fxColor) 86%, transparent));
+  }
+  .summon-fx.intense.active .summon-fx__figure{
+    animation:dramaticFigure var(--fxDuration) ease-out forwards;
+  }
+  .summon-fx.intense.active .summon-fx__name{
+    animation:dramaticName var(--fxDuration) ease-out forwards;
+  }
+  .summon-fx.intense.active::after{
+    animation:dramaticFlash var(--fxDuration) ease-out forwards;
+  }
   .summon-fx__figure{
     transform:scale(1.24);
     margin:8px 0 16px;
@@ -975,13 +993,13 @@
   }
   .summon-fx__figure .minifig-figure{ width:188px; height:248px; }
   .summon-fx__figure .minifig-base{ width:168px; }
-  .summon-fx.rarity-common{ --fxDuration:900ms; }
-  .summon-fx.rarity-uncommon{ --fxDuration:1000ms; }
-  .summon-fx.rarity-rare{ --fxDuration:1100ms; }
-  .summon-fx.rarity-epic{ --fxDuration:1300ms; }
-  .summon-fx.rarity-legendary{ --fxDuration:1600ms; }
-  .summon-fx.rarity-mythic{ --fxDuration:1900ms; }
-  .summon-fx.rarity-relic{ --fxDuration:2300ms; }
+  .summon-fx.rarity-common{ --fxDuration:1000ms; }
+  .summon-fx.rarity-uncommon{ --fxDuration:1150ms; }
+  .summon-fx.rarity-rare{ --fxDuration:1400ms; }
+  .summon-fx.rarity-epic{ --fxDuration:1750ms; }
+  .summon-fx.rarity-legendary{ --fxDuration:2200ms; }
+  .summon-fx.rarity-mythic{ --fxDuration:2700ms; }
+  .summon-fx.rarity-relic{ --fxDuration:3300ms; }
   .summon-fx.rarity-legendary .summon-fx__figure,
   .summon-fx.rarity-mythic .summon-fx__figure,
   .summon-fx.rarity-relic .summon-fx__figure{ animation:fxFloat 1.4s ease-in-out infinite; }
@@ -993,12 +1011,14 @@
   .summon-fx.style-fire .summon-fx__storm{ background:repeating-conic-gradient(from 0deg, rgba(255,115,54,.38) 0 7deg, transparent 7deg 16deg), radial-gradient(circle at 50% 50%, rgba(255,204,84,.2) 0 10%, transparent 24% 100%); }
   .summon-fx.style-fire.active .summon-fx__storm{ animation:fxSurge var(--fxDuration) ease-out forwards; }
   .summon-fx.style-fire.active .summon-fx__burst{ animation:fxBurstFire var(--fxDuration) ease-out forwards; }
+  .summon-fx.style-fire.active .summon-fx__rays{ animation:fxCoil var(--fxDuration) ease-out forwards; }
 
   .summon-fx.style-lightning{ background:#030813; }
   .summon-fx.style-lightning::before{ background:radial-gradient(circle at 50% 50%, rgba(129,205,255,.22) 0%, transparent 32%), linear-gradient(180deg, rgba(3,8,19,.9), rgba(2,4,10,.98)); }
   .summon-fx.style-lightning .summon-fx__storm{ background:linear-gradient(125deg, transparent 0 42%, rgba(255,255,255,.88) 46% 48%, transparent 52% 100%), linear-gradient(55deg, transparent 0 54%, rgba(128,196,255,.65) 56% 58%, transparent 62% 100%), repeating-conic-gradient(from 0deg, rgba(116,190,255,.28) 0 6deg, transparent 6deg 16deg); }
   .summon-fx.style-lightning.active .summon-fx__storm{ animation:fxBoltStorm var(--fxDuration) ease-out forwards; }
   .summon-fx.style-lightning.active .summon-fx__burst{ animation:fxBurstBolt var(--fxDuration) ease-out forwards; }
+  .summon-fx.style-lightning.active .summon-fx__rays{ animation:fxRift var(--fxDuration) ease-out forwards; }
 
   .summon-fx.style-earth{ background:#110a05; }
   .summon-fx.style-earth::before{ background:radial-gradient(circle at 50% 70%, rgba(193,137,64,.22) 0%, transparent 28%), linear-gradient(180deg, rgba(24,15,8,.92), rgba(10,7,4,.98)); }
@@ -1015,6 +1035,7 @@
   .summon-fx.style-water::before{ background:radial-gradient(circle at 50% 60%, rgba(73,221,255,.16) 0%, transparent 32%), linear-gradient(180deg, rgba(3,16,24,.92), rgba(1,7,11,.98)); }
   .summon-fx.style-water .summon-fx__rings{ background:radial-gradient(circle at 50% 50%, transparent 0 18%, rgba(122,235,255,.78) 18.5% 19.5%, transparent 20% 30%, rgba(66,182,219,.45) 30.5% 31.5%, transparent 32% 42%, rgba(170,245,255,.24) 42.5% 43.5%, transparent 44% 100%); }
   .summon-fx.style-water.active .summon-fx__rings{ animation:fxWave var(--fxDuration) ease-out forwards; }
+  .summon-fx.style-water.active .summon-fx__storm{ animation:fxSurge var(--fxDuration) ease-out forwards; }
 
   .summon-fx.style-wind{ background:#04110b; }
   .summon-fx.style-wind::before{ background:radial-gradient(circle at 50% 50%, rgba(122,255,196,.18) 0%, transparent 30%), linear-gradient(180deg, rgba(3,16,12,.92), rgba(1,8,5,.98)); }
@@ -1025,7 +1046,8 @@
   .summon-fx.style-tech::before{ background:linear-gradient(180deg, rgba(7,7,17,.88), rgba(4,4,12,.98)), linear-gradient(90deg, rgba(255,102,204,.08), rgba(87,238,255,.08)); }
   .summon-fx.style-tech .summon-fx__storm{ background:repeating-linear-gradient(90deg, rgba(255,255,255,.0) 0 18px, rgba(93,240,255,.22) 18px 20px, rgba(255,255,255,0) 20px 38px), repeating-linear-gradient(0deg, rgba(255,255,255,.0) 0 18px, rgba(255,115,198,.18) 18px 20px, rgba(255,255,255,0) 20px 38px); }
   .summon-fx.style-tech.active .summon-fx__storm{ animation:fxGlitchLayer var(--fxDuration) linear forwards; }
-  .summon-fx.style-tech.active .summon-fx__card{ animation:fxCard var(--fxDuration) ease-out forwards, fxDataGlitch calc(var(--fxDuration) * .6) steps(2,end) 1; }
+  .summon-fx.style-tech.active .summon-fx__card{ animation:fxCard var(--fxDuration) ease-out forwards, fxDataGlitch calc(var(--fxDuration) * .7) steps(3,end) 1; }
+  .summon-fx.style-tech.active .summon-fx__rays{ animation:fxClock var(--fxDuration) ease-out forwards; }
 
   .summon-fx.style-time{ background:#0f0506; }
   .summon-fx.style-time::before{ background:radial-gradient(circle at 38% 50%, rgba(91,194,244,.17) 0%, transparent 22%), radial-gradient(circle at 62% 50%, rgba(197,47,47,.17) 0%, transparent 22%), linear-gradient(180deg, rgba(13,5,7,.92), rgba(6,2,3,.98)); }
@@ -1056,6 +1078,7 @@
   .summon-fx.style-dragon::before{ background:radial-gradient(circle at 50% 50%, rgba(255,188,91,.18) 0%, transparent 28%), radial-gradient(circle at 50% 50%, rgba(126,255,193,.10) 0%, transparent 48%), linear-gradient(180deg, rgba(13,8,4,.92), rgba(6,4,2,.98)); }
   .summon-fx.style-dragon .summon-fx__rays{ background:repeating-conic-gradient(from 0deg, rgba(255,255,255,.22) 0 2deg, transparent 2deg 10deg, color-mix(in srgb, var(--fxColor) 48%, transparent) 10deg 14deg, transparent 14deg 24deg), radial-gradient(circle at 50% 50%, transparent 0 20%, rgba(255,231,179,.12) 21% 22%, transparent 23% 100%); }
   .summon-fx.style-dragon.active .summon-fx__rays{ animation:fxDragon var(--fxDuration) ease-out forwards; }
+  .summon-fx.style-dragon.active .summon-fx__rings{ animation:fxSolar var(--fxDuration) ease-out forwards; }
 
   .summon-fx.style-golden{ background:#100d04; }
   .summon-fx.style-golden::before{ background:radial-gradient(circle at 50% 48%, rgba(255,232,123,.22) 0%, transparent 28%), linear-gradient(180deg, rgba(16,13,4,.9), rgba(8,6,2,.98)); }
@@ -1071,6 +1094,7 @@
   .summon-fx.style-oni::before{ background:radial-gradient(circle at 50% 50%, rgba(176,118,255,.18) 0%, transparent 28%), linear-gradient(180deg, rgba(11,5,15,.94), rgba(5,2,8,.99)); }
   .summon-fx.style-oni .summon-fx__storm{ background:radial-gradient(circle at 50% 50%, rgba(123,71,182,.18) 0 16%, transparent 28% 100%), repeating-conic-gradient(from 0deg, rgba(200,106,255,.22) 0 6deg, transparent 6deg 14deg), linear-gradient(125deg, transparent 0 44%, rgba(255,255,255,.18) 48% 49%, transparent 53% 100%); }
   .summon-fx.style-oni.active .summon-fx__storm{ animation:fxRift var(--fxDuration) ease-out forwards; }
+  .summon-fx.style-oni.active .summon-fx__burst{ animation:fxBurstBolt var(--fxDuration) ease-out forwards; }
 
   .summon-fx.ultimate-master{
     --fxDuration:15000ms;
@@ -1201,7 +1225,39 @@
   @keyframes fxDragon{ 0%{ opacity:0; transform:scale(.14) rotate(0deg); } 18%{ opacity:1; transform:scale(.72) rotate(150deg); } 72%{ opacity:.95; transform:scale(1.12) rotate(780deg); } 100%{ opacity:0; transform:scale(1.42) rotate(1080deg); } }
   @keyframes fxSolar{ 0%{ opacity:0; transform:scale(.12); } 20%{ opacity:1; transform:scale(.75); } 78%{ opacity:.95; transform:scale(1.1); } 100%{ opacity:0; transform:scale(1.34); } }
   @keyframes fxRift{ 0%{ opacity:0; transform:scale(.22) rotate(0deg); } 15%{ opacity:1; } 40%{ opacity:.45; } 54%{ opacity:1; } 100%{ opacity:0; transform:scale(1.34) rotate(260deg); } }
+  @keyframes summonScenePulse{
+    0%,8%{ opacity:0; transform:translateX(-50%) scale(.76); }
+    14%,46%{ opacity:1; transform:translateX(-50%) scale(1); }
+    58%,100%{ opacity:0; transform:translateX(-50%) scale(1.07); }
+  }
+  @keyframes dramaticFigure{
+    0%{ opacity:0; transform:scale(.5) translateY(44px); filter:blur(6px) drop-shadow(0 0 12px transparent); }
+    18%{ opacity:1; transform:scale(1.05) translateY(-6px); filter:drop-shadow(0 0 38px color-mix(in srgb, var(--fxColor) 74%, transparent)); }
+    46%{ opacity:1; transform:scale(1.18) translateY(0); }
+    88%{ opacity:1; transform:scale(1.24) translateY(-4px); }
+    100%{ opacity:0; transform:scale(1.32) translateY(-12px); }
+  }
+  @keyframes dramaticName{
+    0%,12%{ opacity:0; transform:translateY(22px) scale(.9); }
+    20%,78%{ opacity:1; transform:translateY(0) scale(1); }
+    100%{ opacity:0; transform:translateY(-10px) scale(1.04); }
+  }
+  @keyframes dramaticFlash{
+    0%,100%{ opacity:0; transform:scale(.72); }
+    10%{ opacity:.9; }
+    18%{ opacity:.25; }
+    28%{ opacity:.65; }
+    100%{ opacity:0; transform:scale(1.2); }
+  }
   @keyframes ultimateSceneTitle{
+    0%,3%{ opacity:0; transform:translateX(-50%) scale(.8); }
+    5%,17%{ opacity:1; transform:translateX(-50%) scale(1); }
+    22%,28%{ opacity:0; transform:translateX(-50%) scale(1.08); }
+    30%,46%{ opacity:1; transform:translateX(-50%) scale(1); }
+    50%,56%{ opacity:0; transform:translateX(-50%) scale(1.08); }
+    58%,76%{ opacity:1; transform:translateX(-50%) scale(1); }
+    82%,100%{ opacity:0; transform:translateX(-50%) scale(1.08); }
+  }
     0%,4%{ opacity:0; transform:translateX(-50%) scale(.85); }
     8%,24%{ opacity:1; transform:translateX(-50%) scale(1); }
     30%,100%{ opacity:0; transform:translateX(-50%) scale(1.06); }
@@ -1702,6 +1758,29 @@ function getSummonSignature(ore){
   return SUMMON_SIGNATURES[ore.key] || { style:'master', banner:ore.rarity, flavor:`${ore.name} enters the summon field.` };
 }
 
+const SUMMON_STYLE_STAGES = {
+  fire:['Ignition Sequence', 'Inferno Release'],
+  lightning:['Voltage Spike', 'Stormbreak'],
+  earth:['Ground Fracture', 'Quake Surge'],
+  ice:['Cryo Bloom', 'Frozen Zero'],
+  water:['Tide Rising', 'Ocean Veil'],
+  wind:['Wind Spiral', 'Tempest Crown'],
+  tech:['Signal Lock', 'System Override'],
+  time:['Clock Distortion', 'Temporal Collapse'],
+  shadow:['Void Opening', 'Nightfall'],
+  royal:['Royal Bloom', 'Crownfall'],
+  snake:['Venom Wake', 'Serpent Coil'],
+  steel:['Forge Spark', 'Iron Lock'],
+  dragon:['Draconic Rise', 'Dragon Dominion'],
+  golden:['Sunflare', 'Radiant Crown'],
+  master:['Inner Balance', 'Master Reveal'],
+  oni:['Rift Opening', 'Oni Dominion']
+};
+function getSummonStages(ore){
+  const signature = getSummonSignature(ore);
+  return SUMMON_STYLE_STAGES[signature.style] || ['Power Surge', ore.rarity + ' Reveal'];
+}
+
 const ORES = [
   { key:'kai', name:'Kai', oneIn:2, rarity:'Common', income:0.05, color:'#ef2b23' },
   { key:'jay', name:'Jay', oneIn:3, rarity:'Common', income:0.06, color:'#3886f1' },
@@ -2105,33 +2184,41 @@ function showSummonFx(ore){
   const visual = getVisualForCharacter(ore);
   const rarityClass = 'rarity-' + ore.rarity.toLowerCase();
   const signature = getSummonSignature(ore);
+  const stages = getSummonStages(ore);
   const isUltimate = ore.key === 'ultimate_spinjitzu_master';
+  const intense = rarityRank(ore.rarity) >= rarityRank('Rare');
   const styleClass = 'style-' + signature.style;
-  refs.summonFx.className = 'summon-fx ' + rarityClass + ' ' + styleClass + (isUltimate ? ' ultimate-master' : '');
+  refs.summonFx.className = 'summon-fx with-scene ' + rarityClass + ' ' + styleClass + (intense ? ' intense' : '') + (isUltimate ? ' ultimate-master' : '');
   refs.summonFx.style.setProperty('--fxColor', ore.color);
   refs.summonFx.style.setProperty('--fxAccent', visual.accent);
   refs.summonFx.style.setProperty('--fxWeapon', visual.weapon);
   refs.summonFx.style.setProperty('--fxTrim', visual.trim);
-  if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = isUltimate ? 'Stage 1 • Golden Awakening' : '';
+  if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = isUltimate ? 'Stage 1 • Golden Seal Breach' : stages[0];
   if (refs.summonFxDialogue) refs.summonFxDialogue.textContent = isUltimate ? 'Behold the Ultimate Spinjitzu Master!' : '';
   refs.summonFxCard.innerHTML = `
     <div class="summon-fx__rarity">${isUltimate ? 'BREAKTHROUGH' : ore.rarity}</div>
     <div class="summon-fx__omen">${signature.banner}</div>
     <div class="summon-fx__name">${ore.name}</div>
     <div class="summon-fx__figure">${buildMinifigMarkup(ore, 'large', false)}</div>
-    <div class="summon-fx__flavor">${isUltimate ? 'Golden light floods the screen, then the master rises into a celestial aura.' : signature.flavor}</div>
-    <div class="summon-fx__meta">${isUltimate ? 'Original electronic theme inspired by high-energy rhythm game reveals • 15 second staged cutscene' : `1 in ${ore.oneIn}${ore.requiresAllOthers ? ' • Final Unlock' : ''}`}</div>
+    <div class="summon-fx__flavor">${isUltimate ? 'A golden screen erupts, the aura stabilizes, and the master ascends through a three-part reveal.' : signature.flavor}</div>
+    <div class="summon-fx__meta">${isUltimate ? 'Original electronic cue inspired by high-energy aura summons • staged 15 second cutscene' : `1 in ${ore.oneIn}${ore.requiresAllOthers ? ' • Final Unlock' : ''}`}</div>
   `;
   void refs.summonFx.offsetWidth;
   refs.summonFx.classList.add('active');
   clearTimeout(summonFxTimer);
   const duration = parseInt(getComputedStyle(refs.summonFx).getPropertyValue('--fxDuration')) || 1200;
   if (isUltimate){
-    scheduleSummonCue(4200, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = 'Stage 2 • Celestial Ascension'; });
-    scheduleSummonCue(9000, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = 'Stage 3 • Final Decree'; });
-    scheduleSummonCue(12800, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = ''; });
+    scheduleSummonCue(2900, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = 'Stage 2 • Aura Reading: Infinite'; });
+    scheduleSummonCue(6900, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = 'Stage 3 • Celestial Ascension'; });
+    scheduleSummonCue(10900, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = 'Stage 4 • Final Manifestation'; });
+    scheduleSummonCue(13800, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = ''; });
     playUltimateInspiredTrack();
     speakUltimateLine();
+  } else {
+    const secondCue = Math.floor(duration * (rarityRank(ore.rarity) >= rarityRank('Epic') ? 0.44 : 0.5));
+    const finalCue = Math.floor(duration * (rarityRank(ore.rarity) >= rarityRank('Legendary') ? 0.76 : 0.68));
+    scheduleSummonCue(secondCue, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = stages[1]; });
+    scheduleSummonCue(finalCue, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = ore.name.toUpperCase(); });
   }
   summonFxTimer = setTimeout(()=>{
     refs.summonFx.classList.remove('active');
