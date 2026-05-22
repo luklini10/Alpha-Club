@@ -2,1422 +2,1252 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Ore Roller RNG — Rebirth Build</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ore Roller RNG - Future Build</title>
 <style>
   :root{
-    --bg:#140d08; --panel:#24170f; --panel2:#17100b;
-    --text:#f7ead8; --muted:#c8ad86; --accent:#ffb347;
-    --good:#8cff9b; --warn:#ffd56a; --danger:#ff6a6a; --hud:#120c08;
-    --wood:#5a331d; --woodDark:#2c170c; --stone:#2a2926; --goldGlow:#ffb347;
+    --bg:#100c09;
+    --panel:#1b130d;
+    --panel2:#24180f;
+    --panel3:#120d09;
+    --line:#6a4024;
+    --line2:#3f2818;
+    --text:#f8ead8;
+    --muted:#c8ad86;
+    --gold:#ffb347;
+    --good:#8cff9b;
+    --blue:#6ae3ff;
+    --red:#ff6a6a;
+    --purple:#b986ff;
+    --relic:#9efcff;
   }
-  *{box-sizing:border-box}
+  *{ box-sizing:border-box; }
   body{
-    margin:0; font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    margin:0;
+    min-height:100vh;
+    font-family:system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color:var(--text);
     background:
-      radial-gradient(900px 520px at 50% -15%, rgba(255,179,71,.18), transparent 58%),
-      linear-gradient(90deg, rgba(0,0,0,.38) 0 8%, transparent 8% 92%, rgba(0,0,0,.38) 92% 100%),
-      repeating-linear-gradient(90deg, rgba(90,51,29,.28) 0 18px, rgba(44,23,12,.28) 18px 36px),
-      linear-gradient(180deg, #21140c 0%, #100b08 60%, #090706 100%) fixed;
-    color:var(--text); min-height:100vh; display:grid; grid-template-rows:auto 1fr auto; overflow-x:hidden;
-    position:relative;
+      radial-gradient(900px 500px at 50% -20%, rgba(255,179,71,.18), transparent 60%),
+      linear-gradient(90deg, rgba(0,0,0,.34) 0 8%, transparent 8% 92%, rgba(0,0,0,.34) 92% 100%),
+      repeating-linear-gradient(90deg, rgba(90,51,29,.24) 0 18px, rgba(44,23,12,.24) 18px 36px),
+      linear-gradient(180deg, #21140c, #090706);
   }
-  body::before{
-    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
-    background:
-      linear-gradient(90deg, transparent 0 12%, rgba(91,52,31,.55) 12% 15%, transparent 15% 85%, rgba(91,52,31,.55) 85% 88%, transparent 88%),
-      repeating-linear-gradient(0deg, transparent 0 118px, rgba(91,52,31,.38) 118px 132px, rgba(38,20,10,.38) 132px 140px, transparent 140px 260px);
-    box-shadow: inset 0 0 140px rgba(0,0,0,.75);
+  button, select, input{
+    font:inherit;
+  }
+  button{
+    border:1px solid #8a5a2f;
+    background:linear-gradient(180deg, #6b3d20, #2b180d);
+    color:#fff3df;
+    border-radius:8px;
+    padding:9px 12px;
+    font-weight:900;
+    cursor:pointer;
+    transition:filter .15s ease, transform .08s ease, opacity .15s ease;
+  }
+  button:hover:not(:disabled){ filter:brightness(1.14); }
+  button:active:not(:disabled){ transform:translateY(1px) scale(.99); }
+  button:disabled{ opacity:.48; cursor:not-allowed; }
+  input, select{
+    background:#0f0b08;
+    border:1px solid var(--line);
+    color:var(--text);
+    border-radius:8px;
+    padding:8px;
   }
   header{
-    padding:14px 18px; background:linear-gradient(180deg, #3a2112, var(--panel)); border-bottom:2px solid #6b3d20; box-shadow:0 4px 18px rgba(0,0,0,.35);
-    display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
+    border-bottom:2px solid var(--line);
+    background:linear-gradient(180deg, #3a2112, #20140d);
+    padding:15px 22px;
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    align-items:center;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
   }
-  header h1{margin:0; font-size:1.1rem; letter-spacing:.3px}
-  .money{ display:flex; gap:16px; align-items:center; color:var(--muted); font-size:.95rem; flex-wrap:wrap; }
-  .money strong{color:var(--text)}
-  .wrap{ display:grid; grid-template-columns: 1.1fr 420px; gap:18px; width:min(1300px, 95vw); margin:20px auto; align-items:start; }
-  .stage{
-    background:linear-gradient(180deg, rgba(34,24,17,.96), rgba(18,13,10,.96)); border:2px solid #5b351f; border-radius:14px; padding:24px;
-    display:grid; grid-template-rows:auto auto 1fr auto; gap:16px; min-height:620px; position:relative; overflow:hidden;
+  h1{ margin:0; font-size:1.22rem; letter-spacing:.2px; }
+  h2{ margin:0 0 10px; color:var(--gold); font-size:1.05rem; }
+  h3{ margin:0 0 8px; font-size:.96rem; }
+  .top-stats{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 16px;
+    color:var(--muted);
+    font-size:.92rem;
   }
-  .stage-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
-  .rate{ display:flex; gap:14px; color:var(--muted); font-size:.95rem; flex-wrap:wrap; }
-  .hud{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; background:var(--hud); border:1px solid #1a2450; padding:8px 10px; border-radius:10px; }
-  .pill{ background:#0d1436; border:1px solid #233070; padding:6px 10px; border-radius:999px; font-size:.9rem; display:flex; gap:6px; align-items:center; }
-  .bar{ height:8px; border-radius:6px; background:#0f1430; border:1px solid #27305a; overflow:hidden; }
-  .bar > div{ height:100%; background:linear-gradient(90deg, #6ae3ff, #8ef5c2); width:0%; transition:width .25s ease; }
-  .pity{ width:220px; } .pity .bar{ width:100%; }
-
-  .center{ display:grid; place-items:center; position:relative; }
-  .roll-btn{
-    width:220px; height:220px; border-radius:50%;
-    background: radial-gradient(95px 95px at 35% 28%, #6b4122 0%, #2a1a10 62%, #100907 100%);
-    border:3px solid #8a5a2f; color:#fff; font-weight:900; font-size:1.4rem; letter-spacing:.3px;
-    cursor:pointer; box-shadow: 0 18px 40px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,230,190,.08), 0 0 44px rgba(255,179,71,.22);
-    transition: transform .08s ease, filter .2s ease, box-shadow .2s ease;
-    position:relative; overflow:hidden; text-shadow:0 2px 4px rgba(0,0,0,.6);
+  .top-stats strong{ color:var(--text); }
+  .tabs{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    padding:12px;
+    border-bottom:1px solid rgba(106,64,36,.52);
+    flex-wrap:wrap;
   }
-  .roll-btn::before{
-    content:'⛏️'; position:absolute; left:50%; top:46%; transform:translate(-50%,-50%) rotate(-28deg);
-    font-size:6.2rem; opacity:.28; filter:drop-shadow(0 8px 8px rgba(0,0,0,.55)); pointer-events:none;
+  .tab{
+    border-radius:999px;
+    padding:9px 15px;
+    background:linear-gradient(180deg, #4a2a16, #21130b);
   }
-  .roll-btn::after{
-    content:''; position:absolute; inset:18px; border-radius:50%; border:2px dashed rgba(255,211,130,.22); pointer-events:none;
+  .tab.active{
+    background:linear-gradient(180deg, #a16835, #513019);
+    box-shadow:0 0 20px rgba(255,179,71,.22);
   }
-  .roll-btn small{ display:block; font-size:.9rem; font-weight:600; color:#cfe8ff; opacity:.8; margin-top:6px; }
-  .roll-btn:hover{ filter:brightness(1.06); box-shadow: 0 22px 50px rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.07), 0 0 60px rgba(255,179,71,.32);}
-  .roll-btn:active{ transform: translateY(2px) scale(0.985); }
-  .quick{ position:absolute; bottom:-4px; display:flex; gap:10px; }
-  .quick button{ padding:10px 12px; font-weight:800; border-radius:8px; border:1px solid #8a5a2f;
-    background:linear-gradient(180deg, #6b3d20, #2b180d); color:#fff3df; cursor:pointer; }
-  .quick button:disabled{ opacity:.55; cursor:not-allowed; }
-
-  .subpanel{ background:#18110c; border:1px solid #5b351f; border-radius:12px; padding:12px; }
-  .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-
-  .card{ background:linear-gradient(180deg, #21150d, #130d09); border:1px solid #5b351f; border-radius:12px; padding:14px; }
-  .card h3{ margin:0 0 10px 0; font-size:1rem; color:var(--accent) }
-
-  .ore-legend{ display:grid; gap:8px; }
-  .legend-row{
-    display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center;
-    padding:8px; border-radius:8px; background:#1a120c; border:1px solid #4a2b19;
+  main{
+    width:min(1340px, 95vw);
+    margin:20px auto 34px;
   }
-  .badge{ width:12px; height:12px; border-radius:50%; box-shadow:0 0 0 3px rgba(255,255,255,.03) inset; }
-  .odds{ color:var(--muted); font-size:.85rem; }
-  .income{ color:#9fe6b6; font-size:.9rem; }
-
-  .inv-list{ display:grid; grid-template-columns: 1fr auto; gap:8px; }
-  .inv-item{ display:contents; }
-  .inv-name{ background:#120d09; border:1px solid #3f2818; border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:8px; transition: box-shadow .3s ease; }
-  .inv-amt{ display:flex; align-items:center; justify-content:flex-end; background:#120d09; border:1px solid #3f2818; border-radius:8px; padding:8px 10px; font-weight:800; transition: box-shadow .3s ease; }
-  .inv-pulse .inv-name, .inv-pulse .inv-amt{ box-shadow: 0 0 0 2px rgba(106,227,255,.35); }
-
-  .log{ max-height:220px; overflow:auto; background:#0e0a07; border:1px solid #3f2818; border-radius:10px; padding:10px; }
-  .entry{ font-size:.92rem; padding:6px 8px; border-bottom:1px dashed #4a2b19; }
-  .entry:last-child{ border-bottom:none; }
-  .got{ color:var(--good); } .miss{ color:var(--muted); } .warn{ color:var(--warn); }
-
-  .toasts{ position:absolute; right:28px; top:18%; transform:none; display:flex; flex-direction:column; gap:8px; pointer-events:none; z-index:20; max-width:min(340px, 42vw); }
-  .toast{ background:#20140d; border:1px solid #8a5a2f; border-radius:10px; padding:10px 14px; display:flex; align-items:center; gap:10px; box-shadow:0 10px 30px rgba(0,0,0,.35); animation: toastIn .28s ease, toastOut .3s ease 2.3s forwards; font-weight:700; }
-  @keyframes toastIn{ from{ transform: translateX(26px) translateY(-4px) scale(.96); opacity:0 } to{ transform: translateX(0) translateY(0) scale(1); opacity:1 } }
-  @keyframes toastOut{ to{ transform: translateX(34px) translateY(-8px) scale(.98); opacity:0 } }
-
-  .confetti{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:15; }
-  .piece{ position:absolute; width:8px; height:12px; opacity:.9; animation: fall 900ms cubic-bezier(.2,.8,.2,1) forwards; }
-  @keyframes fall{ 0%{ transform: translate(var(--sx,0), calc(var(--sy,0))) rotate(0deg); opacity:1 } 100%{ transform: translate(calc(var(--sx,0) + var(--dx,0)), calc(var(--sy,0) + var(--dy,140px))) rotate(360deg); opacity:0.2 } }
-
-  .showcase{ position:fixed; inset:0; background: rgba(6,8,20,.9); display:none; align-items:center; justify-content:center; z-index:50; backdrop-filter: blur(2px); }
-  .showcase.active{ display:flex; }
-  .showcase-inner{ width:min(780px, 92vw); aspect-ratio: 16/9; background: radial-gradient(600px 300px at 50% 40%, rgba(60,90,180,.35), rgba(0,0,0,.6)); border:1px solid #2a3a88; border-radius:16px; position:relative; box-shadow: 0 20px 60px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.05); overflow:hidden; animation: popIn .22s ease; }
-  @keyframes popIn{ from{ transform: scale(.96); opacity:0 } to{ transform: scale(1); opacity:1 } }
-  .shine{ position:absolute; inset:0; background: radial-gradient(500px 300px at 50% 30%, rgba(255,255,255,.15), rgba(255,255,255,0)), radial-gradient(800px 500px at 50% 80%, rgba(106,227,255,.12), rgba(0,0,0,0)); pointer-events:none; animation: slowShine 2.5s ease-in-out infinite alternate; }
-  @keyframes slowShine{ from{ filter: hue-rotate(0deg) } to{ filter: hue-rotate(30deg) } }
-  .ore-card{ position:absolute; left:50%; top:50%; transform: translate(-50%,-50%) rotate(-6deg); width: 360px; height: 420px; border-radius: 16px; background:#0c1230; border:1px solid #2e45aa; box-shadow: 0 10px 40px rgba(0,0,0,.5); display:grid; grid-template-rows: auto 1fr auto; overflow:hidden; animation: cardFloat 2.2s ease-in-out infinite alternate; }
-  @keyframes cardFloat{ from{ transform: translate(-50%, calc(-50% - 4px)) rotate(-6deg) } to{ transform: translate(-50%, calc(-50% + 6px)) rotate(-4deg) } }
-  .ore-top{ background: linear-gradient(120deg, rgba(255,255,255,.06), rgba(255,255,255,0)); padding: 10px 14px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #22327a; }
-  .ore-art{ display:grid; place-items:center; position:relative; background: radial-gradient(260px 180px at 50% 55%, rgba(120,170,255,.16), rgba(0,0,0,0)); }
-  .ore-gem{ width: 160px; height: 160px; border-radius: 24px; background: conic-gradient(from 20deg, rgba(255,255,255,.15), rgba(255,255,255,0) 20%); position:relative; filter: drop-shadow(0 18px 30px rgba(0,0,0,.45)); animation: spin 2.4s ease-in-out infinite alternate; }
-  @keyframes spin{ from{ transform: rotate(-6deg) scale(0.98) } to{ transform: rotate(6deg) scale(1.02) } }
-  .ore-gem::before{ content:''; position:absolute; inset:0; border-radius:24px; background: var(--gemColor, #6ae3ff); mix-blend-mode: screen; opacity:.9; box-shadow: inset 0 0 40px rgba(255,255,255,.15), 0 0 50px var(--gemColor, #6ae3ff); }
-  .ore-meta{ padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; border-top:1px solid #22327a; background: rgba(10,12,24,.6); }
-  .ore-name{ font-weight:900; letter-spacing:.4px; }
-  .closeBtn{ position:absolute; top:10px; right:12px; background:#0f1430; border:1px solid #2a3a88; color:#e6eeff; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:800; }
-  .closeBtn:hover{ filter: brightness(1.1); }
-
-
-  /* Relic mining reveal animation */
-  .showcase.relic-mode{ background: radial-gradient(900px 520px at 50% 42%, color-mix(in srgb, var(--relicColor, #a9fffe) 34%, transparent), rgba(4,3,8,.94) 64%); }
-  .showcase.relic-mode .showcase-inner{
-    width:min(920px, 94vw);
-    background:
-      radial-gradient(500px 300px at 50% 58%, color-mix(in srgb, var(--relicColor, #a9fffe) 28%, transparent), transparent 70%),
-      linear-gradient(180deg, rgba(20,14,10,.9), rgba(5,4,7,.96));
-    border-color:var(--relicColor, #a9fffe);
-    box-shadow:0 0 70px color-mix(in srgb, var(--relicColor, #a9fffe) 38%, transparent), 0 22px 70px rgba(0,0,0,.75);
-  }
-  .relic-scene{ position:absolute; inset:0; display:none; place-items:center; overflow:hidden; }
-  .showcase.relic-mode .relic-scene{ display:grid; }
-  .showcase.relic-mode .ore-card{ display:none; }
-  .relic-title{ position:absolute; top:22px; left:50%; transform:translateX(-50%); text-align:center; font-weight:1000; letter-spacing:.8px; font-size:clamp(1.4rem, 3vw, 2.7rem); color:#fff; text-shadow:0 0 24px var(--relicColor, #a9fffe), 0 4px 10px #000; }
-  .relic-subtitle{ display:block; margin-top:4px; font-size:.9rem; color:var(--muted); letter-spacing:.25px; }
-  .relic-rock{ position:relative; width:min(300px, 46vw); height:min(230px, 34vw); border-radius:48% 52% 42% 58% / 55% 44% 56% 45%; background:radial-gradient(circle at 38% 28%, #62584c, #2a2622 62%, #111 100%); border:3px solid #77614a; box-shadow:inset -22px -26px 48px rgba(0,0,0,.55), 0 28px 70px rgba(0,0,0,.65); transform:translateY(38px); }
-  .relic-rock::before{ content:''; position:absolute; inset:18%; opacity:0; background:var(--relicColor, #a9fffe); filter:blur(24px); border-radius:50%; transition:opacity .35s ease; }
-  .showcase.revealed .relic-rock::before{ opacity:.95; }
-  .crack-line{ position:absolute; left:50%; top:14%; width:5px; height:0; background:linear-gradient(180deg, transparent, var(--relicColor, #a9fffe), #fff); border-radius:99px; filter:drop-shadow(0 0 12px var(--relicColor, #a9fffe)); transform:translateX(-50%) rotate(-8deg); transition:height .35s ease; }
-  .showcase.hit1 .crack-line{ height:34%; }
-  .showcase.hit2 .crack-line{ height:58%; }
-  .showcase.hit3 .crack-line{ height:84%; }
-  .relic-rock-left,.relic-rock-right{ position:absolute; inset:0; border-radius:inherit; background:inherit; transition:transform .75s cubic-bezier(.2,.8,.2,1), opacity .55s ease; }
-  .relic-rock-left{ clip-path:polygon(0 0, 52% 0, 42% 100%, 0 100%); }
-  .relic-rock-right{ clip-path:polygon(50% 0, 100% 0, 100% 100%, 40% 100%); }
-  .showcase.revealed .relic-rock-left{ transform:translate(-85px, 22px) rotate(-16deg); opacity:.82; }
-  .showcase.revealed .relic-rock-right{ transform:translate(85px, 22px) rotate(16deg); opacity:.82; }
-  .relic-pickaxe{ position:absolute; left:50%; top:33%; font-size:7.4rem; transform-origin:78% 82%; filter:drop-shadow(0 12px 10px rgba(0,0,0,.7)); animation:relicPickaxe 2.35s ease-in-out forwards; z-index:4; }
-  @keyframes relicPickaxe{
-    0%,18%{ transform:translate(78px,-72px) rotate(-52deg) scale(1); }
-    25%{ transform:translate(12px,-20px) rotate(18deg) scale(1.05); }
-    33%,47%{ transform:translate(82px,-76px) rotate(-50deg); }
-    54%{ transform:translate(4px,-16px) rotate(20deg) scale(1.06); }
-    62%,75%{ transform:translate(80px,-78px) rotate(-50deg); }
-    82%{ transform:translate(0,-10px) rotate(22deg) scale(1.08); }
-    100%{ transform:translate(120px,-120px) rotate(-60deg); opacity:0; }
-  }
-  .relic-spark{ position:absolute; width:9px; height:9px; border-radius:50%; background:var(--relicColor, #a9fffe); opacity:0; box-shadow:0 0 18px var(--relicColor, #a9fffe); animation:relicSpark 2.4s ease-out forwards; }
-  .relic-spark:nth-child(1){ left:45%; top:51%; --dx:-90px; --dy:-70px; animation-delay:.55s; }
-  .relic-spark:nth-child(2){ left:54%; top:48%; --dx:85px; --dy:-60px; animation-delay:1.25s; }
-  .relic-spark:nth-child(3){ left:50%; top:58%; --dx:0px; --dy:-110px; animation-delay:1.9s; }
-  @keyframes relicSpark{ 0%{ transform:translate(0,0) scale(.4); opacity:0 } 10%{ opacity:1 } 55%{ transform:translate(var(--dx), var(--dy)) scale(1); opacity:.9 } 100%{ opacity:0 } }
-  .relic-reveal{ position:absolute; inset:auto 8% 34px; text-align:center; opacity:0; transform:translateY(22px) scale(.96); transition:opacity .55s ease, transform .55s ease; z-index:5; }
-  .showcase.revealed .relic-reveal{ opacity:1; transform:translateY(0) scale(1); }
-  .relic-ore-name{ font-size:clamp(2rem, 5vw, 4rem); font-weight:1000; color:#fff; text-shadow:0 0 28px var(--relicColor, #a9fffe), 0 4px 12px #000; }
-  .relic-ore-meta{ margin-top:6px; color:#f8ead7; font-weight:900; }
-  .relic-gem{ position:absolute; width:120px; height:120px; left:50%; top:50%; transform:translate(-50%,-20%) scale(.2); border-radius:28px; background:var(--relicColor, #a9fffe); opacity:0; box-shadow:0 0 80px var(--relicColor, #a9fffe), inset 0 0 34px rgba(255,255,255,.35); transition:opacity .5s ease, transform .75s cubic-bezier(.2,.8,.2,1); z-index:3; }
-  .showcase.revealed .relic-gem{ opacity:1; transform:translate(-50%,-62%) scale(1) rotate(45deg); }
-
-
-  .shop{ display:grid; gap:10px; }
-  .shop .row2{ display:grid; grid-template-columns: 1fr auto; gap:8px; align-items:center; background:#120d09; border:1px solid #3f2818; padding:8px 10px; border-radius:10px; }
-  .shop button{ padding:8px 10px; font-weight:800; border-radius:8px; border:1px solid #8a5a2f; background:linear-gradient(180deg, #6b3d20, #2b180d); color:#fff3df; cursor:pointer; transition:transform .08s ease, filter .16s ease, opacity .16s ease; }
-  .shop button:hover:not(:disabled){ filter:brightness(1.12); }
-  .shop button:active:not(:disabled){ transform:translateY(1px) scale(.98); }
-  .shop button:disabled{ opacity:.55; cursor:not-allowed; }
-
-  .upgrade-section{ border:1px solid #5b351f; border-radius:12px; overflow:hidden; background:#100b08; box-shadow: inset 0 0 18px rgba(0,0,0,.22); }
-  .upgrade-section + .upgrade-section{ margin-top:2px; }
-  .section-head{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; background:linear-gradient(180deg, #4a2a16, #21130b); border:0; color:#fff3df; font-weight:900; cursor:pointer; text-align:left; }
-  .section-head span:last-child{ color:var(--accent); transition:transform .18s ease; }
-  .upgrade-section.collapsed .section-head span:last-child{ transform:rotate(-90deg); }
-  .section-content{ display:grid; gap:8px; padding:10px; }
-  .upgrade-section.collapsed .section-content{ display:none; }
-  .shop .row2.locked{ position:relative; opacity:.78; overflow:hidden; border-color:#6b3d20; filter:saturate(.85); }
-  .shop .row2.locked::after{ content:'🔒 Locked — rebirth to unlock'; position:absolute; inset:0; display:grid; place-items:center; background:rgba(11,7,4,.72); color:#ffd56a; font-weight:1000; letter-spacing:.25px; text-shadow:0 2px 8px #000; backdrop-filter: blur(1px); pointer-events:none; }
-  .lock-note{ color:#ffd56a; font-size:.85rem; margin-top:4px; }
-  .toggle{ padding:6px 10px; border-radius:999px; border:1px solid #2a3a88; background:#0f1430; color:#dfe8ff; cursor:pointer; font-weight:800; }
-  .toggle.on{ background:#143b2a; border-color:#1f7a52; }
-
-  .skip-panel{ display:none; background:#18110c; border:1px solid #5b351f; border-radius:12px; padding:10px; max-height:260px; overflow:auto; margin-top:8px; }
-  .skip-panel.active{ display:block; }
-  .skip-row{ display:flex; align-items:center; gap:10px; padding:6px 8px; border-radius:8px; background:#120d09; border:1px solid #3f2818; margin-bottom:6px; }
-  .skip-row label{ display:flex; align-items:center; gap:8px; cursor:pointer; }
-  .skip-row input{ transform: scale(1.2); }
-
-
-  .auth-status{ display:flex; align-items:center; gap:8px; background:#120d09; border:1px solid #8a5a2f; border-radius:999px; padding:7px 10px; color:var(--muted); font-size:.9rem; max-width:360px; }
-  .auth-status strong{ color:var(--text); max-width:210px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; vertical-align:bottom; }
-  .auth-status button{ padding:5px 9px; border-radius:999px; border:1px solid #8a5a2f; background:linear-gradient(180deg, #6b3d20, #2b180d); color:#fff3df; font-weight:900; cursor:pointer; }
-  .auth-status button:hover{ filter:brightness(1.12); }
-
-  .top-tabs{ display:flex; gap:8px; align-items:center; justify-content:center; padding:10px 18px 0; }
-  .tab-btn{ padding:10px 18px; border-radius:999px; border:1px solid #8a5a2f; background:linear-gradient(180deg, #4a2a16, #21130b); color:#fff3df; font-weight:900; cursor:pointer; transition:transform .1s ease, filter .16s ease, box-shadow .16s ease; }
-  .tab-btn:hover{ filter:brightness(1.12); box-shadow:0 0 18px rgba(255,179,71,.2); }
-  .tab-btn:active{ transform:translateY(1px) scale(.98); }
-  .tab-btn.active{ background:linear-gradient(180deg, #9b6331, #4a2a16); box-shadow:0 0 22px rgba(255,179,71,.28); }
   .view{ display:none; }
-  .view.active{ display:grid; }
-  .leaderboard-view{ width:min(1100px, 95vw); margin:20px auto; grid-template-columns:1fr; gap:18px; }
-  .leaderboard-card{ background:linear-gradient(180deg, rgba(34,24,17,.96), rgba(18,13,10,.96)); border:2px solid #5b351f; border-radius:14px; padding:22px; box-shadow:0 14px 34px rgba(0,0,0,.35); }
-  .leaderboard-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
-  .leaderboard-head h2{ margin:0; color:var(--accent); }
-  .leaderboard-actions{ display:flex; gap:10px; flex-wrap:wrap; }
-  .leaderboard-actions button{ padding:9px 12px; border-radius:10px; border:1px solid #8a5a2f; background:linear-gradient(180deg, #6b3d20, #2b180d); color:#fff3df; font-weight:900; cursor:pointer; }
-  .leaderboard-actions button:hover{ filter:brightness(1.12); }
-  .podium{ display:grid; grid-template-columns:1fr 1.15fr 1fr; gap:12px; align-items:end; margin:18px 0 22px; }
-  .podium-slot{ background:#120d09; border:1px solid #5b351f; border-radius:14px; padding:14px 12px; text-align:center; min-height:130px; display:grid; align-content:end; box-shadow:inset 0 0 22px rgba(0,0,0,.22); }
-  .podium-slot.first{ min-height:180px; border-color:#ffd56a; box-shadow:0 0 28px rgba(255,213,106,.18), inset 0 0 22px rgba(0,0,0,.22); }
-  .podium-slot.second{ min-height:150px; }
-  .podium-slot.third{ min-height:125px; }
-  .podium-rank{ font-size:2rem; line-height:1; }
-  .podium-name{ font-weight:1000; margin-top:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .podium-score{ color:var(--muted); font-size:.9rem; margin-top:4px; }
-  .standing-list{ display:grid; gap:8px; }
-  .standing-row{ display:grid; grid-template-columns:44px 1fr auto auto; gap:10px; align-items:center; background:#120d09; border:1px solid #3f2818; border-radius:10px; padding:10px 12px; }
-  .standing-rank{ color:var(--accent); font-weight:1000; }
-  .standing-name{ font-weight:900; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .standing-meta{ color:var(--muted); font-size:.88rem; }
-  .standing-score{ color:#9fe6b6; font-weight:1000; }
-  .leaderboard-status{ color:var(--muted); margin-top:10px; }
-
-  footer{ padding:10px 18px; border-top:2px solid #6b3d20; background:linear-gradient(180deg, #2d1a0f, var(--panel)); color:var(--muted); display:flex; gap:12px; justify-content:space-between; align-items:center; flex-wrap:wrap; }
+  .view.active{ display:block; }
+  .home-layout{
+    display:grid;
+    grid-template-columns:1.2fr 420px;
+    gap:18px;
+    align-items:start;
+  }
+  .panel{
+    background:linear-gradient(180deg, rgba(36,24,15,.97), rgba(18,13,9,.97));
+    border:2px solid var(--line);
+    border-radius:14px;
+    padding:18px;
+    box-shadow:0 14px 34px rgba(0,0,0,.28);
+  }
+  .stage{
+    min-height:610px;
+    display:grid;
+    grid-template-rows:auto 1fr auto;
+    gap:16px;
+    position:relative;
+    overflow:hidden;
+  }
+  .stage-top, .stage-bottom{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .pill-row{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .pill{
+    background:#120d09;
+    border:1px solid var(--line2);
+    color:var(--muted);
+    border-radius:999px;
+    padding:7px 10px;
+    font-size:.88rem;
+  }
+  .pill strong{ color:var(--text); }
+  .roll-area{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    align-items:center;
+  }
+  .ore-card{
+    min-height:380px;
+    border:1px solid #31505d;
+    border-radius:14px;
+    background:
+      radial-gradient(260px 220px at 50% 42%, rgba(158,252,255,.18), transparent 68%),
+      linear-gradient(180deg, #101a20, #0b0a10);
+    display:grid;
+    place-items:center;
+    text-align:center;
+    padding:18px;
+    overflow:hidden;
+  }
+  .gem{
+    width:160px;
+    height:160px;
+    border-radius:30px;
+    transform:rotate(45deg);
+    background:linear-gradient(135deg, #e6ffff, var(--gemColor, var(--relic)) 38%, #4da3ff 72%, #271d58);
+    box-shadow:0 0 60px color-mix(in srgb, var(--gemColor, var(--relic)) 45%, transparent), inset 0 0 32px rgba(255,255,255,.35);
+    margin:18px auto 34px;
+    transition:background .2s ease, box-shadow .2s ease;
+  }
+  .gem.hit{
+    animation:pop .28s ease;
+  }
+  @keyframes pop{
+    0%{ transform:rotate(45deg) scale(.9); }
+    55%{ transform:rotate(45deg) scale(1.1); }
+    100%{ transform:rotate(45deg) scale(1); }
+  }
+  .roll-stack{
+    display:grid;
+    gap:12px;
+    justify-items:center;
+  }
+  .roll-btn{
+    width:216px;
+    height:216px;
+    border-radius:50%;
+    border:3px solid #9a6435;
+    background:radial-gradient(circle at 35% 28%, #765036, #2a1a10 62%, #100907);
+    color:white;
+    font-size:1.55rem;
+    font-weight:1000;
+    display:grid;
+    place-items:center;
+    box-shadow:0 18px 44px rgba(0,0,0,.45), 0 0 54px rgba(255,179,71,.2);
+  }
+  .quick-actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .mini{
+    background:var(--panel3);
+    border:1px solid var(--line2);
+    border-radius:10px;
+    padding:12px;
+  }
+  .mini p{ margin:0; color:var(--muted); font-size:.88rem; line-height:1.35; }
+  .progress{
+    height:8px;
+    background:#0d1436;
+    border:1px solid #27305a;
+    border-radius:999px;
+    overflow:hidden;
+    margin-top:8px;
+  }
+  .progress div{ height:100%; background:linear-gradient(90deg, var(--blue), var(--good)); transition:width .2s ease; }
+  aside{ display:grid; gap:14px; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .grid3{ display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; }
+  .list{ display:grid; gap:8px; }
+  .row{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    gap:10px;
+    align-items:center;
+    background:var(--panel3);
+    border:1px solid var(--line2);
+    border-radius:9px;
+    padding:9px 10px;
+  }
+  .row.two{ grid-template-columns:1fr auto; }
+  .row.stack{ display:block; }
+  .dot{ width:12px; height:12px; border-radius:50%; background:var(--gold); box-shadow:0 0 18px currentColor; }
+  .muted{ color:var(--muted); font-size:.86rem; }
+  .score{ color:var(--good); font-weight:1000; }
+  .danger{ color:var(--red); }
+  .log{
+    max-height:210px;
+    overflow:auto;
+    background:#0e0a07;
+    border:1px solid var(--line2);
+    border-radius:10px;
+    padding:8px;
+  }
+  .entry{
+    border-bottom:1px dashed #4a2b19;
+    padding:6px 8px;
+    font-size:.9rem;
+    color:var(--muted);
+  }
+  .entry.good{ color:var(--good); }
+  .entry.warn{ color:var(--gold); }
+  .entry.rare{ color:var(--blue); }
+  .entry:last-child{ border-bottom:none; }
+  .collection-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
+    gap:12px;
+  }
+  .ore-tile{
+    background:var(--panel3);
+    border:1px solid var(--line2);
+    border-radius:10px;
+    padding:12px;
+    min-height:118px;
+    display:grid;
+    gap:7px;
+  }
+  .ore-tile.locked{
+    opacity:.55;
+    filter:saturate(.45);
+  }
+  .tile-head{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    align-items:center;
+  }
+  .small-gem{
+    width:28px;
+    height:28px;
+    border-radius:8px;
+    transform:rotate(45deg);
+    background:var(--oreColor, var(--gold));
+    box-shadow:0 0 18px color-mix(in srgb, var(--oreColor, var(--gold)) 45%, transparent);
+  }
+  .toast-wrap{
+    position:fixed;
+    top:86px;
+    right:18px;
+    z-index:20;
+    display:grid;
+    gap:8px;
+    pointer-events:none;
+  }
+  .toast{
+    background:#20140d;
+    border:1px solid #8a5a2f;
+    border-radius:10px;
+    padding:10px 14px;
+    min-width:230px;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+    animation:toastIn .25s ease, toastOut .3s ease 2.5s forwards;
+  }
+  @keyframes toastIn{ from{ transform:translateX(28px); opacity:0; } to{ transform:translateX(0); opacity:1; } }
+  @keyframes toastOut{ to{ transform:translateX(34px); opacity:0; } }
+  .modal{
+    position:fixed;
+    inset:0;
+    background:rgba(5,4,3,.78);
+    display:none;
+    place-items:center;
+    z-index:30;
+    padding:18px;
+  }
+  .modal.active{ display:grid; }
+  .modal-card{
+    width:min(720px, 94vw);
+    background:linear-gradient(180deg, #24180f, #110c08);
+    border:2px solid var(--line);
+    border-radius:14px;
+    padding:18px;
+    box-shadow:0 28px 80px rgba(0,0,0,.55);
+  }
+  .modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    margin-top:14px;
+  }
+  footer{
+    border-top:2px solid var(--line);
+    background:linear-gradient(180deg, #2d1a0f, #1b130d);
+    color:var(--muted);
+    padding:10px 18px;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  @media (max-width:980px){
+    .home-layout, .roll-area, .grid2, .grid3{ grid-template-columns:1fr; }
+    .ore-card{ min-height:300px; }
+    .roll-btn{ width:190px; height:190px; }
+  }
 </style>
 </head>
 <body>
 <header>
-  <h1>⛏️ Ore Roller RNG <span style="color:var(--accent); font-weight:800;">Mineshaft</span></h1>
-  <div class="money">
-    <div>Money: <strong id="moneyDisplay">$0</strong></div>
-    <div>Income: <strong id="mpsDisplay">$0.00/s</strong></div>
-    <div>Beacons: <strong id="beaconDisplay">0%</strong></div>
-    <div>Research: <strong id="rpDisplay">0 RP</strong></div>
-    <div>Rebirths: <strong id="rebirthDisplay">0</strong></div>
-    <div class="auth-status">Logged in as: <strong id="loggedInAs">Not logged in</strong><button id="topLogoutBtn" type="button" style="display:none;">Logout</button></div>
+  <h1>Ore Roller RNG <span class="muted">Future Build</span></h1>
+  <div class="top-stats">
+    <div>Money: <strong id="moneyTop">$0</strong></div>
+    <div>Income: <strong id="mpsTop">$0.00/s</strong></div>
+    <div>Rebirths: <strong id="rebirthTop">0</strong></div>
+    <div>Research: <strong id="rpTop">0 RP</strong></div>
+    <div>Collection: <strong id="collectionTop">0/0</strong></div>
   </div>
 </header>
 
-<nav class="top-tabs" aria-label="Main tabs">
-  <button id="homeTab" class="tab-btn active" type="button">Home</button>
-  <button id="leaderboardTab" class="tab-btn" type="button">Leaderboard</button>
+<nav class="tabs" aria-label="Game tabs">
+  <button class="tab active" data-view="mine">Mine</button>
+  <button class="tab" data-view="collection">Collection</button>
+  <button class="tab" data-view="research">Research</button>
+  <button class="tab" data-view="fusion">Fusion</button>
+  <button class="tab" data-view="events">Events</button>
+  <button class="tab" data-view="leaderboard">Leaderboard</button>
 </nav>
 
-<main id="homeView" class="wrap view active">
-  <section class="stage">
-    <div class="stage-head">
-      <div class="rate">
-        <div>Total Rolls: <strong id="totalRolls">0</strong></div>
-        <div>Find Rate: <strong id="findRate">0%</strong></div>
-        <div id="autoStatus" class="odds"></div>
-      </div>
-      <div class="hud">
-        <div class="pill">Luck <strong id="luckPill">0%</strong></div>
-        <div class="pill">Pity <strong id="pityPill">0%</strong></div>
-        <div class="pill">Focus: <strong id="focusPill">None</strong></div>
-        <div class="pity"><div class="bar"><div id="pityBar" style="width:0%"></div></div></div>
-      </div>
-    </div>
-
-    <div class="center">
-      <button id="rollBtn" class="roll-btn" aria-label="Roll for ore">
-        ROLL
-        <small>Cost: $1</small>
-      </button>
-      <div class="quick">
-        <button id="auto10">Roll x10 ($15)</button>
-      </div>
-      <div id="toasts" class="toasts"></div>
-      <div id="confetti" class="confetti"></div>
-    </div>
-
-    <div class="subpanel">
-      <div class="grid2">
-        <div class="card">
-          <h3>Upgrades & Buffs</h3>
-          <div class="shop" id="shop"></div>
-        </div>
-        <div class="card">
-          <h3>Skips & Profiles</h3>
-          <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
-            <button id="toggleSkips" class="toggle" disabled>Skips Menu</button>
-            <button id="saveProfile" class="toggle" disabled>Save Profile</button>
-            <button id="loadProfile" class="toggle" disabled>Load Profile</button>
+<main>
+  <section id="mineView" class="view active">
+    <div class="home-layout">
+      <section class="panel stage">
+        <div class="stage-top">
+          <div class="pill-row">
+            <div class="pill">Luck <strong id="luckPill">0%</strong></div>
+            <div class="pill">Pity <strong id="pityPill">0%</strong></div>
+            <div class="pill">Focus <strong id="focusPill">None</strong></div>
+            <div class="pill">Event <strong id="eventPill">None</strong></div>
           </div>
-          <div id="skipPanel" class="skip-panel"></div>
+          <div class="muted" id="autoStatus">Auto: OFF</div>
         </div>
-      </div>
-    </div>
 
-    <div class="subpanel">
-      <div class="odds">
-        Rolls cost $1. Bundle: x10 for $15. Pity increases on misses up to a cap, nudging Rare+ finds.
-        Luck Infusion and Focus Lens temporarily boost odds (Rare+ or a chosen ore). Auto-Roll unlocks at $100 and enables a skip list. Rebirth resets progress, doubles income each time, and unlocks 3 new upgrade levels.
+        <div class="roll-area">
+          <div class="ore-card">
+            <div>
+              <div id="mainGem" class="gem"></div>
+              <h2 id="lastOreName">Ready to Mine</h2>
+              <div class="muted" id="lastOreMeta">Roll to discover ores, complete goals, and build your mine.</div>
+              <div class="score" id="lastOreIncome">Every roll moves something forward.</div>
+            </div>
+          </div>
+          <div class="roll-stack">
+            <button id="rollBtn" class="roll-btn">ROLL</button>
+            <div class="quick-actions">
+              <button id="roll10Btn">Roll x10</button>
+              <button id="roll100Btn">Roll x100</button>
+              <button id="autoBtn">Buy Auto</button>
+            </div>
+            <div class="mini" style="width:min(430px, 100%);">
+              <h3 id="goalTitle">Current Goal</h3>
+              <p id="goalText">Find your first ore.</p>
+              <div class="progress"><div id="goalBar" style="width:0%"></div></div>
+            </div>
+            <div class="mini" style="width:min(430px, 100%);">
+              <h3>Auto Rules</h3>
+              <div class="grid2">
+                <label class="muted"><input id="autoPauseRare" type="checkbox" /> Pause on Epic+</label>
+                <label class="muted"><input id="autoHideCommon" type="checkbox" /> Quiet Common finds</label>
+              </div>
+            </div>
+            <div class="mini" style="width:min(430px, 100%);">
+              <h3>Focus Lens</h3>
+              <p>Boost one selected ore for 60 seconds.</p>
+              <div class="quick-actions" style="justify-content:flex-start; margin-top:10px;">
+                <select id="focusSelect" aria-label="Choose focus ore"></select>
+                <button id="focusBtn">Focus ($80)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage-bottom">
+          <div class="pill-row">
+            <div class="pill">Rolls <strong id="rollsPill">0</strong></div>
+            <div class="pill">Find Rate <strong id="findRatePill">0%</strong></div>
+            <div class="pill">Fusion Energy <strong id="fusionPill">0/100</strong></div>
+            <div class="pill">Next Rebirth <strong id="rebirthCostPill">$0</strong></div>
+          </div>
+          <button id="rebirthBtn">Rebirth</button>
+        </div>
+      </section>
+
+      <aside>
+        <section class="panel">
+          <h2>Milestones</h2>
+          <div id="milestoneList" class="list"></div>
+        </section>
+        <section class="panel">
+          <h2>Inventory</h2>
+          <div id="inventoryList" class="list"></div>
+        </section>
+        <section class="panel">
+          <h2>Recent Events</h2>
+          <div id="log" class="log"></div>
+        </section>
+      </aside>
+    </div>
+  </section>
+
+  <section id="collectionView" class="view">
+    <div class="panel">
+      <h2>Ore Collection Book</h2>
+      <div class="muted" style="margin-bottom:14px;">Discovered ores reveal their odds, income, and copies owned. Undiscovered ores stay shadowed.</div>
+      <div id="collectionGrid" class="collection-grid"></div>
+    </div>
+  </section>
+
+  <section id="researchView" class="view">
+    <div class="panel">
+      <h2>Research Lab</h2>
+      <div class="muted" style="margin-bottom:14px;">Earn RP from milestones, rare discoveries, events, and rebirths. Spend it on permanent run upgrades.</div>
+      <div id="researchGrid" class="grid2"></div>
+    </div>
+  </section>
+
+  <section id="fusionView" class="view">
+    <div class="panel">
+      <h2>Ore Fusion Forge</h2>
+      <div class="muted" style="margin-bottom:14px;">Turn duplicate ores into better rewards so weak rolls still matter.</div>
+      <div id="fusionList" class="list"></div>
+    </div>
+  </section>
+
+  <section id="eventsView" class="view">
+    <div class="panel">
+      <h2>Mine Events</h2>
+      <div class="grid2">
+        <div class="mini">
+          <h3>Active Event</h3>
+          <p id="eventDesc">No event is active. Start one when the mine is ready.</p>
+          <div class="progress"><div id="eventBar" style="width:0%"></div></div>
+        </div>
+        <div class="mini">
+          <h3>Start an Event</h3>
+          <p>Events create short bursts of high-value play. They cost money but can pay back with RP, rare ores, or huge income.</p>
+          <div class="quick-actions" style="justify-content:flex-start; margin-top:10px;">
+            <button data-event="meteor">Meteor Shower</button>
+            <button data-event="golden">Golden Vein</button>
+            <button data-event="deep">Deep Cave</button>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <aside>
-    <div class="card">
-      <h3>Inventory</h3>
-      <div id="invList" class="inv-list"></div>
+  <section id="leaderboardView" class="view">
+    <div class="panel">
+      <h2>Local Leaderboard</h2>
+      <div class="muted" style="margin-bottom:14px;">This version keeps a local high score table in your browser.</div>
+      <div class="quick-actions" style="justify-content:flex-start; margin-bottom:12px;">
+        <button id="submitScoreBtn">Submit Score</button>
+        <button id="resetBtn">Hard Reset</button>
+      </div>
+      <div id="leaderboardList" class="list"></div>
     </div>
-
-    <div class="card">
-      <h3>Ores, Odds, and Income</h3>
-      <div id="oreLegend" class="ore-legend"></div>
-    </div>
-
-    <div class="card">
-      <h3>Recent Events</h3>
-      <div id="log" class="log"></div>
-    </div>
-  </aside>
+  </section>
 </main>
 
-<section id="leaderboardView" class="leaderboard-view view">
-  <div class="leaderboard-card">
-    <div class="leaderboard-head">
-      <div>
-        <h2>🏆 Leaderboard</h2>
-        <div class="odds">Submit your score while logged in, then compare standings with the podium.</div>
-      </div>
-      <div class="leaderboard-actions">
-        <button id="submitScoreBtn" type="button">Submit My Score</button>
-        <button id="refreshLeaderboardBtn" type="button">Refresh</button>
-      </div>
-    </div>
-    <div id="podium" class="podium"></div>
-    <div id="standingList" class="standing-list"></div>
-    <div id="leaderboardStatus" class="leaderboard-status">Login and submit your score to appear here.</div>
-  </div>
-</section>
+<div id="toastWrap" class="toast-wrap"></div>
 
-<footer>
-  <div>Tip: Space = roll. A = toggle Auto (after unlocking). Pity, Luck, and Focus show in the HUD.</div>
-  <div class="controls">
-    <button id="resetBtn" title="Clear inventory and log">Reset</button>
-  </div>
-</footer>
-
-<!-- Full-screen Showcase -->
-<div id="showcase" class="showcase" aria-hidden="true">
-  <div class="showcase-inner">
-    <button id="closeShowcase" class="closeBtn" aria-label="Close">Close</button>
-    <div class="shine"></div>
-    <div class="ore-card" id="oreCard">
-      <div class="ore-top">
-        <div class="badge" id="scBadge" style="width:14px;height:14px;"></div>
-        <div class="ore-name" id="scName">Ore</div>
-        <div class="odds" id="scRarity">Rarity</div>
-      </div>
-      <div class="ore-art">
-        <div class="ore-gem" id="scGem"></div>
-      </div>
-      <div class="ore-meta">
-        <div class="odds">You now own <strong id="scCount">#1</strong></div>
-        <div class="income" id="scIncome">+$0.00/s</div>
-      </div>
-    </div>
-    <div class="relic-scene" id="relicScene">
-      <div class="relic-title">RELIC DISCOVERED<span class="relic-subtitle">The rock is cracking open...</span></div>
-      <div class="relic-pickaxe">⛏️</div>
-      <div class="relic-rock">
-        <div class="relic-rock-left"></div>
-        <div class="relic-rock-right"></div>
-        <div class="crack-line"></div>
-      </div>
-      <div class="relic-gem" id="relicGem"></div>
-      <div class="relic-sparks"><span class="relic-spark"></span><span class="relic-spark"></span><span class="relic-spark"></span></div>
-      <div class="relic-reveal">
-        <div class="relic-ore-name" id="relicName">Relic Ore</div>
-        <div class="relic-ore-meta" id="relicMeta">1/??? • +$0.00/s • You now own #1</div>
-      </div>
+<div id="modal" class="modal" aria-hidden="true">
+  <div class="modal-card">
+    <h2 id="modalTitle">Discovery</h2>
+    <p id="modalText" class="muted"></p>
+    <div class="modal-actions">
+      <button id="modalClose">Close</button>
     </div>
   </div>
 </div>
 
+<footer>
+  <div>Space = roll. A = toggle auto. S = save. The game auto-saves every few seconds.</div>
+  <div class="quick-actions">
+    <button id="saveBtn">Save</button>
+    <button id="exportBtn">Export Save</button>
+    <button id="importBtn">Import Save</button>
+  </div>
+</footer>
+
 <script>
-/* ===== Config ===== */
 const ROLL_COST = 1;
 const ROLL10_COST = 15;
+const ROLL100_COST = 140;
+const AUTO_COST = 100;
+const AUTO_DELAY_BASE = 650;
+const PITY_GAIN = 0.45;
+const PITY_CAP_BASE = 20;
+const REBIRTH_BASE_COST = 50000;
+const ORE_INCOME_MULT = 10;
+const SAVE_KEY = 'ore_roller_future_build_save_v1';
+const BOARD_KEY = 'ore_roller_future_build_board_v1';
 
-const AUTO_UNLOCK_COST = 100;
-const AUTO_SPEEDS = [600, 450, 300, 200];
-const AUTO_UPGRADE_COSTS = [100, 250, 750];
-
-const PITY_PER_MISS = 0.5;
-const PITY_CAP = 20;
-const PITY_MIN_RARITY = 'Rare';
-
-const LUCK_INFUSION_BONUS = 10;
-const LUCK_INFUSION_SECS = 60;
-const LUCK_INFUSION_COST = 50;
-const LUCK_COOLDOWN_SECS = 120;
-
-const FOCUS_BONUS = 50;
-const FOCUS_SECS = 60;
-const FOCUS_COST = 80;
-const FOCUS_COOLDOWN_SECS = 120;
-
-const BEACON_STEP = 10;
-const BEACON_COSTS = [100, 300, 900, 2700];
-
-const TIER_BOOST = 25;
-const TIER_BOOST_COSTS = { 'Common': 50, 'Uncommon': 100, 'Rare': 250, 'Epic': 600, 'Legendary': 1500, 'Mythic': 4000, 'Relic': 10000 };
-
-const REBIRTH_BASE_COST = 5000;
-const REBIRTH_COST_MULT = 3;
-const REBIRTH_UPGRADES = [
-  { key:'rbLuck', name:'Reborn Luck', desc:'+5% permanent Rare+ luck per level', maxPerRebirth:1, costBase:1 },
-  { key:'rbPity', name:'Pity Mastery', desc:'+0.25% pity gained per miss per level', maxPerRebirth:1, costBase:1 },
-  { key:'rbAuto', name:'Reborn Automation', desc:'Auto-roll is 10% faster per level', maxPerRebirth:1, costBase:1 }
-];
+const RARITIES = ['Common','Uncommon','Rare','Epic','Legendary','Mythic','Relic'];
+const RARITY_COLORS = {
+  Common:'#a98a6a',
+  Uncommon:'#8cff9b',
+  Rare:'#4da3ff',
+  Epic:'#b986ff',
+  Legendary:'#ffd56a',
+  Mythic:'#82fff6',
+  Relic:'#ff89d6'
+};
 
 const ORES = [
-  { key:'dirt',     name:'Dirt',      color:'#8b5a2b', oneIn: 2,   rarity:'Common',    base:0.02 },
-  { key:'rock',     name:'Rock',      color:'#7a7f87', oneIn: 4,   rarity:'Common',    base:0.02 },
-  { key:'coal',     name:'Coal',      color:'#2f3136', oneIn: 6,   rarity:'Common',    base:0.02 },
-  { key:'clay',     name:'Clay',      color:'#b0705a', oneIn: 8,   rarity:'Common',    base:0.02 },
-  { key:'copper',   name:'Copper',    color:'#c77943', oneIn: 10,  rarity:'Uncommon',  base:0.08 },
-  { key:'tin',      name:'Tin',       color:'#b6c3c8', oneIn: 12,  rarity:'Uncommon',  base:0.08 },
-  { key:'iron',     name:'Iron',      color:'#b8bfc7', oneIn: 16,  rarity:'Uncommon',  base:0.08 },
-  { key:'nickel',   name:'Nickel',    color:'#9fb3be', oneIn: 20,  rarity:'Uncommon',  base:0.08 },
-  { key:'silver',   name:'Silver',    color:'#dfe6ee', oneIn: 24,  rarity:'Uncommon',  base:0.08 },
-  { key:'gold',     name:'Gold',      color:'#ffd24a', oneIn: 40,  rarity:'Rare',      base:0.22 },
-  { key:'platinum', name:'Platinum',  color:'#e4f1ff', oneIn: 50,  rarity:'Rare',      base:0.22 },
-  { key:'ruby',     name:'Ruby',      color:'#ff4d6d', oneIn: 80,  rarity:'Epic',      base:0.60 },
-  { key:'sapphire', name:'Sapphire',  color:'#4da3ff', oneIn: 120, rarity:'Epic',      base:0.60 },
-  { key:'emerald',  name:'Emerald',   color:'#40e0a8', oneIn: 160, rarity:'Legendary', base:1.40 },
-  { key:'diamond',  name:'Diamond',   color:'#82fff6', oneIn: 240, rarity:'Mythic',    base:2.40 },
-  { key:'obsidian', name:'Obsidian',  color:'#3a0c5a', oneIn: 360, rarity:'Mythic',    base:2.40 },
-  { key:'mythril',  name:'Mythril',   color:'#a9fffe', oneIn: 480, rarity:'Relic',     base:5.00 },
-  { key:'starlite', name:'Starlite',  color:'#b986ff', oneIn: 720, rarity:'Relic',     base:5.00 },
-  { key:'nebulite', name:'Nebulite',  color:'#9efcff', oneIn:1200, rarity:'Relic',     base:5.00 },
-  { key:'voidcore', name:'Voidcore',  color:'#6c36ff', oneIn:2000, rarity:'Relic',     base:5.00 }
-].map(o => {
-  let income = o.base;
-  if (o.oneIn > 50){
-    const factor = 1 + Math.log10(o.oneIn / 50) * 0.9;
-    income = +(income * factor).toFixed(2);
-  }
-  return { ...o, incomePerSec: income };
-});
+  { key:'dirt', name:'Dirt', oneIn:2, rarity:'Common', income:0.02, color:'#8b5a2b' },
+  { key:'rock', name:'Rock', oneIn:4, rarity:'Common', income:0.02, color:'#7a7f87' },
+  { key:'coal', name:'Coal', oneIn:6, rarity:'Common', income:0.03, color:'#2f3136' },
+  { key:'clay', name:'Clay', oneIn:8, rarity:'Common', income:0.04, color:'#b0705a' },
+  { key:'copper', name:'Copper', oneIn:10, rarity:'Uncommon', income:0.08, color:'#c77943' },
+  { key:'tin', name:'Tin', oneIn:12, rarity:'Uncommon', income:0.09, color:'#b6c3c8' },
+  { key:'iron', name:'Iron', oneIn:16, rarity:'Uncommon', income:0.11, color:'#b8bfc7' },
+  { key:'nickel', name:'Nickel', oneIn:20, rarity:'Uncommon', income:0.13, color:'#9fb3be' },
+  { key:'silver', name:'Silver', oneIn:24, rarity:'Uncommon', income:0.16, color:'#dfe6ee' },
+  { key:'gold', name:'Gold', oneIn:40, rarity:'Rare', income:0.28, color:'#ffd24a' },
+  { key:'platinum', name:'Platinum', oneIn:55, rarity:'Rare', income:0.36, color:'#e4f1ff' },
+  { key:'ruby', name:'Ruby', oneIn:80, rarity:'Epic', income:0.75, color:'#ff4d6d' },
+  { key:'sapphire', name:'Sapphire', oneIn:120, rarity:'Epic', income:0.92, color:'#4da3ff' },
+  { key:'emerald', name:'Emerald', oneIn:165, rarity:'Legendary', income:1.6, color:'#40e0a8' },
+  { key:'diamond', name:'Diamond', oneIn:240, rarity:'Mythic', income:2.8, color:'#82fff6' },
+  { key:'obsidian', name:'Obsidian', oneIn:360, rarity:'Mythic', income:3.25, color:'#3a0c5a' },
+  { key:'mythril', name:'Mythril', oneIn:520, rarity:'Relic', income:6.2, color:'#a9fffe' },
+  { key:'starlite', name:'Starlite', oneIn:800, rarity:'Relic', income:7.6, color:'#b986ff' },
+  { key:'nebulite', name:'Nebulite', oneIn:1300, rarity:'Relic', income:9.4, color:'#9efcff' },
+  { key:'voidcore', name:'Voidcore', oneIn:2200, rarity:'Relic', income:12.0, color:'#6c36ff' },
+  { key:'sunstone', name:'Sunstone', oneIn:3200, rarity:'Relic', income:15.5, color:'#ffb347' },
+  { key:'chronite', name:'Chronite', oneIn:5000, rarity:'Relic', income:21.0, color:'#d9fff6' }
+];
 
-/* ===== State ===== */
-const inventory = Object.fromEntries(ORES.map(o => [o.key, 0]));
-let totalRolls = 0;
-let totalFinds = 0;
-let money = 10; // start with $10
+const RESEARCH = [
+  { key:'luck', name:'Lucky Samples', desc:'+2% Rare+ odds per level.', max:12, base:2, effect:s=>`${s.research.luck * 2}% Rare+ luck` },
+  { key:'income', name:'Efficient Smelting', desc:'+12% global income per level.', max:15, base:2, effect:s=>`+${s.research.income * 12}% income` },
+  { key:'pity', name:'Pity Core', desc:'+4% pity cap and +0.1 pity gain per level.', max:8, base:3, effect:s=>`${getPityCap()}% cap` },
+  { key:'auto', name:'Automation Logic', desc:'Auto-roll gets 8% faster per level.', max:8, base:3, effect:s=>`${getAutoDelay()}ms auto delay` },
+  { key:'offline', name:'Mine Scheduler', desc:'+1 hour offline income cap per level.', max:8, base:2, effect:s=>`${getOfflineCapHours()}h offline cap` },
+  { key:'fusion', name:'Forge Heat', desc:'Fusion rewards improve and fusion energy fills faster.', max:8, base:2, effect:s=>`Lv.${s.research.fusion}` }
+];
 
-let pity = 0;
-let infusionActive = false, infusionEnds = 0, infusionCdEnds = 0;
-let focusOre = null, focusEnds = 0, focusCdEnds = 0;
-let beacons = 0;
-const tierBoosts = { 'Common':0,'Uncommon':0,'Rare':0,'Epic':0,'Legendary':0,'Mythic':0,'Relic':0 };
-let research = { luck: 0, incomeMult: 1.0 };
-let rp = 0;
-let rebirths = 0;
-let rebirthPoints = 0;
-const rebirthUpgrades = Object.fromEntries(REBIRTH_UPGRADES.map(u => [u.key, 0]));
+const MILESTONES = [
+  { key:'firstOre', name:'First Find', desc:'Find any ore.', reward:'2 RP', target:s=>s.totalFinds, need:1, grant:s=>s.rp+=2 },
+  { key:'roll100', name:'Mine Apprentice', desc:'Roll 100 times.', reward:'3 RP', target:s=>s.totalRolls, need:100, grant:s=>s.rp+=3 },
+  { key:'firstRare', name:'Blue Spark', desc:'Find any Rare ore.', reward:'4 RP', target:s=>countByRank(s, 'Rare'), need:1, grant:s=>s.rp+=4 },
+  { key:'firstEpic', name:'Deep Shine', desc:'Find any Epic ore.', reward:'5 RP', target:s=>countByRank(s, 'Epic'), need:1, grant:s=>s.rp+=5 },
+  { key:'collector10', name:'Collector I', desc:'Discover 10 unique ores.', reward:'6 RP', target:s=>discoveredCount(s), need:10, grant:s=>s.rp+=6 },
+  { key:'firstRelic', name:'Relic Breakthrough', desc:'Find any Relic ore.', reward:'1 RBP and 10 RP', target:s=>countByRank(s, 'Relic'), need:1, grant:s=>{s.rbp+=1; s.rp+=10;} },
+  { key:'rebirth1', name:'Reborn Miner', desc:'Rebirth once.', reward:'8 RP', target:s=>s.rebirths, need:1, grant:s=>s.rp+=8 },
+  { key:'income500', name:'Industrial Mine', desc:'Reach $500/s income.', reward:'10 RP', target:s=>computeMPS(), need:500, grant:s=>s.rp+=10 }
+];
 
-let autoUnlocked = false, autoEnabled = false, autoTimer = null, autoSpeedIndex = 0;
-const skipSet = new Set();
-const shopSectionsOpen = { basic:true, income:false, rebirth:true };
+const EVENT_TYPES = {
+  meteor:{ name:'Meteor Shower', cost:2500, duration:90, desc:'Relic and Mythic odds improve. First Relic during this event gives +5 RP.', apply:'rare' },
+  golden:{ name:'Golden Vein', cost:1500, duration:75, desc:'Income is doubled while active.', apply:'income' },
+  deep:{ name:'Deep Cave', cost:2000, duration:80, desc:'Epic+ odds improve and fusion energy fills faster.', apply:'deep' }
+};
 
+const state = freshState();
 let lastTick = performance.now();
+let autoTimer = null;
+let incomeTimer = null;
+let saveTimer = null;
 
-/* ===== DOM ===== */
-const invListEl = document.getElementById('invList');
-const oreLegendEl = document.getElementById('oreLegend');
-const logEl = document.getElementById('log');
-const totalRollsEl = document.getElementById('totalRolls');
-const findRateEl = document.getElementById('findRate');
-const rollBtn = document.getElementById('rollBtn');
-const auto10Btn = document.getElementById('auto10');
-const resetBtn = document.getElementById('resetBtn');
-const moneyDisplay = document.getElementById('moneyDisplay');
-const mpsDisplay = document.getElementById('mpsDisplay');
-const beaconDisplay = document.getElementById('beaconDisplay');
-const rpDisplay = document.getElementById('rpDisplay');
-const rebirthDisplay = document.getElementById('rebirthDisplay');
-const autoStatus = document.getElementById('autoStatus');
-const luckPill = document.getElementById('luckPill');
-const pityPill = document.getElementById('pityPill');
-const pityBar = document.getElementById('pityBar');
-const focusPill = document.getElementById('focusPill');
-const toastsEl = document.getElementById('toasts');
-const confettiEl = document.getElementById('confetti');
-const showcase = document.getElementById('showcase');
-const closeShowcase = document.getElementById('closeShowcase');
-const scBadge = document.getElementById('scBadge');
-const scName = document.getElementById('scName');
-const scRarity = document.getElementById('scRarity');
-const scCount = document.getElementById('scCount');
-const scIncome = document.getElementById('scIncome');
-const scGem = document.getElementById('scGem');
-const relicName = document.getElementById('relicName');
-const relicMeta = document.getElementById('relicMeta');
-const relicGem = document.getElementById('relicGem');
+const el = id => document.getElementById(id);
+const refs = {
+  moneyTop:el('moneyTop'), mpsTop:el('mpsTop'), rebirthTop:el('rebirthTop'), rpTop:el('rpTop'), collectionTop:el('collectionTop'),
+  luckPill:el('luckPill'), pityPill:el('pityPill'), focusPill:el('focusPill'), eventPill:el('eventPill'), autoStatus:el('autoStatus'),
+  mainGem:el('mainGem'), lastOreName:el('lastOreName'), lastOreMeta:el('lastOreMeta'), lastOreIncome:el('lastOreIncome'),
+  goalTitle:el('goalTitle'), goalText:el('goalText'), goalBar:el('goalBar'), rollsPill:el('rollsPill'), findRatePill:el('findRatePill'),
+  fusionPill:el('fusionPill'), rebirthCostPill:el('rebirthCostPill'), inventoryList:el('inventoryList'), milestoneList:el('milestoneList'),
+  collectionGrid:el('collectionGrid'), researchGrid:el('researchGrid'), fusionList:el('fusionList'), log:el('log'), toastWrap:el('toastWrap'),
+  eventDesc:el('eventDesc'), eventBar:el('eventBar'), leaderboardList:el('leaderboardList'), modal:el('modal'), modalTitle:el('modalTitle'), modalText:el('modalText')
+};
 
-const shopEl = document.getElementById('shop');
-const toggleSkipsBtn = document.getElementById('toggleSkips');
-const saveProfileBtn = document.getElementById('saveProfile');
-const loadProfileBtn = document.getElementById('loadProfile');
-const skipPanel = document.getElementById('skipPanel');
-const homeTab = document.getElementById('homeTab');
-const leaderboardTab = document.getElementById('leaderboardTab');
-const homeView = document.getElementById('homeView');
-const leaderboardView = document.getElementById('leaderboardView');
-const podiumEl = document.getElementById('podium');
-const standingListEl = document.getElementById('standingList');
-const leaderboardStatusEl = document.getElementById('leaderboardStatus');
-const submitScoreBtn = document.getElementById('submitScoreBtn');
-const refreshLeaderboardBtn = document.getElementById('refreshLeaderboardBtn');
-const loggedInAsEl = document.getElementById('loggedInAs');
-const topLogoutBtn = document.getElementById('topLogoutBtn');
+function freshState(){
+  return {
+    money:10,
+    inventory:Object.fromEntries(ORES.map(o=>[o.key,0])),
+    totalRolls:0,
+    totalFinds:0,
+    pity:0,
+    rp:0,
+    rbp:0,
+    rebirths:0,
+    fusionEnergy:0,
+    autoUnlocked:false,
+    autoEnabled:false,
+    autoPauseRare:false,
+    autoHideCommon:false,
+    focus:null,
+    discoveries:{},
+    milestones:{},
+    research:Object.fromEntries(RESEARCH.map(r=>[r.key,0])),
+    event:null,
+    eventEnds:0,
+    eventRelicReward:false,
+    focusEnds:0,
+    lastSavedAt:Date.now()
+  };
+}
 
-/* ===== Helpers ===== */
-function formatMoney(x){
+function fmtMoney(x){
+  if (!isFinite(x)) return '$0';
   if (x >= 1e12) return '$' + (x/1e12).toFixed(2) + 'T';
   if (x >= 1e9) return '$' + (x/1e9).toFixed(2) + 'B';
   if (x >= 1e6) return '$' + (x/1e6).toFixed(2) + 'M';
   if (x >= 1e3) return '$' + (x/1e3).toFixed(2) + 'k';
   return '$' + x.toFixed(2);
 }
-function rarityRank(r){
-  const order = ['Common','Uncommon','Rare','Epic','Legendary','Mythic','Relic'];
-  return order.indexOf(r);
+function rarityRank(r){ return RARITIES.indexOf(r); }
+function discoveredCount(s=state){ return Object.keys(s.discoveries).length; }
+function countByRank(s, minRarity){
+  const min = rarityRank(minRarity);
+  return ORES.filter(o=>rarityRank(o.rarity) >= min).reduce((sum,o)=>sum + (s.inventory[o.key] || 0), 0);
 }
+function getPityCap(){ return PITY_CAP_BASE + state.research.pity * 4; }
+function getLuck(){
+  let luck = state.research.luck * 2 + state.rebirths * 2;
+  if (state.event && ['meteor','deep'].includes(state.event)) luck += state.event === 'meteor' ? 18 : 10;
+  return luck;
+}
+function getIncomeMult(){
+  let mult = 1 + state.research.income * 0.12 + state.rebirths * 0.45;
+  if (state.event === 'golden') mult *= 2;
+  return mult;
+}
+function getAutoDelay(){
+  return Math.max(90, Math.floor(AUTO_DELAY_BASE * Math.pow(0.92, state.research.auto) * Math.pow(0.94, state.rebirths)));
+}
+function getOfflineCapHours(){ return 2 + state.research.offline; }
+function oreIncome(ore){ return ore.income * ORE_INCOME_MULT; }
 function computeMPS(){
-  let mps = 0;
-  for (const o of ORES){
-    const tierMult = 1 + (tierBoosts[o.rarity]||0)/100;
-    mps += inventory[o.key] * o.incomePerSec * tierMult;
+  let total = 0;
+  for (const ore of ORES){
+    total += (state.inventory[ore.key] || 0) * oreIncome(ore);
   }
-  const beaconMult = 1 + beacons * BEACON_STEP / 100;
-  const rebirthMult = Math.pow(2, rebirths);
-  return mps * beaconMult * research.incomeMult * rebirthMult;
+  return total * getIncomeMult();
 }
-
-function getLeaderboardScore(){
-  return Math.floor(money + computeMPS()*1000 + rebirths*1000000 + totalFinds*100 + totalRolls);
+function getRebirthCost(){
+  return REBIRTH_BASE_COST * Math.pow(2.8, state.rebirths);
 }
-function getPlayerDisplayName(user){
-  if (!user) return 'Guest Miner';
-  return (user.displayName || (user.email ? user.email.split('@')[0] : 'Miner')).slice(0, 24);
+function score(){
+  return Math.floor(state.money + computeMPS()*1200 + state.rebirths*250000 + discoveredCount()*5000 + state.totalFinds*120 + state.totalRolls);
 }
-function switchView(view){
-  const showBoard = view === 'leaderboard';
-  homeView.classList.toggle('active', !showBoard);
-  leaderboardView.classList.toggle('active', showBoard);
-  homeTab.classList.toggle('active', !showBoard);
-  leaderboardTab.classList.toggle('active', showBoard);
-  if (showBoard && typeof window.loadLeaderboard === 'function') window.loadLeaderboard();
+function currentGoal(){
+  return MILESTONES.find(m=>!state.milestones[m.key]) || MILESTONES[MILESTONES.length - 1];
 }
-function formatScore(x){
-  if (x >= 1e12) return (x/1e12).toFixed(2) + 'T';
-  if (x >= 1e9) return (x/1e9).toFixed(2) + 'B';
-  if (x >= 1e6) return (x/1e6).toFixed(2) + 'M';
-  if (x >= 1e3) return (x/1e3).toFixed(1) + 'k';
-  return String(Math.floor(x || 0));
-}
-function renderLeaderboard(players=[]){
-  const podiumOrder = [players[1], players[0], players[2]];
-  const classes = ['second','first','third'];
-  const medals = ['🥈','🥇','🥉'];
-  podiumEl.innerHTML = podiumOrder.map((p, i) => `
-    <div class="podium-slot ${classes[i]}">
-      <div class="podium-rank">${medals[i]}</div>
-      <div class="podium-name">${p ? p.name : 'Empty'}</div>
-      <div class="podium-score">${p ? formatScore(p.score) + ' pts' : 'No score yet'}</div>
-      <div class="standing-meta">${p ? `${p.rebirths || 0} rebirths • ${formatMoney(p.money || 0)}` : 'Submit to claim this spot'}</div>
-    </div>
-  `).join('');
-  standingListEl.innerHTML = players.length ? players.map((p, index) => `
-    <div class="standing-row">
-      <div class="standing-rank">#${index + 1}</div>
-      <div>
-        <div class="standing-name">${p.name || 'Miner'}</div>
-        <div class="standing-meta">${p.rebirths || 0} rebirths • ${p.totalRolls || 0} rolls • ${formatMoney(p.money || 0)}</div>
-      </div>
-      <div class="standing-meta">${(p.mps || 0).toFixed(2)}/s</div>
-      <div class="standing-score">${formatScore(p.score)} pts</div>
-    </div>
-  `).join('') : '<div class="odds">No leaderboard entries yet.</div>';
-}
-
-/* ===== UI ===== */
-function renderLegend(){
-  oreLegendEl.innerHTML = '';
-  ORES.forEach(o => {
-    const row = document.createElement('div');
-    row.className = 'legend-row';
-    row.innerHTML = `
-      <div class="badge" style="background:${o.color}"></div>
-      <div>
-        <div><strong>${o.name}</strong> <span class="odds">(${o.rarity})</span></div>
-        <div class="odds">1 in ${o.oneIn} per check</div>
-      </div>
-      <div class="odds">${(100/o.oneIn).toFixed(2)}%</div>
-      <div class="income">+$${o.incomePerSec.toFixed(2)}/s</div>
-    `;
-    oreLegendEl.appendChild(row);
-  });
-}
-function renderInventory(highlightKey=null){
-  invListEl.innerHTML = '';
-  let owned = 0;
-  ORES.forEach(o => {
-    const count = inventory[o.key];
-    if (!count) return;
-    owned++;
-    const row = document.createElement('div');
-    row.className = 'inv-item' + (highlightKey===o.key?' inv-pulse':'');
-    const name = document.createElement('div');
-    name.className = 'inv-name';
-    name.innerHTML = `<span class="badge" style="background:${o.color}"></span>${o.name} <span class="odds" style="margin-left:6px">(${o.rarity})</span>`;
-    const amt = document.createElement('div');
-    amt.className = 'inv-amt';
-    const perSecEach = (o.incomePerSec) * (1 + (tierBoosts[o.rarity]||0)/100) * (1 + beacons*BEACON_STEP/100) * research.incomeMult;
-    amt.innerHTML = `<strong>${count}</strong> <span class="odds" style="margin-left:8px">($${(perSecEach*count).toFixed(2)}/s)</span>`;
-    row.appendChild(name); row.appendChild(amt);
-    invListEl.appendChild(row);
-    if (highlightKey===o.key){ setTimeout(()=>row.classList.remove('inv-pulse'), 450); }
-  });
-  if (!owned){
-    const empty = document.createElement('div');
-    empty.className = 'odds';
-    empty.textContent = 'No ores yet. Roll to find your first!';
-    invListEl.appendChild(empty);
+function effectiveOneIn(ore){
+  let eff = ore.oneIn;
+  const rank = rarityRank(ore.rarity);
+  if (rank >= rarityRank('Rare')){
+    eff *= Math.max(.08, 1 - getLuck()/100);
+    eff *= Math.max(.08, 1 - Math.min(state.pity, getPityCap())/100);
   }
-}
-function updateStats(){
-  totalRollsEl.textContent = totalRolls;
-  const rate = totalRolls ? (100*totalFinds/totalRolls) : 0;
-  findRateEl.textContent = rate.toFixed(2) + '%';
-  moneyDisplay.textContent = formatMoney(money);
-  mpsDisplay.textContent = `$${computeMPS().toFixed(2)}/s`;
-  beaconDisplay.textContent = `${beacons*BEACON_STEP}%`;
-  rpDisplay.textContent = `${rp} RP`;
-  rebirthDisplay.textContent = `${rebirths} (${rebirthPoints} RBP)`;
-
-  const liveLuck = research.luck + (rebirthUpgrades.rbLuck * 5) + (infusionActive ? LUCK_INFUSION_BONUS : 0);
-  luckPill.textContent = `${liveLuck}%`;
-  pityPill.textContent = `${pity.toFixed(1)}%`;
-  pityBar.style.width = `${(pity/PITY_CAP)*100}%`;
-  focusPill.textContent = focusOre ? (ORES.find(o=>o.key===focusOre)?.name || 'None') : 'None';
-
-  rollBtn.disabled = money < ROLL_COST;
-  auto10Btn.disabled = money < ROLL10_COST;
-  rollBtn.style.filter = rollBtn.disabled ? 'grayscale(0.3) brightness(0.9)' : '';
-}
-function log(msg, cls=''){
-  const el = document.createElement('div');
-  el.className = 'entry ' + cls;
-  el.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-  logEl.prepend(el);
-  const MAX = 220;
-  while (logEl.children.length > MAX) logEl.removeChild(logEl.lastChild);
-}
-function showToast(ore, count){
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.innerHTML = `
-    <div class="badge" style="background:${ore.color}; width:14px; height:14px;"></div>
-    <div>
-      <div>Found <strong>${ore.name}</strong>!</div>
-      <div class="odds">${ore.rarity} • You now own <strong>#${count}</strong></div>
-    </div>
-  `;
-  toastsEl.appendChild(t);
-  setTimeout(()=>t.remove(), 2600);
-}
-function confetti(color){
-  const rect = confettiEl.getBoundingClientRect();
-  const cx = rect.width/2, y = 40, n = 22;
-  for (let i=0;i<n;i++){
-    const p = document.createElement('div'); p.className='piece';
-    const hue=(i*18)%360;
-    p.style.background = i%2 ? color : `hsl(${hue},85%,60%)`;
-    const sx = cx + (Math.random()*40-20), sy = y + (Math.random()*30-10);
-    const dx = (Math.random()*220-110), dy = 120 + Math.random()*140;
-    p.style.left = `${sx}px`; p.style.top = `${sy}px`;
-    p.style.setProperty('--dx', dx+'px'); p.style.setProperty('--dy', dy+'px');
-    confettiEl.appendChild(p); setTimeout(()=>p.remove(), 1000);
-  }
-}
-function openShowcase(ore, count){
-  showcase.classList.remove('relic-mode','hit1','hit2','hit3','revealed');
-  scBadge.style.background = ore.color;
-  scName.textContent = ore.name;
-  scRarity.textContent = `${ore.rarity} • 1/${ore.oneIn}`;
-  scCount.textContent = `#${count}`;
-  scIncome.textContent = `+$${ore.incomePerSec.toFixed(2)}/s`;
-  scGem.style.setProperty('--gemColor', ore.color);
-  showcase.classList.add('active');
-  showcase.setAttribute('aria-hidden','false');
-}
-function openRelicShowcase(ore, count){
-  showcase.classList.remove('hit1','hit2','hit3','revealed');
-  showcase.classList.add('active','relic-mode');
-  showcase.style.setProperty('--relicColor', ore.color);
-  relicName.textContent = ore.name;
-  relicMeta.textContent = `${ore.rarity} • 1/${ore.oneIn} • +$${ore.incomePerSec.toFixed(2)}/s • You now own #${count}`;
-  relicGem.style.background = ore.color;
-  showcase.setAttribute('aria-hidden','false');
-  setTimeout(()=>showcase.classList.add('hit1'), 650);
-  setTimeout(()=>showcase.classList.add('hit2'), 1350);
-  setTimeout(()=>showcase.classList.add('hit3'), 2050);
-  setTimeout(()=>showcase.classList.add('revealed'), 2450);
-}
-function closeShowcaseFn(){ showcase.classList.remove('active','relic-mode','hit1','hit2','hit3','revealed'); showcase.setAttribute('aria-hidden','true'); }
-closeShowcase.addEventListener('click', closeShowcaseFn);
-showcase.addEventListener('click', (e)=>{ if (e.target===showcase) closeShowcaseFn(); });
-window.addEventListener('keydown', (e)=>{ if (e.key==='Escape' && showcase.classList.contains('active')) closeShowcaseFn(); });
-
-/* ===== Skips ===== */
-function renderSkips(){
-  const enabled = autoUnlocked;
-  toggleSkipsBtn.disabled = !enabled;
-  saveProfileBtn.disabled = false;
-  loadProfileBtn.disabled = false;
-
-  skipPanel.innerHTML = '';
-  ORES.forEach(o=>{
-    const row = document.createElement('div'); row.className='skip-row';
-    const id = 'skip_'+o.key;
-    row.innerHTML = `
-      <label for="${id}">
-        <span class="badge" style="background:${o.color}"></span>
-        <strong>${o.name}</strong> <span class="odds">(${o.rarity}, 1/${o.oneIn})</span>
-      </label>
-      <input type="checkbox" id="${id}" ${skipSet.has(o.key)?'checked':''} ${enabled?'':'disabled'} />
-    `;
-    const input = row.querySelector('input');
-    input.addEventListener('change', ()=>{
-      if (input.checked) skipSet.add(o.key); else skipSet.delete(o.key);
-      log(`${input.checked ? 'Skipping' : 'Un-skipping'} ${o.name}.`, 'warn');
-    });
-    skipPanel.appendChild(row);
-  });
-}
-toggleSkipsBtn.addEventListener('click', ()=> skipPanel.classList.toggle('active'));
-function createProfileData(){
-  return {
-    version: 2,
-    savedAt: new Date().toISOString(),
-    inventory: { ...inventory },
-    totalRolls, totalFinds, money, pity, beacons, rp,
-    research: { ...research },
-    tierBoosts: { ...tierBoosts },
-    rebirths, rebirthPoints,
-    rebirthUpgrades: { ...rebirthUpgrades },
-    autoUnlocked, autoEnabled: false, autoSpeedIndex,
-    skipSet: Array.from(skipSet),
-    shopSectionsOpen: { ...shopSectionsOpen }
-  };
-}
-function applyProfileData(data){
-  if (!data || typeof data !== 'object') throw new Error('Profile data is missing or invalid.');
-
-  ORES.forEach(o => inventory[o.key] = Number(data.inventory?.[o.key] || 0));
-  totalRolls = Number(data.totalRolls || 0);
-  totalFinds = Number(data.totalFinds || 0);
-  money = Number(data.money ?? 10);
-  pity = Number(data.pity || 0);
-  infusionActive = false; infusionEnds = 0; infusionCdEnds = 0;
-  focusOre = null; focusEnds = 0; focusCdEnds = 0;
-  beacons = Number(data.beacons || 0);
-
-  Object.keys(tierBoosts).forEach(r => tierBoosts[r] = Number(data.tierBoosts?.[r] || 0));
-  research = {
-    luck: Number(data.research?.luck || 0),
-    incomeMult: Number(data.research?.incomeMult || 1)
-  };
-  rp = Number(data.rp || 0);
-  rebirths = Number(data.rebirths || 0);
-  rebirthPoints = Number(data.rebirthPoints || 0);
-  Object.keys(rebirthUpgrades).forEach(k => rebirthUpgrades[k] = Number(data.rebirthUpgrades?.[k] || 0));
-
-  autoUnlocked = !!data.autoUnlocked;
-  stopAuto();
-  autoSpeedIndex = Math.max(0, Math.min(AUTO_SPEEDS.length - 1, Number(data.autoSpeedIndex || 0)));
-
-  skipSet.clear();
-  (Array.isArray(data.skipSet) ? data.skipSet : []).forEach(k => {
-    if (ORES.some(o => o.key === k)) skipSet.add(k);
-  });
-
-  if (data.shopSectionsOpen && typeof data.shopSectionsOpen === 'object'){
-    Object.keys(shopSectionsOpen).forEach(k => {
-      if (typeof data.shopSectionsOpen[k] === 'boolean') shopSectionsOpen[k] = data.shopSectionsOpen[k];
-    });
-  }
-
-  renderInventory();
-  renderSkips();
-  renderShop();
-  updateStats();
-}
-function profileKey(username){
-  return 'ore_rng_profile_' + String(username || '').trim().toLowerCase();
-}
-function simplePasswordHash(password){
-  // Light local-only obfuscation so the password is not saved as plain text.
-  // This is not a secure online login system; it only protects profiles on this browser.
-  let h = 2166136261;
-  const str = String(password || '');
-  for (let i=0; i<str.length; i++){
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return (h >>> 0).toString(16);
-}
-saveProfileBtn.textContent = 'Save Cloud';
-loadProfileBtn.textContent = 'Load / Login';
-
-async function waitForFirebaseHelpers(){
-  for (let i=0; i<50; i++){
-    if (typeof window.login === 'function' && typeof window.signup === 'function' && typeof window.saveCloudGame === 'function' && typeof window.loadCloudGame === 'function') return true;
-    await new Promise(r => setTimeout(r, 100));
-  }
-  return false;
-}
-
-async function loginOrSignupForProfile(email, password){
-  try{
-    await window.login(email, password);
-    return true;
-  }catch(err){
-    // window.login handles its own alert, so this catch is mostly for unexpected cases.
-  }
-  return false;
-}
-
-saveProfileBtn.addEventListener('click', async ()=>{
-  const ready = await waitForFirebaseHelpers();
-  if (!ready){ alert('Firebase is still loading. Try again in a moment.'); return; }
-
-  const email = prompt('Enter your account email to save:');
-  if (!email || !email.trim()){ log('Cloud save cancelled. Email required.', 'warn'); return; }
-
-  const password = prompt('Enter your account password:');
-  if (!password){ log('Cloud save cancelled. Password required.', 'warn'); return; }
-
-  try{
-    try{
-      await window.login(email.trim(), password);
-    }catch(loginErr){
-      // If the account does not exist yet, try creating it.
-      await window.signup(email.trim(), password);
-    }
-
-    const profile = createProfileData();
-    profile.playerEmail = email.trim();
-    await window.saveCloudGame(profile);
-    localStorage.setItem('ore_rng_last_email', email.trim());
-    log(`Cloud profile saved for ${email.trim()}.`, 'warn');
-  }catch(err){
-    alert(err?.message || 'Cloud save failed. Check your Firebase Auth/Firestore setup.');
-    log('Cloud profile save failed.', 'warn');
-  }
-});
-
-loadProfileBtn.addEventListener('click', async ()=>{
-  const ready = await waitForFirebaseHelpers();
-  if (!ready){ alert('Firebase is still loading. Try again in a moment.'); return; }
-
-  const suggested = localStorage.getItem('ore_rng_last_email') || '';
-  const email = prompt('Enter your account email to login/load:', suggested);
-  if (!email || !email.trim()){ log('Login/load cancelled. Email required.', 'warn'); return; }
-
-  const password = prompt('Enter your account password:');
-  if (!password){ log('Login/load cancelled. Password required.', 'warn'); return; }
-
-  try{
-    await window.login(email.trim(), password);
-    const data = await window.loadCloudGame();
-    if (!data){ log('No cloud profile found for this account.', 'warn'); return; }
-    applyProfileData(data.profile ? data.profile : data);
-    localStorage.setItem('ore_rng_last_email', email.trim());
-    log(`Logged in and loaded cloud profile for ${email.trim()}.`, 'warn');
-  }catch(err){
-    alert(err?.message || 'Login/load failed. Check your email, password, and Firebase settings.');
-    log('Cloud profile load failed.', 'warn');
-  }
-});
-
-/* ===== RNG with modifiers ===== */
-function effectiveOneIn(base, ore){
-  let eff = base;
-  const rarePlus = rarityRank(ore.rarity) >= rarityRank(PITY_MIN_RARITY);
-  const liveLuck = research.luck + (rebirthUpgrades.rbLuck * 5) + (infusionActive ? LUCK_INFUSION_BONUS : 0);
-  if (rarePlus && liveLuck>0) eff = Math.max(1, Math.floor(eff * (100-liveLuck)/100));
-  if (rarePlus && pity>0) eff = Math.max(1, Math.floor(eff * (100-Math.min(pity,PITY_CAP))/100));
-  if (focusOre && ore.key===focusOre) eff = Math.max(1, Math.floor(eff * (100-FOCUS_BONUS)/100));
-  return eff;
+  if (state.event === 'meteor' && rank >= rarityRank('Mythic')) eff *= .58;
+  if (state.event === 'deep' && rank >= rarityRank('Epic')) eff *= .7;
+  if (state.focus === ore.key && Date.now() < state.focusEnds) eff *= .5;
+  return Math.max(1, Math.floor(eff));
 }
 function rollRNG(){
-  for (const o of ORES){
-    if (skipSet.has(o.key)) continue;
-    const eff = effectiveOneIn(o.oneIn, o);
-    if (Math.floor(Math.random()*eff)===0) return o;
+  for (const ore of ORES){
+    if (Math.floor(Math.random() * effectiveOneIn(ore)) === 0) return ore;
   }
   return null;
 }
+function addLog(text, cls=''){
+  const item = document.createElement('div');
+  item.className = 'entry ' + cls;
+  item.textContent = '[' + new Date().toLocaleTimeString() + '] ' + text;
+  refs.log.prepend(item);
+  while (refs.log.children.length > 160) refs.log.removeChild(refs.log.lastChild);
+}
+function toast(title, text){
+  const box = document.createElement('div');
+  box.className = 'toast';
+  box.innerHTML = `<strong>${title}</strong><div class="muted">${text}</div>`;
+  refs.toastWrap.appendChild(box);
+  setTimeout(()=>box.remove(), 2900);
+}
+function openModal(title, text){
+  refs.modalTitle.textContent = title;
+  refs.modalText.textContent = text;
+  refs.modal.classList.add('active');
+  refs.modal.setAttribute('aria-hidden','false');
+}
+function closeModal(){
+  refs.modal.classList.remove('active');
+  refs.modal.setAttribute('aria-hidden','true');
+}
+function storageGet(key){
+  try{ return window.localStorage.getItem(key); }
+  catch{ return null; }
+}
+function storageSet(key, value){
+  try{
+    window.localStorage.setItem(key, value);
+    return true;
+  }catch{
+    return false;
+  }
+}
+function storageRemove(key){
+  try{ window.localStorage.removeItem(key); }
+  catch{}
+}
 
-/* ===== Roll logic ===== */
-function onMiss(){ pity = Math.min(PITY_CAP, pity + PITY_PER_MISS + (rebirthUpgrades.rbPity * 0.25)); }
-function onHit(){ pity = 0; }
-
-function doOneRoll(){
-  if (money < ROLL_COST){ log(`Not enough money for a roll. Need $${ROLL_COST}.`, 'warn'); return false; }
-  money -= ROLL_COST;
-  totalRolls++;
+function doRoll(options={}){
+  const quiet = !!options.quiet;
+  if (state.money < ROLL_COST){
+    if (!quiet) toast('Not enough money', 'You need $1 to roll.');
+    return false;
+  }
+  state.money -= ROLL_COST;
+  state.totalRolls++;
   const found = rollRNG();
   if (found){
-    totalFinds++;
-    const newCount = ++inventory[found.key];
+    state.totalFinds++;
+    state.inventory[found.key] = (state.inventory[found.key] || 0) + 1;
+    state.discoveries[found.key] = true;
+    state.pity = 0;
     const rank = rarityRank(found.rarity);
-    if (found.rarity === 'Relic') { openRelicShowcase(found, newCount); confetti(found.color); }
-    else if (rank >= rarityRank('Epic')) { openShowcase(found, newCount); confetti(found.color); }
-    else { showToast(found, newCount); }
-    log(`You found ${found.name}! (+$${found.incomePerSec.toFixed(2)}/s)`, 'got');
-    renderInventory(found.key);
-    onHit();
+    const energyGain = 1 + Math.max(0, rank - 1) + state.research.fusion + (state.event === 'deep' ? 3 : 0);
+    state.fusionEnergy = Math.min(100, state.fusionEnergy + energyGain);
+    showFound(found, quiet);
+    if (state.event === 'meteor' && found.rarity === 'Relic' && !state.eventRelicReward){
+      state.eventRelicReward = true;
+      state.rp += 5;
+      toast('Meteor reward', '+5 RP for finding a Relic during Meteor Shower.');
+    }
+    if (state.autoEnabled && state.autoPauseRare && rank >= rarityRank('Epic')){
+      stopAuto();
+      toast('Auto paused', `${found.name} was Epic or better.`);
+    }
   } else {
-    log(`No ore found.`, 'miss');
-    renderInventory();
-    onMiss();
+    state.pity = Math.min(getPityCap(), state.pity + PITY_GAIN + state.research.pity * .1);
+    if (!quiet) addLog('No ore found. Pity increased.', '');
   }
-  updateStats();
-  syncShopButtons();
+  checkMilestones();
+  renderAll();
   return true;
 }
-
-async function doTenRolls(){
-  if (money < ROLL10_COST){ log(`Not enough money for x10. Need $${ROLL10_COST}.`, 'warn'); return; }
-  money -= ROLL10_COST; updateStats();
-  rollBtn.disabled = true; auto10Btn.disabled = true;
-  for (let i=0;i<10;i++){
-    totalRolls++;
-    const found = rollRNG();
-    if (found){
-      totalFinds++;
-      const newCount = ++inventory[found.key];
-      const rank = rarityRank(found.rarity);
-      if (found.rarity === 'Relic') { openRelicShowcase(found, newCount); confetti(found.color); }
-      else if (rank >= rarityRank('Epic')) { openShowcase(found, newCount); confetti(found.color); }
-      else { showToast(found, newCount); }
-      log(`Bundle roll: found ${found.name}! (+$${found.incomePerSec.toFixed(2)}/s)`, 'got');
-      renderInventory(found.key);
-      onHit();
-    } else {
-      log(`Bundle roll: no ore.`, 'miss');
-      renderInventory();
-      onMiss();
+async function doManyRolls(amount, cost){
+  if (state.money < cost){
+    toast('Not enough money', `Need ${fmtMoney(cost)}.`);
+    return;
+  }
+  state.money -= cost - amount * ROLL_COST;
+  for (let i=0; i<amount; i++){
+    doRoll({ quiet:i < amount - 1 });
+    if (i % 20 === 0) await new Promise(r=>setTimeout(r, 0));
+  }
+}
+function showFound(ore, quiet){
+  const count = state.inventory[ore.key];
+  refs.mainGem.style.setProperty('--gemColor', ore.color);
+  refs.mainGem.classList.remove('hit');
+  void refs.mainGem.offsetWidth;
+  refs.mainGem.classList.add('hit');
+  refs.lastOreName.textContent = ore.name + ' Discovered';
+  refs.lastOreMeta.textContent = `${ore.rarity} - 1 in ${ore.oneIn} - owned #${count}`;
+  refs.lastOreIncome.textContent = `+${fmtMoney(oreIncome(ore) * getIncomeMult())}/s right now`;
+  const rank = rarityRank(ore.rarity);
+  if (!(quiet && state.autoHideCommon && ore.rarity === 'Common')){
+    addLog(`Found ${ore.name} (${ore.rarity}).`, rank >= rarityRank('Epic') ? 'rare' : 'good');
+  }
+  if (!quiet || rank >= rarityRank('Epic')){
+    toast(ore.name, `${ore.rarity}, owned #${count}`);
+  }
+  if (rank >= rarityRank('Mythic')){
+    openModal(`${ore.rarity} Discovery`, `${ore.name} entered your collection. This is a major find.`);
+  }
+}
+function checkMilestones(){
+  for (const m of MILESTONES){
+    if (state.milestones[m.key]) continue;
+    if (m.target(state) >= m.need){
+      state.milestones[m.key] = true;
+      m.grant(state);
+      toast('Milestone complete', `${m.name}: ${m.reward}`);
+      addLog(`Milestone complete: ${m.name}. Reward: ${m.reward}.`, 'warn');
     }
-    updateStats();
-    await new Promise(r=>setTimeout(r, 40));
   }
-  rollBtn.disabled = money < ROLL_COST;
-  auto10Btn.disabled = money < ROLL10_COST;
-  syncShopButtons();
 }
-
-
-/* ===== Income + Buff timers tick ===== */
-function tick(now){
-  const dt = Math.max(0, (now - lastTick)/1000);
-  lastTick = now;
-  money += computeMPS()*dt;
-
-  const t = Date.now()/1000;
-  let needsShopRefresh = false;
-  if (infusionActive && t>=infusionEnds){ infusionActive=false; needsShopRefresh = true; }
-  if (focusOre && t>=focusEnds){ focusOre=null; needsShopRefresh = true; }
-
-  if (!tick._acc) tick._acc=0;
-  tick._acc += dt;
-  if (tick._acc>=0.2){
-    updateStats();
-    renderInventory();
-    syncShopButtons();
-    tick._acc=0;
+function buyResearch(key){
+  const r = RESEARCH.find(x=>x.key===key);
+  if (!r) return;
+  const level = state.research[key] || 0;
+  if (level >= r.max) return;
+  const cost = r.base + level * 2;
+  if (state.rp < cost){
+    toast('Need more RP', `${r.name} costs ${cost} RP.`);
+    return;
   }
-  if (needsShopRefresh) renderShop();
-  requestAnimationFrame(tick);
+  state.rp -= cost;
+  state.research[key] = level + 1;
+  toast('Research upgraded', `${r.name} is now Lv.${level + 1}.`);
+  renderAll();
 }
-
-function getRebirthCost(){
-  return REBIRTH_BASE_COST * Math.pow(REBIRTH_COST_MULT, rebirths);
-}
-function getAutoDelay(){
-  return Math.max(75, Math.floor(AUTO_SPEEDS[autoSpeedIndex] * Math.pow(0.9, rebirthUpgrades.rbAuto)));
-}
-function resetRunForRebirth(){
-  for (const k in inventory) inventory[k]=0;
-  totalRolls=0; totalFinds=0; money=10;
-  pity=0; infusionActive=false; focusOre=null;
-  beacons=0; for (const r in tierBoosts) tierBoosts[r]=0;
-  research={luck:0,incomeMult:1.0}; rp=0;
-  autoUnlocked=false; stopAuto(); autoSpeedIndex=0; skipSet.clear();
-  logEl.innerHTML='';
-}
-
-/* ===== Shop (Auto, speeds, Luck Infusion, Focus, Beacons, Tier Boosters) ===== */
-function makeShopSection(key, title){
-  const section = document.createElement('div');
-  section.className = 'upgrade-section' + (shopSectionsOpen[key] ? '' : ' collapsed');
-  const head = document.createElement('button');
-  head.className = 'section-head';
-  head.type = 'button';
-  head.innerHTML = `<span>${title}</span><span>▼</span>`;
-  const content = document.createElement('div');
-  content.className = 'section-content';
-  head.onclick = ()=>{
-    shopSectionsOpen[key] = !shopSectionsOpen[key];
-    section.classList.toggle('collapsed', !shopSectionsOpen[key]);
-  };
-  section.appendChild(head);
-  section.appendChild(content);
-  shopEl.appendChild(section);
-  return content;
-}
-
-/* Keeps buy buttons live without rebuilding the whole shop every frame.
-   Rebuilding the shop constantly was making clicks/dropdowns feel broken. */
-function syncShopButtons(){
-  const now = Date.now()/1000;
-  document.querySelectorAll('[data-money-cost]').forEach(btn=>{
-    const cost = Number(btn.dataset.moneyCost || 0);
-    btn.disabled = money < cost;
-  });
-  document.querySelectorAll('[data-rbp-cost]').forEach(btn=>{
-    const cost = Number(btn.dataset.rbpCost || 0);
-    btn.disabled = rebirthPoints < cost;
-  });
-  const infBtn = document.querySelector('[data-action=luck-infusion]');
-  if (infBtn) infBtn.disabled = money < LUCK_INFUSION_COST || infusionActive || now < infusionCdEnds;
-  const focusBtn = document.querySelector('[data-action=focus-lens]');
-  if (focusBtn) focusBtn.disabled = money < FOCUS_COST || !!focusOre || now < focusCdEnds;
-  const rebirthBtn = document.querySelector('[data-action=rebirth]');
-  if (rebirthBtn) rebirthBtn.disabled = money < getRebirthCost();
-}
-
-/* ===== Shop (Auto, speeds, Luck Infusion, Focus, Beacons, Tier Boosters) ===== */
-function renderShop(){
-  shopEl.innerHTML = '';
-
-  const basicSection = makeShopSection('basic', 'Pickaxe Upgrades');
-  const incomeSection = makeShopSection('income', 'Mine Income Upgrades');
-  const rebirthSection = makeShopSection('rebirth', `Rebirths & Locked Upgrades — ${rebirthPoints} RBP`);
-
-  // Auto unlock / toggle
-  const autoRow = document.createElement('div'); autoRow.className='row2';
-  autoRow.innerHTML = `<div>${autoUnlocked ? `Auto-Roll unlocked (speed: ${getAutoDelay()}ms)` : `Buy Auto-Roll ($${AUTO_UNLOCK_COST})`}</div>`;
-  const autoBtn = document.createElement('button');
-  autoBtn.textContent = autoUnlocked ? (autoEnabled?'Disable Auto':'Enable Auto') : 'Buy';
-  autoBtn.dataset.moneyCost = autoUnlocked ? '' : AUTO_UNLOCK_COST;
-  autoBtn.disabled = !autoUnlocked && money < AUTO_UNLOCK_COST;
-  autoBtn.onclick = ()=>{
-    if (!autoUnlocked){
-      if (money < AUTO_UNLOCK_COST) return;
-      money -= AUTO_UNLOCK_COST; autoUnlocked=true; log('Auto-Roll purchased.', 'warn');
-      toggleSkipsBtn.disabled = false; saveProfileBtn.disabled=false; loadProfileBtn.disabled=false; renderSkips();
-    } else { if (autoEnabled) stopAuto(); else startAuto(); }
-    updateStats(); renderShop();
-  };
-  autoRow.appendChild(autoBtn); basicSection.appendChild(autoRow);
-
-  // Auto speed upgrades
-  if (autoUnlocked && autoSpeedIndex < AUTO_SPEEDS.length-1){
-    const cost = AUTO_UPGRADE_COSTS[autoSpeedIndex] || 999999;
-    const r = document.createElement('div'); r.className='row2';
-    r.innerHTML = `<div>Auto Speed Up (${AUTO_SPEEDS[autoSpeedIndex]}ms → ${AUTO_SPEEDS[autoSpeedIndex+1]}ms) — $${cost}</div>`;
-    const b = document.createElement('button'); b.textContent='Buy'; b.dataset.moneyCost = cost; b.disabled = money < cost;
-    b.onclick=()=>{
-      if (money < cost) return;
-      money -= cost; autoSpeedIndex++;
-      if (autoEnabled){ stopAuto(); startAuto(); }
-      log(`Auto speed upgraded to ${AUTO_SPEEDS[autoSpeedIndex]}ms.`, 'warn');
-      updateStats(); renderShop();
-    };
-    r.appendChild(b); basicSection.appendChild(r);
+function fuse(type){
+  if (type === 'common'){
+    const commons = ORES.filter(o=>o.rarity === 'Common');
+    if (sumOres(commons) < 25) return toast('Not enough ore', 'Need 25 Common ores.');
+    consumeOres(commons, 25);
+    awardRandom('Rare');
+    state.fusionEnergy = Math.min(100, state.fusionEnergy + 8);
   }
-
-  // Luck Infusion
-  const canInf = (Date.now()/1000) >= infusionCdEnds && !infusionActive;
-  const infRow = document.createElement('div'); infRow.className='row2';
-  infRow.innerHTML = `<div>Luck Infusion (+${LUCK_INFUSION_BONUS}% Rare+ for ${LUCK_INFUSION_SECS}s) — $${LUCK_INFUSION_COST} ${canInf?'':'(cooldown/active)'}</div>`;
-  const infBtn = document.createElement('button'); infBtn.textContent='Use'; infBtn.dataset.action = 'luck-infusion'; infBtn.dataset.moneyCost = LUCK_INFUSION_COST; infBtn.disabled = !canInf || money < LUCK_INFUSION_COST;
-  infBtn.onclick=()=>{
-    if (money < LUCK_INFUSION_COST) return;
-    money -= LUCK_INFUSION_COST;
-    infusionActive = true;
-    const now=Date.now()/1000;
-    infusionEnds = now + LUCK_INFUSION_SECS;
-    infusionCdEnds = now + LUCK_COOLDOWN_SECS;
-    log(`Luck infusion active for ${LUCK_INFUSION_SECS}s.`, 'warn');
-    updateStats(); renderShop();
-  };
-  infRow.appendChild(infBtn); basicSection.appendChild(infRow);
-
-  // Focus Lens
-  const focusRow = document.createElement('div'); focusRow.className='row2'; focusRow.style.gridTemplateColumns='1fr auto auto';
-  const sel = document.createElement('select');
-  ORES.forEach(o=>{ const opt=document.createElement('option'); opt.value=o.key; opt.textContent=o.name; sel.appendChild(opt); });
-  const canFocus = (Date.now()/1000)>=focusCdEnds && !focusOre;
-  const info = document.createElement('div');
-  info.textContent = `Focus Lens (+${FOCUS_BONUS}% to selected ore for ${FOCUS_SECS}s) — $${FOCUS_COST}`;
-  const focusBtn = document.createElement('button'); focusBtn.textContent='Activate'; focusBtn.dataset.action = 'focus-lens'; focusBtn.dataset.moneyCost = FOCUS_COST; focusBtn.disabled = !canFocus || money < FOCUS_COST;
-  focusBtn.onclick=()=>{
-    if (money < FOCUS_COST) return;
-    money -= FOCUS_COST;
-    focusOre = sel.value;
-    const now=Date.now()/1000;
-    focusEnds = now + FOCUS_SECS;
-    focusCdEnds = now + FOCUS_COOLDOWN_SECS;
-    log(`Focus on ${ORES.find(o=>o.key===focusOre).name} for ${FOCUS_SECS}s.`, 'warn');
-    updateStats(); renderShop();
-  };
-  focusRow.appendChild(info); focusRow.appendChild(sel); focusRow.appendChild(focusBtn);
-  basicSection.appendChild(focusRow);
-
-  // Beacons
-  if (beacons < BEACON_COSTS.length){
-    const cost = BEACON_COSTS[beacons];
-    const row = document.createElement('div'); row.className='row2';
-    row.innerHTML = `<div>Beacon +${BEACON_STEP}% global income — $${cost}</div>`;
-    const btn=document.createElement('button'); btn.textContent='Buy'; btn.dataset.moneyCost = cost; btn.disabled = money < cost;
-    btn.onclick=()=>{ if (money<cost) return; money-=cost; beacons++; log(`Beacon purchased. +${beacons*BEACON_STEP}% income.`, 'warn'); updateStats(); renderShop(); };
-    row.appendChild(btn); incomeSection.appendChild(row);
+  if (type === 'epic'){
+    const epics = ORES.filter(o=>o.rarity === 'Epic');
+    if (sumOres(epics) < 5) return toast('Not enough ore', 'Need 5 Epic ores.');
+    consumeOres(epics, 5);
+    awardRandom('Legendary');
+    state.fusionEnergy = Math.min(100, state.fusionEnergy + 14);
   }
-
-  // Tier Boosters (one-time per rarity)
-  ['Common','Uncommon','Rare','Epic','Legendary','Mythic','Relic'].forEach(r=>{
-    if ((tierBoosts[r]||0) >= TIER_BOOST) return;
-    const cost = TIER_BOOST_COSTS[r];
-    const row = document.createElement('div'); row.className='row2';
-    row.innerHTML = `<div>${r} Booster +${TIER_BOOST}% income — $${cost}</div>`;
-    const btn=document.createElement('button'); btn.textContent='Buy'; btn.dataset.moneyCost = cost; btn.disabled = money < cost;
-    btn.onclick=()=>{ if (money<cost) return; money-=cost; tierBoosts[r]=(tierBoosts[r]||0)+TIER_BOOST; log(`${r} income +${TIER_BOOST}%.`, 'warn'); updateStats(); renderShop(); };
-    row.appendChild(btn); incomeSection.appendChild(row);
-  });
-
-  // Rebirth button
-  const rebirthCost = getRebirthCost();
-  const rbRow = document.createElement('div'); rbRow.className='row2';
-  rbRow.innerHTML = `<div><strong>Rebirth</strong> — ${formatMoney(rebirthCost)}<br><span class="odds">Resets this run, gives +1 rebirth, +3 RBP, and doubles income forever.</span></div>`;
-  const rbBtn = document.createElement('button'); rbBtn.textContent='Rebirth'; rbBtn.dataset.action = 'rebirth'; rbBtn.dataset.moneyCost = rebirthCost; rbBtn.disabled = money < rebirthCost;
-  rbBtn.onclick=()=>{
-    if (money < rebirthCost) return;
-    if (!confirm(`Rebirth for ${formatMoney(rebirthCost)}? This resets your current ores, money, upgrades and rolls, but doubles income forever and gives 3 rebirth upgrade points.`)) return;
-    rebirths++;
-    rebirthPoints += 3;
-    resetRunForRebirth();
-    renderInventory(); renderSkips(); updateStats(); renderShop();
-    log(`Rebirth complete! Income multiplier is now x${Math.pow(2, rebirths)} and you have ${rebirthPoints} RBP.`, 'warn');
-  };
-  rbRow.appendChild(rbBtn); rebirthSection.appendChild(rbRow);
-
-  const unlockNote = document.createElement('div');
-  unlockNote.className = 'odds';
-  unlockNote.innerHTML = `Each rebirth unlocks <strong>one new level</strong> in each of the three upgrades below. Locked upgrades show a mine-lock overlay until you rebirth.`;
-  rebirthSection.appendChild(unlockNote);
-
-  // Rebirth upgrades: each rebirth unlocks one level for each upgrade path.
-  REBIRTH_UPGRADES.forEach(u=>{
-    const level = rebirthUpgrades[u.key] || 0;
-    const maxLevel = rebirths * u.maxPerRebirth;
-    const locked = maxLevel <= 0 || level >= maxLevel;
-    const row = document.createElement('div'); row.className='row2' + (locked && maxLevel <= 0 ? ' locked' : '');
-    row.innerHTML = `<div>${u.name} Lv.${level}/${maxLevel}<br><span class="odds">${u.desc} — Cost: ${u.costBase} RBP</span>${maxLevel <= 0 ? '<div class="lock-note">Requires your first rebirth.</div>' : ''}</div>`;
-    const btn=document.createElement('button'); btn.textContent = maxLevel <= 0 ? 'Locked' : 'Upgrade'; btn.dataset.rbpCost = u.costBase; btn.disabled = level >= maxLevel || rebirthPoints < u.costBase;
-    btn.onclick=()=>{
-      if (level >= maxLevel || rebirthPoints < u.costBase) return;
-      rebirthPoints -= u.costBase;
-      rebirthUpgrades[u.key] = level + 1;
-      if (u.key==='rbAuto' && autoEnabled){ stopAuto(); startAuto(); }
-      log(`${u.name} upgraded to Lv.${level + 1}.`, 'warn');
-      updateStats(); renderShop();
-    };
-    row.appendChild(btn); rebirthSection.appendChild(row);
-  });
+  if (type === 'core'){
+    const relics = ORES.filter(o=>o.rarity === 'Relic');
+    if (sumOres(relics) < 3 || state.fusionEnergy < 100) return toast('Forge not ready', 'Need 3 Relics and 100 fusion energy.');
+    consumeOres(relics, 3);
+    state.fusionEnergy = 0;
+    state.rp += 10 + state.research.fusion;
+    state.rbp += 1;
+    toast('Relic Core forged', '+1 RBP and bonus RP.');
+  }
+  checkMilestones();
+  renderAll();
 }
-
-/* ===== Auto-Roll ===== */
+function sumOres(list){ return list.reduce((sum,o)=>sum + (state.inventory[o.key] || 0), 0); }
+function consumeOres(list, amount){
+  let left = amount;
+  for (const ore of list){
+    const take = Math.min(left, state.inventory[ore.key] || 0);
+    state.inventory[ore.key] -= take;
+    left -= take;
+    if (left <= 0) break;
+  }
+}
+function awardRandom(rarity){
+  const choices = ORES.filter(o=>o.rarity === rarity);
+  const ore = choices[Math.floor(Math.random() * choices.length)];
+  state.inventory[ore.key] = (state.inventory[ore.key] || 0) + 1;
+  state.discoveries[ore.key] = true;
+  showFound(ore, false);
+}
+function startEvent(key){
+  const ev = EVENT_TYPES[key];
+  if (!ev) return;
+  if (state.event) return toast('Event active', 'Wait for the current event to finish.');
+  if (state.money < ev.cost) return toast('Need more money', `${ev.name} costs ${fmtMoney(ev.cost)}.`);
+  state.money -= ev.cost;
+  state.event = key;
+  state.eventEnds = Date.now() + ev.duration * 1000;
+  state.eventRelicReward = false;
+  toast('Event started', ev.name);
+  addLog(`${ev.name} started.`, 'warn');
+  renderAll();
+}
+function activateFocus(){
+  const key = el('focusSelect').value;
+  const ore = ORES.find(o=>o.key === key);
+  if (!ore) return;
+  if (state.focus && Date.now() < state.focusEnds) return toast('Focus active', 'Wait for the current focus to finish.');
+  if (state.money < 80) return toast('Need more money', 'Focus Lens costs $80.');
+  state.money -= 80;
+  state.focus = key;
+  state.focusEnds = Date.now() + 60000;
+  toast('Focus Lens active', `${ore.name} odds are boosted for 60 seconds.`);
+  renderAll();
+}
+function endEvent(){
+  if (!state.event) return;
+  const name = EVENT_TYPES[state.event].name;
+  state.event = null;
+  state.eventEnds = 0;
+  state.eventRelicReward = false;
+  toast('Event ended', name);
+  addLog(`${name} ended.`, 'warn');
+}
+function rebirth(){
+  const cost = getRebirthCost();
+  if (state.money < cost) return toast('Not ready', `Need ${fmtMoney(cost)} to rebirth.`);
+  if (!confirm('Rebirth resets money, ores, rolls, event, auto unlock, and pity. You keep research, collection discoveries, rebirth count, RBP, and milestones. Continue?')) return;
+  state.money = 10;
+  state.inventory = Object.fromEntries(ORES.map(o=>[o.key,0]));
+  state.totalRolls = 0;
+  state.totalFinds = 0;
+  state.pity = 0;
+  state.fusionEnergy = 0;
+  state.autoUnlocked = false;
+  stopAuto();
+  state.event = null;
+  state.eventEnds = 0;
+  state.rebirths++;
+  state.rbp += 3;
+  state.rp += 4;
+  addLog(`Rebirth complete. Permanent income is stronger.`, 'warn');
+  checkMilestones();
+  renderAll();
+}
+function buyAutoOrToggle(){
+  if (!state.autoUnlocked){
+    if (state.money < AUTO_COST) return toast('Need more money', `Auto costs ${fmtMoney(AUTO_COST)}.`);
+    state.money -= AUTO_COST;
+    state.autoUnlocked = true;
+    toast('Auto unlocked', 'You can now toggle auto-roll.');
+  }
+  if (state.autoEnabled) stopAuto(); else startAuto();
+  renderAll();
+}
 function startAuto(){
-  if (autoTimer) return;
-  autoEnabled = true;
-  autoStatus.textContent = `Auto-Roll: ON (${getAutoDelay()}ms)`;
-  autoTimer = setInterval(()=>{ if (money >= ROLL_COST) doOneRoll(); }, getAutoDelay());
-  log('Auto-Roll enabled.', 'warn');
-  updateStats();
+  if (!state.autoUnlocked || autoTimer) return;
+  state.autoEnabled = true;
+  autoTimer = setInterval(()=>doRoll({ quiet:true }), getAutoDelay());
 }
 function stopAuto(){
-  autoEnabled = false;
-  autoStatus.textContent = 'Auto-Roll: OFF';
-  if (autoTimer){ clearInterval(autoTimer); autoTimer=null; }
-  log('Auto-Roll disabled.', 'warn');
-  updateStats();
+  state.autoEnabled = false;
+  if (autoTimer){ clearInterval(autoTimer); autoTimer = null; }
+}
+function refreshAutoTimer(){
+  if (state.autoEnabled){
+    stopAuto();
+    startAuto();
+  }
 }
 
-/* ===== Events ===== */
-homeTab.addEventListener('click', ()=>switchView('home'));
-leaderboardTab.addEventListener('click', ()=>switchView('leaderboard'));
-submitScoreBtn.addEventListener('click', ()=>{ if (typeof window.submitLeaderboardScore === 'function') window.submitLeaderboardScore(); else alert('Firebase is still loading.'); });
-refreshLeaderboardBtn.addEventListener('click', ()=>{ if (typeof window.loadLeaderboard === 'function') window.loadLeaderboard(); else alert('Firebase is still loading.'); });
-rollBtn.addEventListener('click', doOneRoll);
-auto10Btn.addEventListener('click', doTenRolls);
-resetBtn.addEventListener('click', ()=>{
-  if (!confirm('Reset inventory, money, and log?')) return;
-  for (const k in inventory) inventory[k]=0;
-  totalRolls=0; totalFinds=0; money=10;
-  pity=0; infusionActive=false; focusOre=null;
-  beacons=0; for (const r in tierBoosts) tierBoosts[r]=0;
-  research={luck:0,incomeMult:1.0}; rp=0;
-  rebirths=0; rebirthPoints=0; for (const k in rebirthUpgrades) rebirthUpgrades[k]=0;
-  autoUnlocked=false; stopAuto(); autoSpeedIndex=0; skipSet.clear();
-  logEl.innerHTML=''; renderInventory(); updateStats(); renderSkips(); renderShop();
-  log('Game reset.', 'warn');
+function renderAll(){
+  const mps = computeMPS();
+  refs.moneyTop.textContent = fmtMoney(state.money);
+  refs.mpsTop.textContent = fmtMoney(mps) + '/s';
+  refs.rebirthTop.textContent = `${state.rebirths} (${state.rbp} RBP)`;
+  refs.rpTop.textContent = `${state.rp} RP`;
+  refs.collectionTop.textContent = `${discoveredCount()}/${ORES.length}`;
+  refs.luckPill.textContent = getLuck().toFixed(0) + '%';
+  refs.pityPill.textContent = state.pity.toFixed(1) + '%';
+  refs.focusPill.textContent = state.focus && Date.now() < state.focusEnds ? ORES.find(o=>o.key===state.focus).name : 'None';
+  refs.eventPill.textContent = state.event ? EVENT_TYPES[state.event].name : 'None';
+  refs.autoStatus.textContent = state.autoUnlocked ? `Auto: ${state.autoEnabled ? 'ON' : 'OFF'} - ${getAutoDelay()}ms` : 'Auto: locked';
+  refs.rollsPill.textContent = state.totalRolls;
+  refs.findRatePill.textContent = (state.totalRolls ? state.totalFinds/state.totalRolls*100 : 0).toFixed(1) + '%';
+  refs.fusionPill.textContent = `${Math.floor(state.fusionEnergy)}/100`;
+  refs.rebirthCostPill.textContent = fmtMoney(getRebirthCost());
+  el('rollBtn').disabled = state.money < ROLL_COST;
+  el('roll10Btn').disabled = state.money < ROLL10_COST;
+  el('roll100Btn').disabled = state.money < ROLL100_COST;
+  el('autoBtn').textContent = state.autoUnlocked ? (state.autoEnabled ? 'Stop Auto' : 'Start Auto') : `Buy Auto (${fmtMoney(AUTO_COST)})`;
+  el('focusBtn').disabled = state.money < 80 || (state.focus && Date.now() < state.focusEnds);
+  el('rebirthBtn').disabled = state.money < getRebirthCost();
+  renderGoal();
+  renderInventory();
+  renderMilestones();
+  renderCollection();
+  renderResearch();
+  renderFusion();
+  renderEvents();
+  renderLeaderboard();
+}
+function renderGoal(){
+  const allDone = MILESTONES.every(m=>state.milestones[m.key]);
+  if (allDone){
+    refs.goalTitle.textContent = 'All Goals Complete';
+    refs.goalText.textContent = 'You cleared the current milestone set. Keep building score, collection, and rebirths.';
+    refs.goalBar.style.width = '100%';
+    return;
+  }
+  const g = currentGoal();
+  const value = Math.min(g.target(state), g.need);
+  refs.goalTitle.textContent = g.name;
+  refs.goalText.textContent = `${g.desc} Reward: ${g.reward}`;
+  refs.goalBar.style.width = `${Math.min(100, value / g.need * 100)}%`;
+}
+function renderInventory(){
+  const owned = ORES.filter(o=>(state.inventory[o.key] || 0) > 0).sort((a,b)=>rarityRank(b.rarity)-rarityRank(a.rarity) || b.oneIn-a.oneIn);
+  refs.inventoryList.innerHTML = owned.length ? owned.slice(0, 12).map(o=>`
+    <div class="row">
+      <span class="dot" style="background:${o.color}; color:${o.color}"></span>
+      <div><strong>${o.name}</strong><div class="muted">${o.rarity} - ${fmtMoney(oreIncome(o) * getIncomeMult() * state.inventory[o.key])}/s total</div></div>
+      <span class="score">x${state.inventory[o.key]}</span>
+    </div>
+  `).join('') : '<div class="muted">No ores yet. Start rolling.</div>';
+}
+function renderMilestones(){
+  refs.milestoneList.innerHTML = MILESTONES.slice(0, 5).map(m=>{
+    const done = !!state.milestones[m.key];
+    const value = Math.min(m.target(state), m.need);
+    return `<div class="row">
+      <span class="dot" style="background:${done ? 'var(--good)' : 'var(--gold)'}"></span>
+      <div><strong>${m.name}</strong><div class="muted">${done ? 'Complete' : `${value}/${m.need} - ${m.desc}`}</div></div>
+      <span class="score">${m.reward}</span>
+    </div>`;
+  }).join('');
+}
+function renderCollection(){
+  refs.collectionGrid.innerHTML = ORES.map(o=>{
+    const seen = !!state.discoveries[o.key];
+    const count = state.inventory[o.key] || 0;
+    return `<div class="ore-tile ${seen ? '' : 'locked'}">
+      <div class="tile-head">
+        <div class="small-gem" style="--oreColor:${seen ? o.color : '#4a4038'}"></div>
+        <strong>${seen ? o.name : 'Unknown Ore'}</strong>
+      </div>
+      <div class="muted">${seen ? `${o.rarity} - 1 in ${o.oneIn}` : 'Undiscovered'}</div>
+      <div class="score">${seen ? `${count} owned - ${fmtMoney(oreIncome(o))}/s base` : '???'}</div>
+    </div>`;
+  }).join('');
+}
+function renderResearch(){
+  refs.researchGrid.innerHTML = RESEARCH.map(r=>{
+    const level = state.research[r.key] || 0;
+    const cost = r.base + level * 2;
+    return `<div class="mini">
+      <h3>${r.name} Lv.${level}/${r.max}</h3>
+      <p>${r.desc}</p>
+      <div class="muted" style="margin-top:8px;">Current: ${r.effect(state)}</div>
+      <div class="quick-actions" style="justify-content:flex-start; margin-top:10px;">
+        <button data-research="${r.key}" ${level >= r.max || state.rp < cost ? 'disabled' : ''}>Buy (${cost} RP)</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('[data-research]').forEach(b=>b.onclick=()=>buyResearch(b.dataset.research));
+}
+function renderFusion(){
+  const commonCount = sumOres(ORES.filter(o=>o.rarity === 'Common'));
+  const epicCount = sumOres(ORES.filter(o=>o.rarity === 'Epic'));
+  const relicCount = sumOres(ORES.filter(o=>o.rarity === 'Relic'));
+  refs.fusionList.innerHTML = `
+    <div class="row two"><div><strong>Common Bundle</strong><div class="muted">${commonCount}/25 Common ores. Creates a random Rare ore.</div></div><button data-fuse="common" ${commonCount < 25 ? 'disabled' : ''}>Fuse</button></div>
+    <div class="row two"><div><strong>Epic Forge</strong><div class="muted">${epicCount}/5 Epic ores. Creates a random Legendary ore.</div></div><button data-fuse="epic" ${epicCount < 5 ? 'disabled' : ''}>Fuse</button></div>
+    <div class="row two"><div><strong>Relic Core</strong><div class="muted">${relicCount}/3 Relic ores and ${Math.floor(state.fusionEnergy)}/100 energy. Gives +1 RBP and RP.</div></div><button data-fuse="core" ${relicCount < 3 || state.fusionEnergy < 100 ? 'disabled' : ''}>Forge</button></div>
+  `;
+  document.querySelectorAll('[data-fuse]').forEach(b=>b.onclick=()=>fuse(b.dataset.fuse));
+}
+function renderEvents(){
+  if (!state.event){
+    refs.eventDesc.textContent = 'No event is active. Start one when the mine is ready.';
+    refs.eventBar.style.width = '0%';
+  } else {
+    const ev = EVENT_TYPES[state.event];
+    const left = Math.max(0, state.eventEnds - Date.now());
+    refs.eventDesc.textContent = `${ev.name}: ${ev.desc} ${Math.ceil(left/1000)}s left.`;
+    refs.eventBar.style.width = `${left / (ev.duration * 1000) * 100}%`;
+  }
+  document.querySelectorAll('[data-event]').forEach(b=>{
+    const ev = EVENT_TYPES[b.dataset.event];
+    b.disabled = !!state.event || state.money < ev.cost;
+    b.textContent = `${ev.name} (${fmtMoney(ev.cost)})`;
+    b.onclick = ()=>startEvent(b.dataset.event);
+  });
+}
+function renderLeaderboard(){
+  const board = getBoard();
+  refs.leaderboardList.innerHTML = board.length ? board.map((p,i)=>`
+    <div class="row">
+      <span class="score">#${i+1}</span>
+      <div><strong>${p.name}</strong><div class="muted">${p.rebirths} rebirths - ${p.rolls} rolls - ${p.collection}/${ORES.length} ores</div></div>
+      <span class="score">${p.score.toLocaleString()} pts</span>
+    </div>
+  `).join('') : '<div class="muted">No scores yet.</div>';
+}
+
+function tick(now){
+  const dt = Math.max(0, (now - lastTick) / 1000);
+  lastTick = now;
+  if (state.event && Date.now() >= state.eventEnds) endEvent();
+  if (state.focus && Date.now() >= state.focusEnds){
+    state.focus = null;
+    state.focusEnds = 0;
+  }
+  if (!tick.acc) tick.acc = 0;
+  tick.acc += dt;
+  if (tick.acc > .25){
+    renderAll();
+    tick.acc = 0;
+  }
+  requestAnimationFrame(tick);
+}
+function startIncomeLoop(){
+  if (incomeTimer) clearInterval(incomeTimer);
+  let lastIncomeTick = Date.now();
+  incomeTimer = setInterval(()=>{
+    const now = Date.now();
+    const dt = Math.max(0, (now - lastIncomeTick) / 1000);
+    lastIncomeTick = now;
+    const earned = computeMPS() * dt;
+    if (earned > 0){
+      state.money += earned;
+      renderAll();
+    }
+  }, 250);
+}
+function saveGame(){
+  state.lastSavedAt = Date.now();
+  if (storageSet(SAVE_KEY, JSON.stringify(state))) toast('Saved', 'Your mine was saved locally.');
+  else toast('Save unavailable', 'The game is still playable, but this browser blocked local file saving.');
+}
+function loadGame(){
+  const raw = storageGet(SAVE_KEY);
+  if (!raw) return;
+  try{
+    const data = JSON.parse(raw);
+    Object.assign(state, freshState(), data);
+    state.inventory = { ...freshState().inventory, ...(data.inventory || {}) };
+    state.discoveries = data.discoveries || {};
+    state.milestones = data.milestones || {};
+    state.research = { ...freshState().research, ...(data.research || {}) };
+    const awayMs = Math.max(0, Date.now() - (data.lastSavedAt || Date.now()));
+    const awayHours = Math.min(getOfflineCapHours(), awayMs / 3600000);
+    const earned = computeMPS() * awayHours * 3600;
+    if (earned > 1){
+      state.money += earned;
+      setTimeout(()=>openModal('Offline Earnings', `Your mine earned ${fmtMoney(earned)} while you were away.`), 400);
+    }
+  }catch(err){
+    console.warn(err);
+  }
+}
+function sanitizeState(){
+  if (!Number.isFinite(state.money)) state.money = 10;
+  if (!Number.isFinite(state.pity)) state.pity = 0;
+  if (!Number.isFinite(state.rp)) state.rp = 0;
+  if (!Number.isFinite(state.rbp)) state.rbp = 0;
+  if (!Number.isFinite(state.rebirths)) state.rebirths = 0;
+  if (state.money < ROLL_COST && computeMPS() <= 0){
+    state.money = 10;
+  }
+}
+function exportSave(){
+  prompt('Save data:', btoa(unescape(encodeURIComponent(JSON.stringify(state)))));
+}
+function importSave(){
+  const raw = prompt('Paste save data:');
+  if (!raw) return;
+  try{
+    const data = JSON.parse(decodeURIComponent(escape(atob(raw))));
+    Object.assign(state, freshState(), data);
+    saveGame();
+    renderAll();
+  }catch(err){
+    alert('Import failed.');
+  }
+}
+function getBoard(){
+  try{ return JSON.parse(storageGet(BOARD_KEY) || '[]'); }
+  catch{ return []; }
+}
+function submitScore(){
+  const name = prompt('Miner name:', 'Miner') || 'Miner';
+  const board = getBoard();
+  board.push({ name:name.slice(0,24), score:score(), rebirths:state.rebirths, rolls:state.totalRolls, collection:discoveredCount(), time:Date.now() });
+  board.sort((a,b)=>b.score-a.score);
+  storageSet(BOARD_KEY, JSON.stringify(board.slice(0,25)));
+  renderLeaderboard();
+  toast('Score submitted', `${score().toLocaleString()} points.`);
+}
+function hardReset(){
+  if (!confirm('Hard reset this local save?')) return;
+  stopAuto();
+  Object.assign(state, freshState());
+  storageRemove(SAVE_KEY);
+  refs.log.innerHTML = '';
+  addLog('New mine started.', 'warn');
+  renderAll();
+}
+
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    tab.classList.add('active');
+    el(tab.dataset.view + 'View').classList.add('active');
+    renderAll();
+  });
 });
-window.addEventListener('keydown', (e)=>{
-  if (e.code==='Space' && !showcase.classList.contains('active')){ e.preventDefault(); doOneRoll(); }
-  if (e.key.toLowerCase()==='a' && autoUnlocked){ if (autoEnabled) stopAuto(); else startAuto(); }
+el('rollBtn').onclick = ()=>doRoll();
+el('roll10Btn').onclick = ()=>doManyRolls(10, ROLL10_COST);
+el('roll100Btn').onclick = ()=>doManyRolls(100, ROLL100_COST);
+el('autoBtn').onclick = buyAutoOrToggle;
+el('focusBtn').onclick = activateFocus;
+el('rebirthBtn').onclick = rebirth;
+el('autoPauseRare').onchange = e=>{ state.autoPauseRare = e.target.checked; renderAll(); };
+el('autoHideCommon').onchange = e=>{ state.autoHideCommon = e.target.checked; renderAll(); };
+el('modalClose').onclick = closeModal;
+refs.modal.addEventListener('click', e=>{ if (e.target === refs.modal) closeModal(); });
+el('saveBtn').onclick = saveGame;
+el('exportBtn').onclick = exportSave;
+el('importBtn').onclick = importSave;
+el('submitScoreBtn').onclick = submitScore;
+el('resetBtn').onclick = hardReset;
+window.addEventListener('keydown', e=>{
+  if (e.code === 'Space' && !refs.modal.classList.contains('active')){ e.preventDefault(); doRoll(); }
+  if (e.key.toLowerCase() === 'a') buyAutoOrToggle();
+  if (e.key.toLowerCase() === 's') saveGame();
+  if (e.key === 'Escape') closeModal();
 });
 
-/* ===== Init ===== */
 function init(){
-  renderLegend();
-  renderInventory();
-  renderSkips();
-  renderShop();
-  updateStats();
-  renderLeaderboard([]);
-  requestAnimationFrame((t)=>{ lastTick=t; tick(t); });
-  log(`Welcome! Start: $${money}. Rolls cost $${ROLL_COST}. Bundle: $${ROLL10_COST}. Auto-Roll unlocks at $${AUTO_UNLOCK_COST}.`, 'warn');
+  loadGame();
+  sanitizeState();
+  el('focusSelect').innerHTML = ORES.map(o=>`<option value="${o.key}">${o.name} (${o.rarity})</option>`).join('');
+  el('autoPauseRare').checked = state.autoPauseRare;
+  el('autoHideCommon').checked = state.autoHideCommon;
+  addLog('Welcome to the Future Build. Roll, research, fuse, and rebirth deeper.', 'warn');
+  checkMilestones();
+  renderAll();
+  startIncomeLoop();
+  requestAnimationFrame(t=>{ lastTick = t; tick(t); });
+  saveTimer = setInterval(()=>{ state.lastSavedAt = Date.now(); storageSet(SAVE_KEY, JSON.stringify(state)); }, 5000);
 }
 init();
-</script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc,
-  collection,
-  getDocs,
-  query as firestoreQuery,
-  orderBy,
-  limit as firestoreLimit,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBSSyvvjrg2p6Lqpj7muYveSyyaBAw4Aho",
-  authDomain: "ore-roller.firebaseapp.com",
-  projectId: "ore-roller",
-  storageBucket: "ore-roller.firebasestorage.app",
-  messagingSenderId: "696765640895",
-  appId: "1:696765640895:web:9572e7e2285f1ec6fa560a"
-};
-
-const app = initializeApp(firebaseConfig);
-
-const auth = getAuth(app);
-const db = getFirestore(app);
-let firebaseReadyUser = null;
-function setLoggedInDisplay(user){
-  firebaseReadyUser = user || null;
-  const label = user ? (user.email || user.displayName || user.uid) : 'Not logged in';
-  if (typeof loggedInAsEl !== 'undefined' && loggedInAsEl) loggedInAsEl.textContent = label;
-  if (typeof topLogoutBtn !== 'undefined' && topLogoutBtn) topLogoutBtn.style.display = user ? 'inline-block' : 'none';
-  if (typeof leaderboardStatusEl !== 'undefined' && leaderboardStatusEl){
-    leaderboardStatusEl.textContent = user ? `Logged in as ${label}. You can submit your score.` : 'Login and submit your score to appear here.';
-  }
-}
-if (typeof topLogoutBtn !== 'undefined' && topLogoutBtn){
-  topLogoutBtn.addEventListener('click', ()=> window.logout());
-}
-
-window.signup = async function(email, password){
-  try{
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    setLoggedInDisplay(cred.user);
-    return cred.user;
-  }catch(err){
-    console.warn(err);
-    throw err;
-  }
-}
-
-window.login = async function(email, password){
-  try{
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    setLoggedInDisplay(cred.user);
-    return cred.user;
-  }catch(err){
-    console.warn(err);
-    throw err;
-  }
-}
-
-window.saveCloudGame = async function(gameData){
-  const user = firebaseReadyUser || auth.currentUser;
-
-  if(!user){
-    alert("Login first.");
-    return;
-  }
-
-  await setDoc(doc(db, "users", user.uid), gameData);
-
-  alert("Cloud save successful!");
-}
-
-window.loadCloudGame = async function(){
-  const user = firebaseReadyUser || auth.currentUser;
-
-  if(!user){
-    alert("Login first.");
-    return null;
-  }
-
-  const snap = await getDoc(doc(db, "users", user.uid));
-
-  if(!snap.exists()){
-    alert("No cloud save found.");
-    return null;
-  }
-
-  return snap.data();
-}
-
-
-window.submitLeaderboardScore = async function(){
-  const user = firebaseReadyUser || auth.currentUser;
-  if(!user){
-    alert("Login first before submitting a score. If you just logged in, wait until the top-right says your email.");
-    return;
-  }
-
-  const playerData = {
-    uid: user.uid,
-    name: getPlayerDisplayName(user),
-    email: user.email || "",
-    score: getLeaderboardScore(),
-    money,
-    mps: computeMPS(),
-    rebirths,
-    totalRolls,
-    totalFinds,
-    updatedAt: serverTimestamp()
-  };
-
-  await setDoc(doc(db, "leaderboard", user.uid), playerData, { merge: true });
-  leaderboardStatusEl.textContent = "Score submitted!";
-  await window.loadLeaderboard();
-}
-
-window.loadLeaderboard = async function(){
-  try{
-    leaderboardStatusEl.textContent = "Loading leaderboard...";
-    const q = firestoreQuery(collection(db, "leaderboard"), orderBy("score", "desc"), firestoreLimit(25));
-    const snap = await getDocs(q);
-    const players = [];
-    snap.forEach(docSnap => players.push(docSnap.data()));
-    renderLeaderboard(players);
-    leaderboardStatusEl.textContent = players.length ? "Showing top miners." : "No scores yet. Submit yours first.";
-  }catch(err){
-    leaderboardStatusEl.textContent = "Leaderboard failed to load: " + err.message;
-  }
-}
-
-window.logout = async function(){
-  await signOut(auth);
-  setLoggedInDisplay(null);
-}
-
-onAuthStateChanged(auth, (user)=>{
-  setLoggedInDisplay(user);
-  if(user){
-    console.log("Logged in as:", user.email || user.uid);
-    if (leaderboardView.classList.contains('active')) window.loadLeaderboard();
-  }else{
-    console.log("No user logged in");
-    renderLeaderboard([]);
-  }
-});
-setLoggedInDisplay(null);
 </script>
 </body>
 </html>
