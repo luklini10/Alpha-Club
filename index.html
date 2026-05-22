@@ -204,6 +204,11 @@
   .skip-row input{ transform: scale(1.2); }
 
 
+  .auth-status{ display:flex; align-items:center; gap:8px; background:#120d09; border:1px solid #8a5a2f; border-radius:999px; padding:7px 10px; color:var(--muted); font-size:.9rem; max-width:360px; }
+  .auth-status strong{ color:var(--text); max-width:210px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; vertical-align:bottom; }
+  .auth-status button{ padding:5px 9px; border-radius:999px; border:1px solid #8a5a2f; background:linear-gradient(180deg, #6b3d20, #2b180d); color:#fff3df; font-weight:900; cursor:pointer; }
+  .auth-status button:hover{ filter:brightness(1.12); }
+
   .top-tabs{ display:flex; gap:8px; align-items:center; justify-content:center; padding:10px 18px 0; }
   .tab-btn{ padding:10px 18px; border-radius:999px; border:1px solid #8a5a2f; background:linear-gradient(180deg, #4a2a16, #21130b); color:#fff3df; font-weight:900; cursor:pointer; transition:transform .1s ease, filter .16s ease, box-shadow .16s ease; }
   .tab-btn:hover{ filter:brightness(1.12); box-shadow:0 0 18px rgba(255,179,71,.2); }
@@ -246,6 +251,7 @@
     <div>Beacons: <strong id="beaconDisplay">0%</strong></div>
     <div>Research: <strong id="rpDisplay">0 RP</strong></div>
     <div>Rebirths: <strong id="rebirthDisplay">0</strong></div>
+    <div class="auth-status">Logged in as: <strong id="loggedInAs">Not logged in</strong><button id="topLogoutBtn" type="button" style="display:none;">Logout</button></div>
   </div>
 </header>
 
@@ -525,6 +531,8 @@ const standingListEl = document.getElementById('standingList');
 const leaderboardStatusEl = document.getElementById('leaderboardStatus');
 const submitScoreBtn = document.getElementById('submitScoreBtn');
 const refreshLeaderboardBtn = document.getElementById('refreshLeaderboardBtn');
+const loggedInAsEl = document.getElementById('loggedInAs');
+const topLogoutBtn = document.getElementById('topLogoutBtn');
 
 /* ===== Helpers ===== */
 function formatMoney(x){
@@ -1275,10 +1283,24 @@ const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 const db = getFirestore(app);
+let firebaseReadyUser = null;
+function setLoggedInDisplay(user){
+  firebaseReadyUser = user || null;
+  const label = user ? (user.email || user.displayName || user.uid) : 'Not logged in';
+  if (typeof loggedInAsEl !== 'undefined' && loggedInAsEl) loggedInAsEl.textContent = label;
+  if (typeof topLogoutBtn !== 'undefined' && topLogoutBtn) topLogoutBtn.style.display = user ? 'inline-block' : 'none';
+  if (typeof leaderboardStatusEl !== 'undefined' && leaderboardStatusEl){
+    leaderboardStatusEl.textContent = user ? `Logged in as ${label}. You can submit your score.` : 'Login and submit your score to appear here.';
+  }
+}
+if (typeof topLogoutBtn !== 'undefined' && topLogoutBtn){
+  topLogoutBtn.addEventListener('click', ()=> window.logout());
+}
 
 window.signup = async function(email, password){
   try{
-    await createUserWithEmailAndPassword(auth, email, password);
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    setLoggedInDisplay(cred.user);
     alert("Account created!");
   }catch(err){
     alert(err.message);
@@ -1287,7 +1309,8 @@ window.signup = async function(email, password){
 
 window.login = async function(email, password){
   try{
-    await signInWithEmailAndPassword(auth, email, password);
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    setLoggedInDisplay(cred.user);
     alert("Logged in!");
   }catch(err){
     alert(err.message);
@@ -1295,7 +1318,7 @@ window.login = async function(email, password){
 }
 
 window.saveCloudGame = async function(gameData){
-  const user = auth.currentUser;
+  const user = firebaseReadyUser || auth.currentUser;
 
   if(!user){
     alert("Login first.");
@@ -1308,7 +1331,7 @@ window.saveCloudGame = async function(gameData){
 }
 
 window.loadCloudGame = async function(){
-  const user = auth.currentUser;
+  const user = firebaseReadyUser || auth.currentUser;
 
   if(!user){
     alert("Login first.");
@@ -1327,9 +1350,9 @@ window.loadCloudGame = async function(){
 
 
 window.submitLeaderboardScore = async function(){
-  const user = auth.currentUser;
+  const user = firebaseReadyUser || auth.currentUser;
   if(!user){
-    alert("Login first before submitting a score.");
+    alert("Login first before submitting a score. If you just logged in, wait until the top-right says your email.");
     return;
   }
 
@@ -1367,17 +1390,20 @@ window.loadLeaderboard = async function(){
 
 window.logout = async function(){
   await signOut(auth);
+  setLoggedInDisplay(null);
 }
 
 onAuthStateChanged(auth, (user)=>{
+  setLoggedInDisplay(user);
   if(user){
-    console.log("Logged in as:", user.email);
+    console.log("Logged in as:", user.email || user.uid);
     if (leaderboardView.classList.contains('active')) window.loadLeaderboard();
   }else{
     console.log("No user logged in");
     renderLeaderboard([]);
   }
 });
+setLoggedInDisplay(null);
 </script>
 </body>
 </html>
