@@ -1421,6 +1421,31 @@
     color:var(--muted);
     line-height:1.35;
   }
+
+  .account-bar{
+    border-top:1px solid rgba(106,64,36,.45);
+    border-bottom:1px solid rgba(106,64,36,.45);
+    background:linear-gradient(180deg, rgba(28,20,16,.94), rgba(11,11,14,.94));
+    padding:10px 18px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .account-bar label{
+    color:var(--muted);
+    font-weight:900;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .account-bar input{ min-width:190px; }
+  .account-bar .account-note{
+    color:var(--muted);
+    font-size:.86rem;
+  }
+
   footer{
     border-top:2px solid var(--line);
     background:linear-gradient(180deg, rgba(24,27,34,.94), rgba(13,14,18,.96));
@@ -1657,6 +1682,17 @@
   <div id="summonFxCard" class="summon-fx__card"></div>
 </div>
 
+
+<section class="account-bar" aria-label="Account profiles">
+  <label>Account:
+    <select id="accountSelect"></select>
+  </label>
+  <input id="newAccountName" type="text" maxlength="18" placeholder="New account name" />
+  <button id="createAccountBtn">Create Account</button>
+  <button id="deleteAccountBtn">Delete Account</button>
+  <span id="accountStatus" class="account-note">Local profile</span>
+</section>
+
 <footer>
   <div>Space = roll. A = toggle auto. S = save. The game auto-saves every few seconds.</div>
   <div class="quick-actions">
@@ -1680,6 +1716,9 @@ const ORE_INCOME_MULT = 10;
 const SAVE_KEY = 'ninjago_character_roller_save_v3';
 const BOARD_KEY = 'ninjago_character_roller_board_v3';
 const ADMIN_CODE = 'SPINJITZUADMIN';
+const ACCOUNT_INDEX_KEY = 'ninjago_character_roller_accounts_v1';
+const ACTIVE_ACCOUNT_KEY = 'ninjago_character_roller_active_account_v1';
+const DEFAULT_ACCOUNT_ID = 'default';
 
 const RARITIES = ['Common','Uncommon','Rare','Epic','Legendary','Mythic','Relic'];
 const RARITY_COLORS = {
@@ -1960,7 +1999,7 @@ const refs = {
   mainGem:el('mainGem'), lastOreName:el('lastOreName'), lastOreMeta:el('lastOreMeta'), lastOreIncome:el('lastOreIncome'),
   goalTitle:el('goalTitle'), goalText:el('goalText'), goalBar:el('goalBar'), rollsPill:el('rollsPill'), findRatePill:el('findRatePill'),
   fusionPill:el('fusionPill'), rebirthCostPill:el('rebirthCostPill'), inventoryList:el('inventoryList'), milestoneList:el('milestoneList'),
-  collectionGrid:el('collectionGrid'), collectionPageInfo:el('collectionPageInfo'), collectionShelfInfo:el('collectionShelfInfo'), collectionPrevBtn:el('collectionPrevBtn'), collectionNextBtn:el('collectionNextBtn'), researchGrid:el('researchGrid'), fusionList:el('fusionList'), log:el('log'), toastWrap:el('toastWrap'),
+  collectionGrid:el('collectionGrid'), collectionPageInfo:el('collectionPageInfo'), collectionShelfInfo:el('collectionShelfInfo'), collectionPrevBtn:el('collectionPrevBtn'), collectionNextBtn:el('collectionNextBtn'), accountSelect:el('accountSelect'), newAccountName:el('newAccountName'), createAccountBtn:el('createAccountBtn'), deleteAccountBtn:el('deleteAccountBtn'), accountStatus:el('accountStatus'), researchGrid:el('researchGrid'), fusionList:el('fusionList'), log:el('log'), toastWrap:el('toastWrap'),
   eventDesc:el('eventDesc'), eventBar:el('eventBar'), leaderboardList:el('leaderboardList'), modal:el('modal'), modalTitle:el('modalTitle'), modalText:el('modalText'), summonFx:el('summonFx'), summonFxCard:el('summonFxCard'), summonFxSceneTitle:el('summonFxSceneTitle'), summonFxDialogue:el('summonFxDialogue')
 };
 
@@ -2242,6 +2281,137 @@ function storageRemove(key){
   catch{}
 }
 
+function safeIdFromName(name){
+  const cleaned = String(name || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  return cleaned || ('account_' + Date.now().toString(36));
+}
+function getAccounts(){
+  const fallback = [{ id:DEFAULT_ACCOUNT_ID, name:'Default' }];
+  const raw = storageGet(ACCOUNT_INDEX_KEY);
+  if (!raw) return fallback;
+  try{
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || !parsed.length) return fallback;
+    const seen = new Set();
+    return parsed
+      .filter(a=>a && a.id && a.name)
+      .map(a=>({ id:String(a.id), name:String(a.name).slice(0,18) }))
+      .filter(a=>{ if (seen.has(a.id)) return false; seen.add(a.id); return true; });
+  }catch{
+    return fallback;
+  }
+}
+function saveAccounts(accounts){
+  const clean = accounts.length ? accounts : [{ id:DEFAULT_ACCOUNT_ID, name:'Default' }];
+  storageSet(ACCOUNT_INDEX_KEY, JSON.stringify(clean));
+}
+function getActiveAccountId(){
+  const accounts = getAccounts();
+  const stored = storageGet(ACTIVE_ACCOUNT_KEY) || DEFAULT_ACCOUNT_ID;
+  return accounts.some(a=>a.id === stored) ? stored : accounts[0].id;
+}
+function getActiveAccount(){
+  const accounts = getAccounts();
+  const id = getActiveAccountId();
+  return accounts.find(a=>a.id === id) || accounts[0];
+}
+function setActiveAccountId(id){
+  storageSet(ACTIVE_ACCOUNT_KEY, id);
+}
+function accountSaveKey(id=getActiveAccountId()){
+  return `${SAVE_KEY}__profile__${id}`;
+}
+function migrateOldSaveToDefault(){
+  const accounts = getAccounts();
+  saveAccounts(accounts);
+  const oldRaw = storageGet(SAVE_KEY);
+  const defaultKey = accountSaveKey(DEFAULT_ACCOUNT_ID);
+  if (oldRaw && !storageGet(defaultKey)){
+    storageSet(defaultKey, oldRaw);
+  }
+}
+function updateAccountUI(){
+  if (!refs.accountSelect) return;
+  const accounts = getAccounts();
+  const activeId = getActiveAccountId();
+  refs.accountSelect.innerHTML = accounts.map(a=>`<option value="${a.id}" ${a.id===activeId?'selected':''}>${a.name}</option>`).join('');
+  const active = accounts.find(a=>a.id === activeId) || accounts[0];
+  if (refs.accountStatus) refs.accountStatus.textContent = `Logged in as: ${active.name}`;
+  if (refs.deleteAccountBtn) refs.deleteAccountBtn.disabled = accounts.length <= 1;
+}
+function saveCurrentAccount(silent=false){
+  state.lastSavedAt = Date.now();
+  const ok = storageSet(accountSaveKey(), JSON.stringify(state));
+  if (!silent){
+    if (ok) toast('Saved', `Saved to ${getActiveAccount().name}.`);
+    else toast('Save unavailable', 'This browser blocked local file saving.');
+  }
+  return ok;
+}
+function loadAccountState(showOffline=true){
+  const raw = storageGet(accountSaveKey());
+  if (!raw) return;
+  try{
+    const data = JSON.parse(raw);
+    Object.assign(state, freshState(), data);
+    state.inventory = { ...freshState().inventory, ...(data.inventory || {}) };
+    state.discoveries = data.discoveries || {};
+    state.rolledCharacters = data.rolledCharacters || {};
+    state.milestones = data.milestones || {};
+    state.research = { ...freshState().research, ...(data.research || {}) };
+    if (showOffline){
+      const awayMs = Math.max(0, Date.now() - (data.lastSavedAt || Date.now()));
+      const awayHours = Math.min(getOfflineCapHours(), awayMs / 3600000);
+      const earned = computeMPS() * awayHours * 3600;
+      if (earned > 1){
+        state.money += earned;
+        setTimeout(()=>openModal('Offline Earnings', `${getActiveAccount().name} earned ${fmtMoney(earned)} while away.`), 400);
+      }
+    }
+  }catch(err){
+    console.warn(err);
+  }
+}
+function switchAccount(id){
+  saveCurrentAccount(true);
+  stopAuto();
+  setActiveAccountId(id);
+  Object.assign(state, freshState());
+  refs.log.innerHTML = '';
+  loadAccountState(true);
+  sanitizeState();
+  addLog(`Switched to account: ${getActiveAccount().name}.`, 'warn');
+  updateAccountUI();
+  renderAll();
+}
+function createAccount(){
+  const name = (refs.newAccountName?.value || '').trim();
+  if (!name) return toast('Name needed', 'Type a name for the new account.');
+  let accounts = getAccounts();
+  let id = safeIdFromName(name);
+  let n = 2;
+  while (accounts.some(a=>a.id === id)){
+    id = `${safeIdFromName(name)}_${n++}`;
+  }
+  accounts.push({ id, name:name.slice(0,18) });
+  saveAccounts(accounts);
+  if (refs.newAccountName) refs.newAccountName.value = '';
+  storageSet(accountSaveKey(id), JSON.stringify(freshState()));
+  switchAccount(id);
+  toast('Account created', `${name} starts with fresh progress.`);
+}
+function deleteAccount(){
+  const accounts = getAccounts();
+  if (accounts.length <= 1) return toast('Cannot delete', 'You need at least one account.');
+  const active = getActiveAccount();
+  if (!confirm(`Delete account "${active.name}" and its progress?`)) return;
+  const remaining = accounts.filter(a=>a.id !== active.id);
+  storageRemove(accountSaveKey(active.id));
+  saveAccounts(remaining);
+  switchAccount(remaining[0].id);
+  toast('Account deleted', `${active.name} was removed.`);
+}
+
 
 function getVisualForCharacter(ore){
   if (!ore) return PLACEHOLDER_VISUAL;
@@ -2503,7 +2673,7 @@ function adminPullSelected(){
   addLog(`Admin pulled ${ore.name}.`, 'warn');
   checkMilestones();
   renderAll();
-  storageSet(SAVE_KEY, JSON.stringify(state));
+  saveCurrentAccount(true);
   toast('Admin pull complete', `${ore.name} added to your collection.`);
 }
 
@@ -2782,31 +2952,12 @@ function startIncomeLoop(){
   }, 250);
 }
 function saveGame(){
-  state.lastSavedAt = Date.now();
-  if (storageSet(SAVE_KEY, JSON.stringify(state))) toast('Saved', 'Your game was saved locally.');
-  else toast('Save unavailable', 'The game is still playable, but this browser blocked local file saving.');
+  saveCurrentAccount(false);
 }
 function loadGame(){
-  const raw = storageGet(SAVE_KEY);
-  if (!raw) return;
-  try{
-    const data = JSON.parse(raw);
-    Object.assign(state, freshState(), data);
-    state.inventory = { ...freshState().inventory, ...(data.inventory || {}) };
-    state.discoveries = data.discoveries || {};
-    state.rolledCharacters = data.rolledCharacters || {};
-    state.milestones = data.milestones || {};
-    state.research = { ...freshState().research, ...(data.research || {}) };
-    const awayMs = Math.max(0, Date.now() - (data.lastSavedAt || Date.now()));
-    const awayHours = Math.min(getOfflineCapHours(), awayMs / 3600000);
-    const earned = computeMPS() * awayHours * 3600;
-    if (earned > 1){
-      state.money += earned;
-      setTimeout(()=>openModal('Offline Earnings', `Your roster earned ${fmtMoney(earned)} while you were away.`), 400);
-    }
-  }catch(err){
-    console.warn(err);
-  }
+  migrateOldSaveToDefault();
+  updateAccountUI();
+  loadAccountState(true);
 }
 function sanitizeState(){
   if (!Number.isFinite(state.money)) state.money = 10;
@@ -2850,9 +3001,9 @@ function hardReset(){
   if (!confirm('Hard reset this local save?')) return;
   stopAuto();
   Object.assign(state, freshState());
-  storageRemove(SAVE_KEY);
+  saveCurrentAccount(true);
   refs.log.innerHTML = '';
-  addLog('New Ninjago run started.', 'warn');
+  addLog(`New run started for ${getActiveAccount().name}.`, 'warn');
   renderAll();
 }
 
@@ -2883,6 +3034,10 @@ el('exportBtn').onclick = exportSave;
 el('importBtn').onclick = importSave;
 el('submitScoreBtn').onclick = submitScore;
 el('resetBtn').onclick = hardReset;
+el('accountSelect').onchange = e=>switchAccount(e.target.value);
+el('createAccountBtn').onclick = createAccount;
+el('deleteAccountBtn').onclick = deleteAccount;
+el('newAccountName').addEventListener('keydown', e=>{ if (e.key === 'Enter') createAccount(); });
 el('collectionPrevBtn').onclick = ()=>setCollectionPage(state.collectionPage - 1);
 el('collectionNextBtn').onclick = ()=>setCollectionPage(state.collectionPage + 1);
 window.addEventListener('keydown', e=>{
@@ -2909,7 +3064,7 @@ function init(){
   renderAll();
   startIncomeLoop();
   requestAnimationFrame(t=>{ lastTick = t; tick(t); });
-  saveTimer = setInterval(()=>{ state.lastSavedAt = Date.now(); storageSet(SAVE_KEY, JSON.stringify(state)); }, 5000);
+  saveTimer = setInterval(()=>{ state.lastSavedAt = Date.now(); saveCurrentAccount(true); }, 5000);
 }
 init();
 </script>
