@@ -641,33 +641,145 @@
   .entry.rare{ color:var(--blue); }
   .entry:last-child{ border-bottom:none; }
   .collection-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
-    gap:12px;
+    display:block;
   }
-  .ore-tile{
-    background:var(--panel3);
-    border:1px solid var(--line2);
-    border-radius:10px;
-    padding:12px;
-    min-height:118px;
-    display:grid;
-    gap:7px;
-  }
-  .ore-tile.locked{
-    opacity:.55;
-    filter:saturate(.45);
-  }
-  .tile-head{
+  .collection-toolbar{
     display:flex;
     justify-content:space-between;
-    gap:8px;
     align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
   }
+  .collection-cabinet{
+    position:relative;
+    padding:18px;
+    border-radius:20px;
+    border:2px solid rgba(126,83,43,.72);
+    background:
+      linear-gradient(180deg, rgba(93,62,32,.96), rgba(54,35,18,.98));
+    box-shadow:inset 0 0 0 6px rgba(165,117,67,.18), 0 14px 32px rgba(0,0,0,.28);
+  }
+  .collection-cabinet::before{
+    content:'';
+    position:absolute;
+    inset:12px;
+    border-radius:14px;
+    border:2px solid rgba(232,194,140,.16);
+    pointer-events:none;
+  }
+  .cabinet-page{
+    display:grid;
+    gap:16px;
+  }
+  .cabinet-shelf{
+    position:relative;
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:14px;
+    padding:18px 12px 22px;
+    border-radius:14px;
+    background:
+      linear-gradient(180deg, rgba(255,247,230,.13), rgba(255,247,230,.03) 28%, rgba(42,28,15,.16) 100%),
+      linear-gradient(180deg, rgba(108,73,38,.56), rgba(70,46,23,.78));
+    box-shadow:inset 0 -8px 0 rgba(39,24,12,.42), inset 0 1px 0 rgba(255,234,195,.08);
+  }
+  .cabinet-shelf::after{
+    content:'';
+    position:absolute;
+    left:10px;
+    right:10px;
+    bottom:8px;
+    height:10px;
+    border-radius:999px;
+    background:linear-gradient(180deg, rgba(19,10,4,.14), rgba(19,10,4,.44));
+    filter:blur(2px);
+  }
+  .cabinet-slot{
+    position:relative;
+    min-height:230px;
+    padding:14px 10px 10px;
+    border-radius:12px;
+    border:1px solid rgba(255,234,206,.10);
+    background:
+      radial-gradient(circle at 50% 16%, rgba(255,255,255,.12), transparent 38%),
+      linear-gradient(180deg, rgba(255,252,244,.14), rgba(255,252,244,.03) 30%, rgba(26,16,9,.18) 100%);
+    text-align:center;
+    display:grid;
+    justify-items:center;
+    align-content:start;
+    gap:8px;
+    overflow:hidden;
+  }
+  .cabinet-slot.locked{
+    opacity:.68;
+    filter:saturate(.2);
+  }
+  .cabinet-slot::after{
+    content:'';
+    position:absolute;
+    left:16px;
+    right:16px;
+    bottom:28px;
+    height:24px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(0,0,0,.34) 0%, rgba(0,0,0,.02) 72%);
+    z-index:0;
+  }
+  .cabinet-slot .small-gem{
+    width:74px;
+    min-height:100px;
+    display:grid;
+    place-items:end center;
+    position:relative;
+    z-index:1;
+  }
+  .cabinet-slot .small-gem .minifig-display{ transform:scale(1.06); transform-origin:center bottom; }
+  .cabinet-slot .small-gem .minifig-mini .minifig-figure{ width:66px; height:90px; }
+  .cabinet-slot .small-gem .minifig-mini .minifig-base{ width:54px; height:8px; }
+  .cabinet-slot .small-gem .minifig-mini .minifig-katana{ height:42px; right:12px; }
+  .cabinet-slot h3{
+    margin:0;
+    font-size:14px;
+    line-height:1.15;
+    position:relative;
+    z-index:1;
+  }
+  .cabinet-slot .slot-meta,
+  .cabinet-slot .slot-income,
+  .cabinet-slot .slot-copies{
+    position:relative;
+    z-index:1;
+  }
+  .cabinet-slot .slot-meta{
+    font-size:11px;
+    color:var(--muted);
+    line-height:1.25;
+  }
+  .cabinet-slot .slot-income{
+    font-size:12px;
+    font-weight:700;
+  }
+  .cabinet-slot .slot-copies{
+    font-size:12px;
+    padding:4px 8px;
+    border-radius:999px;
+    background:rgba(255,247,230,.08);
+    border:1px solid rgba(255,247,230,.10);
+  }
+  .cabinet-slot.locked .slot-copies{ background:rgba(0,0,0,.16); }
+  .ore-tile{ display:none; }
   .small-gem{
     width:58px;
     display:grid;
     place-items:center;
+  }
+  @media (max-width: 960px){
+    .cabinet-shelf{ grid-template-columns:repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 680px){
+    .cabinet-shelf{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    .cabinet-slot{ min-height:210px; }
   }
   .toast-wrap{
     position:fixed;
@@ -689,6 +801,212 @@
   }
   @keyframes toastIn{ from{ transform:translateX(28px); opacity:0; } to{ transform:translateX(0); opacity:1; } }
   @keyframes toastOut{ to{ transform:translateX(34px); opacity:0; } }
+
+  .summon-fx{
+    position:fixed;
+    inset:0;
+    display:grid;
+    place-items:center;
+    pointer-events:none;
+    opacity:0;
+    z-index:35;
+    overflow:hidden;
+    --fxColor:#fff0ab;
+    --fxAccent:#ffffff;
+    --fxWeapon:#ffd88f;
+    --fxDuration:1200ms;
+  }
+  .summon-fx.active{ opacity:1; }
+  .summon-fx::before,
+  .summon-fx::after{
+    content:'';
+    position:absolute;
+    inset:-20%;
+    background:
+      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--fxColor) 20%, transparent) 0%, transparent 42%),
+      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--fxAccent) 10%, transparent) 0%, transparent 58%),
+      linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.65));
+    opacity:0;
+  }
+  .summon-fx.active::before{ animation:fxBackdrop var(--fxDuration) ease-out forwards; }
+  .summon-fx.active::after{ animation:fxFlash var(--fxDuration) ease-out forwards; }
+  .summon-fx__rays,
+  .summon-fx__rings,
+  .summon-fx__storm,
+  .summon-fx__sigils,
+  .summon-fx__burst{
+    position:absolute;
+    inset:0;
+    opacity:0;
+  }
+  .summon-fx__rays{
+    background:
+      repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--fxColor) 60%, transparent) 0 9deg, transparent 9deg 20deg),
+      radial-gradient(circle, transparent 0 30%, rgba(255,255,255,.12) 31% 33%, transparent 34% 100%);
+    filter:blur(1px) drop-shadow(0 0 18px color-mix(in srgb, var(--fxColor) 72%, transparent));
+    transform:scale(.7);
+  }
+  .summon-fx__rings{
+    background:
+      radial-gradient(circle at 50% 50%, transparent 0 16%, color-mix(in srgb, var(--fxAccent) 75%, transparent) 16.5% 17.5%, transparent 18% 29%, color-mix(in srgb, var(--fxColor) 85%, transparent) 29.5% 30.5%, transparent 31% 43%, rgba(255,255,255,.25) 43.5% 44.5%, transparent 45% 100%);
+    filter:drop-shadow(0 0 18px color-mix(in srgb, var(--fxColor) 80%, transparent));
+    transform:scale(.4);
+  }
+  .summon-fx.active .summon-fx__rays{ animation:fxRays var(--fxDuration) ease-out forwards; }
+  .summon-fx.active .summon-fx__rings{ animation:fxRings var(--fxDuration) ease-out forwards; }
+  .summon-fx__storm{
+    background:
+      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--fxColor) 35%, transparent) 0%, transparent 32%),
+      repeating-conic-gradient(from 0deg, rgba(255,255,255,.16) 0 8deg, transparent 8deg 18deg),
+      radial-gradient(circle at 50% 50%, transparent 0 54%, rgba(255,255,255,.14) 54.5% 55.5%, transparent 56% 100%);
+    filter:blur(2px) drop-shadow(0 0 22px color-mix(in srgb, var(--fxColor) 80%, transparent));
+    transform:scale(.6) rotate(0deg);
+  }
+  .summon-fx__sigils{
+    background:
+      repeating-conic-gradient(from 15deg, transparent 0 18deg, color-mix(in srgb, var(--fxAccent) 40%, transparent) 18deg 22deg, transparent 22deg 40deg),
+      radial-gradient(circle at 50% 50%, transparent 0 22%, rgba(255,255,255,.22) 22.5% 23.5%, transparent 24% 38%, rgba(255,255,255,.14) 38.5% 39.5%, transparent 40% 100%);
+    transform:scale(.35) rotate(0deg);
+    filter:drop-shadow(0 0 18px color-mix(in srgb, var(--fxAccent) 70%, transparent));
+  }
+  .summon-fx__burst{
+    background:radial-gradient(circle at 50% 50%, rgba(255,255,255,.96) 0 2%, color-mix(in srgb, var(--fxColor) 84%, white) 2.5% 5%, transparent 7% 100%);
+    transform:scale(.2);
+    filter:blur(1px);
+  }
+  .summon-fx.active .summon-fx__storm{ animation:fxStorm var(--fxDuration) ease-out forwards; }
+  .summon-fx.active .summon-fx__sigils{ animation:fxSigils var(--fxDuration) ease-out forwards; }
+  .summon-fx.active .summon-fx__burst{ animation:fxBurst var(--fxDuration) ease-out forwards; }
+  .summon-fx__card{
+    position:relative;
+    width:min(90vw, 920px);
+    min-height:60vh;
+    display:grid;
+    align-content:center;
+    justify-items:center;
+    gap:12px;
+    text-align:center;
+    padding:24px;
+    opacity:0;
+    transform:translateY(26px) scale(.86);
+  }
+  .summon-fx.active .summon-fx__card{ animation:fxCard var(--fxDuration) ease-out forwards; }
+  .summon-fx__rarity{
+    font-size:clamp(18px, 2.2vw, 26px);
+    letter-spacing:.25em;
+    text-transform:uppercase;
+    font-weight:900;
+    color:var(--fxAccent);
+    text-shadow:0 0 18px color-mix(in srgb, var(--fxColor) 70%, transparent);
+  }
+  .summon-fx__name{
+    font-size:clamp(34px, 5vw, 72px);
+    line-height:1;
+    font-weight:1000;
+    color:white;
+    text-shadow:0 0 26px color-mix(in srgb, var(--fxColor) 72%, transparent), 0 8px 24px rgba(0,0,0,.45);
+  }
+  .summon-fx__meta{
+    font-size:clamp(14px, 1.6vw, 20px);
+    letter-spacing:.08em;
+    color:rgba(255,255,255,.88);
+  }
+  .summon-fx__figure{
+    transform:scale(1.24);
+    margin:8px 0 16px;
+    filter:drop-shadow(0 0 40px color-mix(in srgb, var(--fxColor) 60%, transparent));
+  }
+  .summon-fx__figure .minifig-figure{ width:188px; height:248px; }
+  .summon-fx__figure .minifig-base{ width:168px; }
+  .summon-fx.rarity-common{ --fxDuration:900ms; }
+  .summon-fx.rarity-uncommon{ --fxDuration:1000ms; }
+  .summon-fx.rarity-rare{ --fxDuration:1100ms; }
+  .summon-fx.rarity-epic{ --fxDuration:1300ms; }
+  .summon-fx.rarity-legendary{ --fxDuration:1600ms; }
+  .summon-fx.rarity-mythic{ --fxDuration:1900ms; }
+  .summon-fx.rarity-relic{ --fxDuration:2300ms; }
+  .summon-fx.rarity-legendary .summon-fx__figure,
+  .summon-fx.rarity-mythic .summon-fx__figure,
+  .summon-fx.rarity-relic .summon-fx__figure{ animation:fxFloat 1.4s ease-in-out infinite; }
+  .summon-fx.rarity-mythic .summon-fx__rays{ filter:blur(1px) drop-shadow(0 0 28px color-mix(in srgb, var(--fxColor) 82%, transparent)); }
+  .summon-fx.rarity-relic .summon-fx__rays{ filter:blur(0px) drop-shadow(0 0 34px color-mix(in srgb, var(--fxColor) 95%, transparent)); }
+  .summon-fx.ultimate-master{
+    --fxDuration:15000ms;
+  }
+  .summon-fx.ultimate-master::before{
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,.18) 0%, transparent 48%),
+      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--fxColor) 18%, transparent) 0%, transparent 68%),
+      linear-gradient(180deg, rgba(8,10,17,.14), rgba(8,10,17,.78));
+  }
+  .summon-fx.ultimate-master .summon-fx__rays{
+    background:
+      repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--fxColor) 72%, transparent) 0 7deg, transparent 7deg 15deg),
+      repeating-conic-gradient(from 9deg, rgba(255,255,255,.55) 0 2deg, transparent 2deg 15deg),
+      radial-gradient(circle, transparent 0 24%, rgba(255,255,255,.15) 24.5% 25.5%, transparent 26% 100%);
+    filter:drop-shadow(0 0 42px color-mix(in srgb, var(--fxColor) 95%, transparent));
+  }
+  .summon-fx.ultimate-master .summon-fx__rings{
+    background:
+      radial-gradient(circle at 50% 50%, transparent 0 14%, rgba(255,255,255,.78) 14.5% 15.5%, transparent 16% 27%, color-mix(in srgb, var(--fxColor) 86%, white) 27.5% 29%, transparent 29.5% 39%, rgba(255,255,255,.26) 39.5% 40.5%, transparent 41% 100%),
+      repeating-conic-gradient(from 0deg, rgba(255,255,255,.0) 0 13deg, color-mix(in srgb, var(--fxAccent) 78%, transparent) 13deg 16deg, rgba(255,255,255,0) 16deg 28deg);
+  }
+  .summon-fx.ultimate-master .summon-fx__storm{
+    background:
+      repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--fxColor) 55%, transparent) 0 6deg, transparent 6deg 16deg),
+      radial-gradient(circle at 50% 50%, transparent 0 46%, rgba(255,255,255,.14) 46.5% 47.5%, transparent 48% 100%);
+    filter:drop-shadow(0 0 48px color-mix(in srgb, var(--fxColor) 95%, transparent));
+  }
+  .summon-fx.ultimate-master .summon-fx__sigils{
+    background:
+      repeating-conic-gradient(from 0deg, transparent 0 12deg, rgba(255,255,255,.55) 12deg 14deg, transparent 14deg 24deg),
+      radial-gradient(circle at 50% 50%, transparent 0 18%, rgba(255,255,255,.95) 18.5% 19.5%, transparent 20% 34%, rgba(255,247,196,.4) 34.5% 35.5%, transparent 36% 100%);
+    filter:drop-shadow(0 0 30px rgba(255,255,255,.4));
+  }
+  .summon-fx.ultimate-master .summon-fx__burst{
+    background:radial-gradient(circle at 50% 50%, rgba(255,255,255,1) 0 1%, rgba(255,247,196,.98) 1.5% 4%, rgba(255,229,112,.6) 4.5% 8%, transparent 10% 100%);
+  }
+  .summon-fx.ultimate-master .summon-fx__card{
+    gap:18px;
+  }
+  .summon-fx.ultimate-master .summon-fx__rarity{
+    font-size:clamp(24px, 2.6vw, 34px);
+    letter-spacing:.38em;
+    text-shadow:0 0 24px rgba(255,255,255,.7), 0 0 36px color-mix(in srgb, var(--fxColor) 90%, transparent);
+  }
+  .summon-fx.ultimate-master .summon-fx__name{
+    font-size:clamp(42px, 6vw, 88px);
+    max-width:min(90vw, 1100px);
+  }
+  .summon-fx.ultimate-master .summon-fx__meta{
+    font-size:clamp(18px, 2vw, 26px);
+  }
+  .summon-fx.ultimate-master .summon-fx__figure{
+    transform:scale(1.5);
+    filter:drop-shadow(0 0 55px rgba(255,255,255,.6)) drop-shadow(0 0 80px color-mix(in srgb, var(--fxColor) 95%, transparent));
+  }
+  .summon-fx.ultimate-master.active .summon-fx__card{ animation:fxCardUltimate var(--fxDuration) ease-out forwards; }
+  .summon-fx.ultimate-master.active .summon-fx__rays{ animation:fxRaysUltimate var(--fxDuration) ease-out forwards; }
+  .summon-fx.ultimate-master.active .summon-fx__rings{ animation:fxRingsUltimate var(--fxDuration) ease-out forwards; }
+  .summon-fx.ultimate-master.active .summon-fx__storm{ animation:fxStormUltimate var(--fxDuration) linear forwards; }
+  .summon-fx.ultimate-master.active .summon-fx__sigils{ animation:fxSigilsUltimate var(--fxDuration) ease-in-out forwards; }
+  .summon-fx.ultimate-master.active .summon-fx__burst{ animation:fxBurstUltimate var(--fxDuration) ease-out forwards; }
+  @keyframes fxBackdrop{ 0%{ opacity:0; } 15%{ opacity:1; } 100%{ opacity:0; } }
+  @keyframes fxFlash{ 0%{ opacity:0; transform:scale(.65); } 20%{ opacity:.9; } 100%{ opacity:0; transform:scale(1.12); } }
+  @keyframes fxRays{ 0%{ opacity:0; transform:scale(.45) rotate(0deg); } 20%{ opacity:.85; } 100%{ opacity:0; transform:scale(1.2) rotate(120deg); } }
+  @keyframes fxRings{ 0%{ opacity:0; transform:scale(.35); } 20%{ opacity:1; } 100%{ opacity:0; transform:scale(1.15); } }
+  @keyframes fxStorm{ 0%{ opacity:0; transform:scale(.5) rotate(0deg); } 20%{ opacity:.55; } 60%{ opacity:.38; } 100%{ opacity:0; transform:scale(1.08) rotate(120deg); } }
+  @keyframes fxSigils{ 0%{ opacity:0; transform:scale(.3) rotate(0deg); } 18%{ opacity:.85; } 100%{ opacity:0; transform:scale(1.16) rotate(150deg); } }
+  @keyframes fxBurst{ 0%,16%,100%{ opacity:0; transform:scale(.2); } 20%{ opacity:1; transform:scale(1); } 38%{ opacity:.22; transform:scale(1.7); } 100%{ opacity:0; transform:scale(2.1); } }
+  @keyframes fxCard{ 0%{ opacity:0; transform:translateY(26px) scale(.86); } 18%{ opacity:1; transform:translateY(0) scale(1); } 85%{ opacity:1; } 100%{ opacity:0; transform:translateY(-14px) scale(1.03); } }
+  @keyframes fxFloat{ 0%,100%{ transform:scale(1.24) translateY(0); } 50%{ transform:scale(1.28) translateY(-10px); } }
+  @keyframes fxRaysUltimate{ 0%{ opacity:0; transform:scale(.22) rotate(0deg); } 5%{ opacity:1; } 30%{ opacity:1; } 78%{ opacity:.95; } 100%{ opacity:0; transform:scale(1.55) rotate(840deg); } }
+  @keyframes fxRingsUltimate{ 0%{ opacity:0; transform:scale(.08); } 6%{ opacity:1; } 28%{ opacity:1; } 80%{ opacity:.95; } 100%{ opacity:0; transform:scale(1.35); } }
+  @keyframes fxStormUltimate{ 0%{ opacity:0; transform:scale(.3) rotate(0deg); } 8%{ opacity:.8; } 40%{ opacity:.75; } 82%{ opacity:.72; } 100%{ opacity:0; transform:scale(1.32) rotate(1080deg); } }
+  @keyframes fxSigilsUltimate{ 0%{ opacity:0; transform:scale(.12) rotate(0deg); } 10%{ opacity:1; } 35%{ opacity:.95; } 78%{ opacity:.92; } 100%{ opacity:0; transform:scale(1.22) rotate(-720deg); } }
+  @keyframes fxBurstUltimate{ 0%,8%{ opacity:0; transform:scale(.18); } 12%{ opacity:1; transform:scale(1.1); } 20%{ opacity:.3; transform:scale(1.7); } 52%{ opacity:.18; transform:scale(1.95); } 82%{ opacity:.16; transform:scale(2.1); } 100%{ opacity:0; transform:scale(2.3); } }
+  @keyframes fxCardUltimate{ 0%{ opacity:0; transform:translateY(48px) scale(.56); } 8%{ opacity:1; transform:translateY(10px) scale(.88); } 16%{ opacity:1; transform:translateY(0) scale(1.04); } 32%{ opacity:1; transform:translateY(0) scale(1); } 82%{ opacity:1; transform:translateY(0) scale(1.02); } 92%{ opacity:.96; transform:translateY(-8px) scale(1.05); } 100%{ opacity:0; transform:translateY(-16px) scale(1.1); } }
+
   .modal{
     position:fixed;
     inset:0;
@@ -712,6 +1030,26 @@
     justify-content:flex-end;
     gap:8px;
     margin-top:14px;
+  }
+
+  .admin-form{
+    display:grid;
+    gap:12px;
+    margin-top:12px;
+  }
+  .admin-form label{
+    display:grid;
+    gap:6px;
+    color:var(--muted);
+    font-size:.9rem;
+  }
+  .admin-warning{
+    border:1px solid rgba(255,179,71,.35);
+    background:rgba(255,179,71,.08);
+    border-radius:10px;
+    padding:10px 12px;
+    color:var(--muted);
+    line-height:1.35;
   }
   footer{
     border-top:2px solid var(--line);
@@ -771,7 +1109,7 @@
               <div id="mainGem" class="gem"></div>
               <h2 id="lastOreName">Ready to Roll</h2>
               <div class="muted" id="lastOreMeta">Roll to recruit Ninjago heroes and villains, complete goals, and build your roster.</div>
-              <div class="score" id="lastOreIncome">Unlock characters for base income — duplicate copies are collectible but do not stack income.</div>
+              <div class="score" id="lastOreIncome">Unlock more of the Ninjago roster for base income — duplicate copies are collectible, fuseable, and great for milestones.</div>
             </div>
           </div>
           <div class="roll-stack">
@@ -834,8 +1172,15 @@
 
   <section id="collectionView" class="view">
     <div class="panel">
-      <h2>Ninjago Character Collection</h2>
-      <div class="muted" style="margin-bottom:14px;">Discovered characters reveal their odds, income, and copies owned. Undiscovered characters stay shadowed.</div>
+      <h2>Expanded Ninjago Character Collection</h2>
+      <div class="muted" style="margin-bottom:14px;">Browse your roster inside a LEGO display cabinet. Unlocked figures stand on the shelves, while locked spaces stay shadowed until discovered.</div>
+      <div class="collection-toolbar">
+        <div class="muted"><strong id="collectionPageInfo">Page 1 / 1</strong> • <span id="collectionShelfInfo">0 unlocked</span></div>
+        <div class="quick-actions" style="justify-content:flex-end;">
+          <button id="collectionPrevBtn">Previous Page</button>
+          <button id="collectionNextBtn">Next Page</button>
+        </div>
+      </div>
       <div id="collectionGrid" class="collection-grid"></div>
     </div>
   </section>
@@ -903,9 +1248,47 @@
   </div>
 </div>
 
+<div id="adminModal" class="modal" aria-hidden="true">
+  <div class="modal-card">
+    <h2>Admin Pull</h2>
+    <div class="admin-warning">
+      Enter the admin code, choose any character, then pull them instantly. This bypasses normal odds and unlock rules, so it is best for testing or showing animations.
+    </div>
+    <div class="admin-form">
+      <label>
+        Admin Code
+        <input id="adminCodeInput" type="password" placeholder="Enter admin code" autocomplete="off" />
+      </label>
+      <label>
+        Character
+        <select id="adminCharacterSelect"></select>
+      </label>
+      <label style="display:flex; align-items:center; gap:8px;">
+        <input id="adminForceAnim" type="checkbox" />
+        Force fullscreen animation even if already unlocked
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button id="adminPullBtn">Pull Character</button>
+      <button id="adminCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="summonFx" class="summon-fx" aria-hidden="true">
+  <div class="summon-fx__rays"></div>
+  <div class="summon-fx__rings"></div>
+  <div class="summon-fx__storm"></div>
+  <div class="summon-fx__sigils"></div>
+  <div class="summon-fx__burst"></div>
+  <div id="summonFxCard" class="summon-fx__card"></div>
+</div>
+
 <footer>
   <div>Space = roll. A = toggle auto. S = save. The game auto-saves every few seconds.</div>
   <div class="quick-actions">
+    <button id="adminBtn">Admin Pull</button>
     <button id="saveBtn">Save</button>
     <button id="exportBtn">Export Save</button>
     <button id="importBtn">Import Save</button>
@@ -914,16 +1297,17 @@
 
 <script>
 const ROLL_COST = 1;
-const ROLL10_COST = 15;
-const ROLL100_COST = 140;
-const AUTO_COST = 100;
-const AUTO_DELAY_BASE = 650;
-const PITY_GAIN = 0.45;
-const PITY_CAP_BASE = 20;
-const REBIRTH_BASE_COST = 50000;
+const ROLL10_COST = 10;
+const ROLL100_COST = 95;
+const AUTO_COST = 250;
+const AUTO_DELAY_BASE = 700;
+const PITY_GAIN = 0.6;
+const PITY_CAP_BASE = 24;
+const REBIRTH_BASE_COST = 500000;
 const ORE_INCOME_MULT = 10;
-const SAVE_KEY = 'ninjago_character_roller_save_v2';
-const BOARD_KEY = 'ninjago_character_roller_board_v2';
+const SAVE_KEY = 'ninjago_character_roller_save_v3';
+const BOARD_KEY = 'ninjago_character_roller_board_v3';
+const ADMIN_CODE = 'SPINJITZUADMIN';
 
 const RARITIES = ['Common','Uncommon','Rare','Epic','Legendary','Mythic','Relic'];
 const RARITY_COLORS = {
@@ -937,82 +1321,164 @@ const RARITY_COLORS = {
 };
 
 const ORES = [
-  { key:'kai', name:'Kai', oneIn:2, rarity:'Common', income:0.04, color:'#ff3b30' },
-  { key:'jay', name:'Jay', oneIn:4, rarity:'Common', income:0.05, color:'#2f80ff' },
-  { key:'cole', name:'Cole', oneIn:6, rarity:'Common', income:0.06, color:'#4b3621' },
-  { key:'zane', name:'Zane', oneIn:8, rarity:'Common', income:0.07, color:'#d9f6ff' },
-  { key:'nya', name:'Nya', oneIn:10, rarity:'Uncommon', income:0.11, color:'#37c9ff' },
-  { key:'pixal', name:'PIXAL', oneIn:14, rarity:'Uncommon', income:0.13, color:'#9be7ff' },
-  { key:'sensei_wu', name:'Sensei Wu', oneIn:18, rarity:'Uncommon', income:0.16, color:'#fff2b2' },
-  { key:'nya_samurai_x', name:'Samurai X Nya', oneIn:25, rarity:'Uncommon', income:0.22, color:'#c70039' },
-  { key:'lloyd', name:'Lloyd', oneIn:35, rarity:'Rare', income:0.35, color:'#5dff66' },
-  { key:'skylor', name:'Skylor', oneIn:55, rarity:'Rare', income:0.48, color:'#ff9f43' },
-  { key:'ronin', name:'Ronin', oneIn:75, rarity:'Rare', income:0.62, color:'#7f8c8d' },
-  { key:'harumi', name:'Harumi', oneIn:110, rarity:'Epic', income:1.05, color:'#f4f4f4' },
-  { key:'morro', name:'Morro', oneIn:155, rarity:'Epic', income:1.35, color:'#3ee07f' },
-  { key:'ultra_violet', name:'Ultra Violet', oneIn:220, rarity:'Epic', income:1.75, color:'#b986ff' },
-  { key:'lord_garmadon', name:'Lord Garmadon', oneIn:330, rarity:'Legendary', income:2.7, color:'#6c36ff' },
-  { key:'golden_lloyd', name:'Golden Lloyd', oneIn:520, rarity:'Legendary', income:4.1, color:'#ffd56a' },
-  { key:'nya_seabound', name:'Seabound Nya', oneIn:850, rarity:'Mythic', income:6.8, color:'#00e5ff' },
-  { key:'oni_garmadon', name:'Oni Garmadon', oneIn:1300, rarity:'Mythic', income:9.2, color:'#151515' },
-  { key:'dragon_form_kai', name:'Dragon Form Kai', oneIn:2100, rarity:'Relic', income:13.5, color:'#ff6a00' },
-  { key:'dragon_form_jay', name:'Dragon Form Jay', oneIn:3000, rarity:'Relic', income:17.5, color:'#00a6ff' },
-  { key:'dragon_form_cole', name:'Dragon Form Cole', oneIn:4200, rarity:'Relic', income:23.0, color:'#9b6a2f' },
-  { key:'dragon_form_zane', name:'Dragon Form Zane', oneIn:5600, rarity:'Relic', income:31.0, color:'#e6ffff' },
-  { key:'ultimate_spinjitzu_master', name:'Ultimate Spinjitzu Master', oneIn:12000, rarity:'Relic', income:75.0, color:'#fff6a3', requiresAllOthers:true }
+  { key:'kai', name:'Kai', oneIn:2, rarity:'Common', income:0.05, color:'#ef2b23' },
+  { key:'jay', name:'Jay', oneIn:3, rarity:'Common', income:0.06, color:'#3886f1' },
+  { key:'cole', name:'Cole', oneIn:4, rarity:'Common', income:0.07, color:'#252528' },
+  { key:'zane', name:'Zane', oneIn:5, rarity:'Common', income:0.08, color:'#f4fbff' },
+  { key:'nya', name:'Nya', oneIn:7, rarity:'Common', income:0.09, color:'#2bb9ec' },
+  { key:'lloyd', name:'Lloyd', oneIn:9, rarity:'Common', income:0.1, color:'#29aa46' },
+  { key:'pixal', name:'PIXAL', oneIn:11, rarity:'Common', income:0.11, color:'#dff5ff' },
+  { key:'sensei_wu', name:'Sensei Wu', oneIn:14, rarity:'Common', income:0.12, color:'#efe7cf' },
+  { key:'samurai_x_nya', name:'Samurai X Nya', oneIn:18, rarity:'Uncommon', income:0.16, color:'#8a929a' },
+  { key:'skylor', name:'Skylor', oneIn:22, rarity:'Uncommon', income:0.18, color:'#ff9325' },
+  { key:'dareth', name:'Dareth', oneIn:28, rarity:'Uncommon', income:0.2, color:'#b7842d' },
+  { key:'misako', name:'Misako', oneIn:34, rarity:'Uncommon', income:0.22, color:'#e5cf96' },
+  { key:'nelson', name:'Nelson', oneIn:41, rarity:'Uncommon', income:0.25, color:'#f8d14b' },
+  { key:'ronin', name:'Ronin', oneIn:50, rarity:'Uncommon', income:0.28, color:'#6a7178' },
+  { key:'pythor', name:'Pythor', oneIn:60, rarity:'Uncommon', income:0.31, color:'#cce58d' },
+  { key:'arin', name:'Arin', oneIn:72, rarity:'Uncommon', income:0.34, color:'#f2cf29' },
+  { key:'sora', name:'Sora', oneIn:86, rarity:'Uncommon', income:0.37, color:'#ff65b5' },
+  { key:'wyldfyre', name:'Wyldfyre', oneIn:102, rarity:'Uncommon', income:0.4, color:'#ff6d1f' },
+  { key:'morro', name:'Morro', oneIn:122, rarity:'Rare', income:0.52, color:'#2fb568' },
+  { key:'harumi', name:'Harumi', oneIn:145, rarity:'Rare', income:0.58, color:'#eef3ee' },
+  { key:'acronix', name:'Acronix', oneIn:172, rarity:'Rare', income:0.65, color:'#5cc2f4' },
+  { key:'krux', name:'Krux', oneIn:205, rarity:'Rare', income:0.73, color:'#9e1e1b' },
+  { key:'aspheera', name:'Aspheera', oneIn:244, rarity:'Rare', income:0.82, color:'#d95c22' },
+  { key:'clouse', name:'Clouse', oneIn:290, rarity:'Rare', income:0.92, color:'#5a2a87' },
+  { key:'euphrasia', name:'Euphrasia', oneIn:345, rarity:'Rare', income:1.03, color:'#8ef0db' },
+  { key:'zeatrix', name:'Zeatrix', oneIn:410, rarity:'Rare', income:1.15, color:'#7d5df6' },
+  { key:'kai_zx', name:'Kai ZX', oneIn:488, rarity:'Rare', income:1.28, color:'#ff3c32' },
+  { key:'jay_zx', name:'Jay ZX', oneIn:580, rarity:'Rare', income:1.42, color:'#2675e6' },
+  { key:'cole_zx', name:'Cole ZX', oneIn:690, rarity:'Rare', income:1.57, color:'#1e1e22' },
+  { key:'zane_zx', name:'Zane ZX', oneIn:820, rarity:'Rare', income:1.73, color:'#eff9ff' },
+  { key:'nya_zx', name:'Nya ZX', oneIn:980, rarity:'Epic', income:1.95, color:'#29bced' },
+  { key:'lloyd_zx', name:'Lloyd ZX', oneIn:1170, rarity:'Epic', income:2.2, color:'#27a53f' },
+  { key:'lord_garmadon', name:'Lord Garmadon', oneIn:1390, rarity:'Epic', income:2.5, color:'#44236c' },
+  { key:'young_wu', name:'Young Wu', oneIn:1650, rarity:'Epic', income:2.85, color:'#f1ead4' },
+  { key:'ice_emperor_zane', name:'Ice Emperor Zane', oneIn:1960, rarity:'Epic', income:3.25, color:'#bcefff' },
+  { key:'prime_empire_jay', name:'Prime Empire Jay', oneIn:2330, rarity:'Epic', income:3.7, color:'#4db7ff' },
+  { key:'digi_kai', name:'Digi Kai', oneIn:2770, rarity:'Epic', income:4.2, color:'#ff6a5f' },
+  { key:'digi_nya', name:'Digi Nya', oneIn:3290, rarity:'Epic', income:4.8, color:'#5ce7ff' },
+  { key:'island_lloyd', name:'Island Lloyd', oneIn:3910, rarity:'Epic', income:5.45, color:'#57b93f' },
+  { key:'island_nya', name:'Island Nya', oneIn:4650, rarity:'Epic', income:6.2, color:'#33d6e8' },
+  { key:'golden_lloyd', name:'Golden Lloyd', oneIn:5530, rarity:'Legendary', income:7.0, color:'#ffd442' },
+  { key:'oni_lloyd', name:'Oni Lloyd', oneIn:6580, rarity:'Legendary', income:8.1, color:'#6a45cc' },
+  { key:'possessed_lloyd', name:'Possessed Lloyd', oneIn:7830, rarity:'Legendary', income:9.4, color:'#41d37f' },
+  { key:'dragon_power_kai', name:'Dragon Power Kai', oneIn:9320, rarity:'Legendary', income:10.9, color:'#ff842f' },
+  { key:'dragon_power_jay', name:'Dragon Power Jay', oneIn:11100, rarity:'Legendary', income:12.6, color:'#64c1ff' },
+  { key:'dragon_power_cole', name:'Dragon Power Cole', oneIn:13200, rarity:'Legendary', income:14.6, color:'#a67237' },
+  { key:'dragon_power_zane', name:'Dragon Power Zane', oneIn:15700, rarity:'Legendary', income:16.9, color:'#cbf7ff' },
+  { key:'dragon_power_nya', name:'Dragon Power Nya', oneIn:18700, rarity:'Legendary', income:19.5, color:'#70f1ff' },
+  { key:'seabound_nya', name:'Seabound Nya', oneIn:22300, rarity:'Mythic', income:23.0, color:'#76f4ff' },
+  { key:'oni_garmadon', name:'Oni Garmadon', oneIn:26500, rarity:'Mythic', income:27.0, color:'#111116' },
+  { key:'forbidden_kai', name:'Forbidden Spinjitzu Kai', oneIn:31500, rarity:'Mythic', income:32.0, color:'#ff5d2d' },
+  { key:'forbidden_jay', name:'Forbidden Spinjitzu Jay', oneIn:37500, rarity:'Mythic', income:38.0, color:'#5ec0ff' },
+  { key:'forbidden_zane', name:'Forbidden Spinjitzu Zane', oneIn:44600, rarity:'Mythic', income:45.0, color:'#ecfdff' },
+  { key:'rising_dragon_arin', name:'Rising Dragon Arin', oneIn:53000, rarity:'Mythic', income:53.0, color:'#ffd84b' },
+  { key:'rising_dragon_sora', name:'Rising Dragon Sora', oneIn:63000, rarity:'Mythic', income:62.0, color:'#ff70cf' },
+  { key:'dragon_form_kai', name:'Dragon Form Kai', oneIn:76000, rarity:'Relic', income:74.0, color:'#ff8a2f' },
+  { key:'dragon_form_jay', name:'Dragon Form Jay', oneIn:92000, rarity:'Relic', income:88.0, color:'#74daff' },
+  { key:'dragon_form_cole', name:'Dragon Form Cole', oneIn:112000, rarity:'Relic', income:105.0, color:'#b78348' },
+  { key:'dragon_form_zane', name:'Dragon Form Zane', oneIn:137000, rarity:'Relic', income:126.0, color:'#f2ffff' },
+  { key:'ultimate_spinjitzu_master', name:'Ultimate Spinjitzu Master', oneIn:250000, rarity:'Relic', income:320.0, color:'#fff0ab', requiresAllOthers:true },
 ];
 
 const CHARACTER_VISUALS = {
-  kai:{ torso:'#d91f16', arm:'#ff8f1a', leg:'#8a3f1a', hood:'#ef2b23', accent:'#ffcf4a', emblem:'火', skin:'#f6cf2e', strap:'#3a0f0c', weapon:'#ff2b25', trim:'#ffb24a' },
-  jay:{ torso:'#2675e6', arm:'#2675e6', leg:'#6d8fba', hood:'#3886f1', accent:'#cde7ff', emblem:'雷', skin:'#f6cf2e', strap:'#1f355c', weapon:'#f6d778', trim:'#f8e6a9' },
-  cole:{ torso:'#1f1f22', arm:'#f78c1f', leg:'#8f7e66', hood:'#252528', accent:'#ffb25a', emblem:'土', skin:'#f6cf2e', strap:'#0f0f12', weapon:'#ff8e1d', trim:'#ff9f49' },
-  zane:{ torso:'#f3f7fb', arm:'#7d7f86', leg:'#f1f3f7', hood:'#ffffff', accent:'#8de4ff', emblem:'氷', skin:'#d8dde4', strap:'#6f7178', weapon:'#9ca2ab', trim:'#79ecff' },
-  nya:{ torso:'#2198d3', arm:'#2198d3', leg:'#506d82', hood:'#2bb9ec', accent:'#d3f7ff', emblem:'水', skin:'#f6cf2e', strap:'#203949', weapon:'#66f0ff', trim:'#9ceeff' },
-  pixal:{ torso:'#ebf6fb', arm:'#9fa9b4', leg:'#dde6ee', hood:'#dff5ff', accent:'#6de4ff', emblem:'P', skin:'#dce4ec', strap:'#7d8792', weapon:'#9da5ae', trim:'#8eebff' },
-  sensei_wu:{ torso:'#f4efe4', arm:'#e4d9b4', leg:'#efe9dd', hood:'#efe7cf', accent:'#d5b259', emblem:'悟', skin:'#f6cf2e', strap:'#b89f70', weapon:'#d8bf7d', trim:'#f7e6b1' },
-  nya_samurai_x:{ torso:'#b71917', arm:'#939ba2', leg:'#5e6972', hood:'#939ba2', accent:'#edf3f7', emblem:'X', skin:'#f6cf2e', strap:'#474f56', weapon:'#a8b0b8', trim:'#d6dce0' },
-  lloyd:{ torso:'#0f8d39', arm:'#90c83f', leg:'#8a8f69', hood:'#22a64d', accent:'#c9ff6f', emblem:'龍', skin:'#f6cf2e', strap:'#145127', weapon:'#9fea48', trim:'#d2f56d' },
-  skylor:{ torso:'#ff9325', arm:'#ffd24a', leg:'#7f4c2a', hood:'#ff9325', accent:'#ffe784', emblem:'炎', skin:'#f6cf2e', strap:'#4d2411', weapon:'#ffb13f', trim:'#ffd36b' },
-  ronin:{ torso:'#5f6770', arm:'#5f6770', leg:'#2e353d', hood:'#6a7178', accent:'#cfd7de', emblem:'刃', skin:'#f6cf2e', strap:'#2d3237', weapon:'#8a8f94', trim:'#c4cbd1' },
-  harumi:{ torso:'#edf0eb', arm:'#e7ece7', leg:'#a9b2ad', hood:'#f6fbf3', accent:'#7ad25c', emblem:'花', skin:'#f6cf2e', strap:'#8e9892', weapon:'#c7cfc8', trim:'#dfe7df' },
-  morro:{ torso:'#19824a', arm:'#19824a', leg:'#3a463d', hood:'#2fb568', accent:'#d8ffe9', emblem:'風', skin:'#d0d7d1', strap:'#183d29', weapon:'#8fd2aa', trim:'#aaf3c8' },
-  ultra_violet:{ torso:'#16161c', arm:'#f47f20', leg:'#a18a6d', hood:'#1f1f26', accent:'#f4a44f', emblem:'毒', skin:'#f6cf2e', strap:'#2c1b12', weapon:'#f78a1f', trim:'#ffb35e' },
-  lord_garmadon:{ torso:'#341b56', arm:'#341b56', leg:'#1a1226', hood:'#43236c', accent:'#cfadff', emblem:'鬼', skin:'#bdb2d5', strap:'#1b1328', weapon:'#7059a5', trim:'#b89dff' },
-  golden_lloyd:{ torso:'#f3be22', arm:'#f3be22', leg:'#b08a17', hood:'#ffd442', accent:'#fff1b5', emblem:'金', skin:'#f6cf2e', strap:'#7a6113', weapon:'#ffe17f', trim:'#fff2a1' },
-  nya_seabound:{ torso:'#22b8dd', arm:'#75f3ff', leg:'#4f6a80', hood:'#5bdff3', accent:'#e0ffff', emblem:'海', skin:'#f6cf2e', strap:'#20536a', weapon:'#78eeff', trim:'#c5ffff' },
-  oni_garmadon:{ torso:'#121216', arm:'#121216', leg:'#08080a', hood:'#1a1a1f', accent:'#8f74d8', emblem:'闇', skin:'#aaa2bb', strap:'#050507', weapon:'#5b4a80', trim:'#b392ff' },
-  dragon_form_kai:{ torso:'#d34d19', arm:'#181818', leg:'#857861', hood:'#ff8a2f', accent:'#ffb45e', emblem:'龍', skin:'#f6cf2e', strap:'#1f1f22', weapon:'#ff6a2d', trim:'#ffbb5f' },
-  dragon_form_jay:{ torso:'#2b7edb', arm:'#141519', leg:'#6d7d95', hood:'#57a6ff', accent:'#c5ebff', emblem:'龍', skin:'#f6cf2e', strap:'#181a1f', weapon:'#74daff', trim:'#d9f1ff' },
-  dragon_form_cole:{ torso:'#7f5d31', arm:'#181818', leg:'#6b634f', hood:'#a27435', accent:'#ecd0a3', emblem:'龍', skin:'#f6cf2e', strap:'#101010', weapon:'#ff9a2f', trim:'#f8d8aa' },
-  dragon_form_zane:{ torso:'#edf7fc', arm:'#84868d', leg:'#dde5ef', hood:'#b4efff', accent:'#d8f8ff', emblem:'龍', skin:'#dce5ec', strap:'#70737a', weapon:'#93a3b7', trim:'#9bf5ff' },
-  ultimate_spinjitzu_master:{ torso:'#f7d65a', arm:'#f7d65a', leg:'#d2c7ad', hood:'#fff0ab', accent:'#ffffff', emblem:'究', skin:'#f6cf2e', strap:'#b88d22', weapon:'#ffe48f', trim:'#fff7cf' }
+  kai:{ torso:'#e72921', arm:'#f04039', leg:'#8a3f1a', hood:'#ef2b23', accent:'#f6e7c5', emblem:'火', skin:'#f6cf2e', strap:'#6b130f', weapon:'#f47570', trim:'#f8aaa7' },
+  jay:{ torso:'#3681e9', arm:'#4b92f2', leg:'#204d8b', hood:'#3886f1', accent:'#f6e7c5', emblem:'雷', skin:'#f6cf2e', strap:'#193c6c', weapon:'#7db0f5', trim:'#afcef9' },
+  cole:{ torso:'#232326', arm:'#3a3a3d', leg:'#151517', hood:'#252528', accent:'#f6e7c5', emblem:'土', skin:'#f6cf2e', strap:'#101012', weapon:'#717173', trim:'#a7a7a9' },
+  zane:{ torso:'#ecf3f7', arm:'#f5fbff', leg:'#8d9193', hood:'#f4fbff', accent:'#f6e7c5', emblem:'氷', skin:'#d8dde4', strap:'#6f7178', weapon:'#f7fcff', trim:'#fafdff' },
+  nya:{ torso:'#29b3e4', arm:'#40c0ed', leg:'#186b88', hood:'#2bb9ec', accent:'#f6e7c5', emblem:'水', skin:'#f6cf2e', strap:'#13536a', weapon:'#75d1f2', trim:'#aae3f7' },
+  lloyd:{ torso:'#27a443', arm:'#3eb258', leg:'#176228', hood:'#29aa46', accent:'#f6e7c5', emblem:'龍', skin:'#f6cf2e', strap:'#124c1f', weapon:'#73c786', trim:'#a9ddb5' },
+  pixal:{ torso:'#d8edf7', arm:'#e2f6ff', leg:'#818e93', hood:'#dff5ff', accent:'#f6e7c5', emblem:'P', skin:'#dce4ec', strap:'#7d8792', weapon:'#eaf8ff', trim:'#f2fbff' },
+  sensei_wu:{ torso:'#e7e0c8', arm:'#f0e9d3', leg:'#efe9dd', hood:'#efe7cf', accent:'#f6e7c5', emblem:'悟', skin:'#f6cf2e', strap:'#b89f70', weapon:'#d8bf7d', trim:'#f8f5eb' },
+  samurai_x_nya:{ torso:'#858d95', arm:'#959ca4', leg:'#5e6972', hood:'#8a929a', accent:'#d5ffe0', emblem:'X', skin:'#f6cf2e', strap:'#3e4145', weapon:'#aeb7c2', trim:'#d0d3d6' },
+  skylor:{ torso:'#f78e23', arm:'#ff9d3a', leg:'#7f4c2a', hood:'#ff9325', accent:'#d5ffe0', emblem:'炎', skin:'#f6cf2e', strap:'#724210', weapon:'#ffb13f', trim:'#ffd3a7' },
+  dareth:{ torso:'#b1802b', arm:'#be9042', leg:'#6a4c1a', hood:'#b7842d', accent:'#d5ffe0', emblem:'茶', skin:'#f6cf2e', strap:'#523b14', weapon:'#d0af76', trim:'#e2cdab' },
+  misako:{ torso:'#dec891', arm:'#e7d3a0', leg:'#847857', hood:'#e5cf96', accent:'#d5ffe0', emblem:'智', skin:'#f6cf2e', strap:'#675d43', weapon:'#eedfba', trim:'#f4ebd5' },
+  nelson:{ torso:'#f0ca48', arm:'#f8d55d', leg:'#8f792b', hood:'#f8d14b', accent:'#d5ffe0', emblem:'速', skin:'#f6cf2e', strap:'#6f5e21', weapon:'#fae18a', trim:'#fcecb7' },
+  ronin:{ torso:'#666d74', arm:'#787f85', leg:'#3d4145', hood:'#6a7178', accent:'#d5ffe0', emblem:'刃', skin:'#f6cf2e', strap:'#2f3235', weapon:'#8a8f94', trim:'#c3c6c9' },
+  pythor:{ torso:'#c5de88', arm:'#d1e798', leg:'#768451', hood:'#cce58d', accent:'#d5ffe0', emblem:'蛇', skin:'#f6cf2e', strap:'#5b673f', weapon:'#b4dd73', trim:'#eaf4d1' },
+  arin:{ torso:'#eac827', arm:'#f3d33e', leg:'#8c7817', hood:'#f2cf29', accent:'#d5ffe0', emblem:'A', skin:'#f6cf2e', strap:'#6c5d12', weapon:'#f6df73', trim:'#f9eba9' },
+  sora:{ torso:'#f761af', arm:'#ff74bc', leg:'#933a68', hood:'#ff65b5', accent:'#d5ffe0', emblem:'S', skin:'#f6cf2e', strap:'#722d51', weapon:'#ff9ace', trim:'#ffc1e1' },
+  wyldfyre:{ torso:'#f7691e', arm:'#ff7b35', leg:'#933f11', hood:'#ff6d1f', accent:'#d5ffe0', emblem:'W', skin:'#f6cf2e', strap:'#72310d', weapon:'#ffa06d', trim:'#ffc4a5' },
+  morro:{ torso:'#2fb568', arm:'#43bc77', leg:'#1b683c', hood:'#2fb568', accent:'#d7edff', emblem:'風', skin:'#f6cf2e', strap:'#15512e', weapon:'#8fd2aa', trim:'#abe1c2' },
+  harumi:{ torso:'#eef3ee', arm:'#eff4ef', leg:'#8a8c8a', hood:'#eef3ee', accent:'#d7edff', emblem:'花', skin:'#f6cf2e', strap:'#6b6d6b', weapon:'#f3f7f3', trim:'#f8faf8' },
+  acronix:{ torso:'#5cc2f4', arm:'#6cc8f5', leg:'#35708d', hood:'#5cc2f4', accent:'#d7edff', emblem:'時', skin:'#f6cf2e', strap:'#29576d', weapon:'#9be0ff', trim:'#bde6fa' },
+  krux:{ torso:'#9e1e1b', arm:'#a73431', leg:'#5b110f', hood:'#9e1e1b', accent:'#d7edff', emblem:'時', skin:'#f6cf2e', strap:'#470d0c', weapon:'#dc6157', trim:'#d8a5a3' },
+  aspheera:{ torso:'#d95c22', arm:'#dc6c38', leg:'#7d3513', hood:'#d95c22', accent:'#d7edff', emblem:'火', skin:'#f6cf2e', strap:'#61290f', weapon:'#e6956f', trim:'#efbda6' },
+  clouse:{ torso:'#5a2a87', arm:'#6a3f93', leg:'#34184e', hood:'#5a2a87', accent:'#d7edff', emblem:'咒', skin:'#f6cf2e', strap:'#28123c', weapon:'#9d6bff', trim:'#bda9cf' },
+  euphrasia:{ torso:'#8ef0db', arm:'#99f1de', leg:'#528b7f', hood:'#8ef0db', accent:'#d7edff', emblem:'風', skin:'#f6cf2e', strap:'#3f6b62', weapon:'#b5f5e7', trim:'#d1f9f0' },
+  zeatrix:{ torso:'#7d5df6', arm:'#8a6df6', leg:'#48358e', hood:'#7d5df6', accent:'#d7edff', emblem:'Z', skin:'#f6cf2e', strap:'#38296e', weapon:'#aa95f9', trim:'#cbbefb' },
+  kai_zx:{ torso:'#ff3c32', arm:'#ff4f46', leg:'#93221d', hood:'#ff3c32', accent:'#d7edff', emblem:'ZX', skin:'#f6cf2e', strap:'#721a16', weapon:'#ff8079', trim:'#ffb1ad' },
+  jay_zx:{ torso:'#2675e6', arm:'#3b82e8', leg:'#164385', hood:'#2675e6', accent:'#d7edff', emblem:'ZX', skin:'#f6cf2e', strap:'#113467', weapon:'#71a5ee', trim:'#a8c7f5' },
+  cole_zx:{ torso:'#1e1e22', arm:'#343438', leg:'#111113', hood:'#1e1e22', accent:'#d7edff', emblem:'ZX', skin:'#f6cf2e', strap:'#0d0d0f', weapon:'#6c6c6f', trim:'#a5a5a6' },
+  zane_zx:{ torso:'#eff9ff', arm:'#f0f9ff', leg:'#8a9093', hood:'#eff9ff', accent:'#d7edff', emblem:'ZX', skin:'#f6cf2e', strap:'#6b7072', weapon:'#f4fbff', trim:'#f8fcff' },
+  nya_zx:{ torso:'#29bced', arm:'#35c0ee', leg:'#176d89', hood:'#29bced', accent:'#efd8ff', emblem:'ZX', skin:'#f6cf2e', strap:'#12546a', weapon:'#73d3f3', trim:'#a9e4f7' },
+  lloyd_zx:{ torso:'#27a53f', arm:'#33aa4a', leg:'#165f24', hood:'#27a53f', accent:'#efd8ff', emblem:'ZX', skin:'#f6cf2e', strap:'#114a1c', weapon:'#72c482', trim:'#a8dbb2' },
+  lord_garmadon:{ torso:'#44236c', arm:'#4f3074', leg:'#27143e', hood:'#44236c', accent:'#efd8ff', emblem:'鬼', skin:'#bdb2d5', strap:'#1e0f30', weapon:'#85709f', trim:'#b4a7c4' },
+  young_wu:{ torso:'#f1ead4', arm:'#f1ebd6', leg:'#d7ccb0', hood:'#f1ead4', accent:'#efd8ff', emblem:'若', skin:'#f6cf2e', strap:'#6c695f', weapon:'#f5f1e3', trim:'#f9f6ed' },
+  ice_emperor_zane:{ torso:'#bcefff', arm:'#c0efff', leg:'#6d8a93', hood:'#bcefff', accent:'#efd8ff', emblem:'帝', skin:'#d8dde4', strap:'#546b72', weapon:'#d3f4ff', trim:'#e4f8ff' },
+  prime_empire_jay:{ torso:'#4db7ff', arm:'#57bbff', leg:'#2c6a93', hood:'#4db7ff', accent:'#efd8ff', emblem:'PE', skin:'#f6cf2e', strap:'#225272', weapon:'#8bd0ff', trim:'#b7e2ff' },
+  digi_kai:{ torso:'#ff6a5f', arm:'#ff7268', leg:'#933d37', hood:'#ff6a5f', accent:'#efd8ff', emblem:'PE', skin:'#f6cf2e', strap:'#722f2a', weapon:'#ff9e97', trim:'#ffc3bf' },
+  digi_nya:{ torso:'#5ce7ff', arm:'#65e8ff', leg:'#358593', hood:'#5ce7ff', accent:'#efd8ff', emblem:'PE', skin:'#f6cf2e', strap:'#296772', weapon:'#95efff', trim:'#bdf5ff' },
+  island_lloyd:{ torso:'#57b93f', arm:'#61bd4a', leg:'#326b24', hood:'#57b93f', accent:'#efd8ff', emblem:'島', skin:'#f6cf2e', strap:'#27531c', weapon:'#91d182', trim:'#bbe3b2' },
+  island_nya:{ torso:'#33d6e8', arm:'#3fd8e9', leg:'#1d7c86', hood:'#33d6e8', accent:'#efd8ff', emblem:'島', skin:'#f6cf2e', strap:'#166068', weapon:'#7ae4f0', trim:'#adeef5' },
+  golden_lloyd:{ torso:'#ffd442', arm:'#ffd854', leg:'#937a26', hood:'#ffd442', accent:'#fff0b3', emblem:'金', skin:'#f6cf2e', strap:'#7a6113', weapon:'#ffe17f', trim:'#ffedb3' },
+  oni_lloyd:{ torso:'#6a45cc', arm:'#7857d1', leg:'#3d2876', hood:'#6a45cc', accent:'#fff0b3', emblem:'鬼', skin:'#c6b8e8', strap:'#2f1f5b', weapon:'#9e86dd', trim:'#c3b4ea' },
+  possessed_lloyd:{ torso:'#41d37f', arm:'#54d78b', leg:'#257a49', hood:'#41d37f', accent:'#fff0b3', emblem:'魂', skin:'#d4ead8', strap:'#1d5e39', weapon:'#83e2ab', trim:'#b3edcb' },
+  dragon_power_kai:{ torso:'#ff842f', arm:'#ff9043', leg:'#934c1b', hood:'#ff842f', accent:'#fff0b3', emblem:'龍', skin:'#f6cf2e', strap:'#723b15', weapon:'#ffaf77', trim:'#ffcdab' },
+  dragon_power_jay:{ torso:'#64c1ff', arm:'#73c7ff', leg:'#3a6f93', hood:'#64c1ff', accent:'#fff0b3', emblem:'龍', skin:'#f6cf2e', strap:'#2c5672', weapon:'#9ad6ff', trim:'#c1e6ff' },
+  dragon_power_cole:{ torso:'#a67237', arm:'#ae804b', leg:'#60421f', hood:'#a67237', accent:'#fff0b3', emblem:'龍', skin:'#f6cf2e', strap:'#4a3318', weapon:'#c5a37d', trim:'#dbc6af' },
+  dragon_power_zane:{ torso:'#cbf7ff', arm:'#d0f7ff', leg:'#758f93', hood:'#cbf7ff', accent:'#fff0b3', emblem:'龍', skin:'#d8dde4', strap:'#5b6f72', weapon:'#ddf9ff', trim:'#eafbff' },
+  dragon_power_nya:{ torso:'#70f1ff', arm:'#7ef2ff', leg:'#408b93', hood:'#70f1ff', accent:'#fff0b3', emblem:'龍', skin:'#f6cf2e', strap:'#326c72', weapon:'#a2f5ff', trim:'#c5f9ff' },
+  seabound_nya:{ torso:'#76f4ff', arm:'#7ef4ff', leg:'#448d93', hood:'#76f4ff', accent:'#d9ffff', emblem:'海', skin:'#f6cf2e', strap:'#356d72', weapon:'#a5f7ff', trim:'#c8faff' },
+  oni_garmadon:{ torso:'#111116', arm:'#1f1f23', leg:'#09090c', hood:'#111116', accent:'#d9ffff', emblem:'闇', skin:'#a9a2ba', strap:'#070709', weapon:'#5b4a80', trim:'#9f9fa1' },
+  forbidden_kai:{ torso:'#ff5d2d', arm:'#ff6639', leg:'#93351a', hood:'#ff5d2d', accent:'#d9ffff', emblem:'禁', skin:'#f6cf2e', strap:'#722914', weapon:'#ff9576', trim:'#ffbeab' },
+  forbidden_jay:{ torso:'#5ec0ff', arm:'#67c3ff', leg:'#366f93', hood:'#5ec0ff', accent:'#d9ffff', emblem:'禁', skin:'#f6cf2e', strap:'#2a5672', weapon:'#96d6ff', trim:'#bee5ff' },
+  forbidden_zane:{ torso:'#ecfdff', arm:'#edfdff', leg:'#889293', hood:'#ecfdff', accent:'#d9ffff', emblem:'禁', skin:'#d8dde4', strap:'#6a7172', weapon:'#f2fdff', trim:'#f7feff' },
+  rising_dragon_arin:{ torso:'#ffd84b', arm:'#ffda55', leg:'#937d2b', hood:'#ffd84b', accent:'#d9ffff', emblem:'昇', skin:'#f6cf2e', strap:'#726121', weapon:'#ffe58a', trim:'#ffefb7' },
+  rising_dragon_sora:{ torso:'#ff70cf', arm:'#ff78d1', leg:'#934078', hood:'#ff70cf', accent:'#d9ffff', emblem:'昇', skin:'#f6cf2e', strap:'#72325d', weapon:'#ffa2df', trim:'#ffc5eb' },
+  dragon_form_kai:{ torso:'#ff8a2f', arm:'#ff913b', leg:'#93501b', hood:'#ff8a2f', accent:'#ffe0f3', emblem:'究', skin:'#f6cf2e', strap:'#723e15', weapon:'#ffb277', trim:'#ffd0ab' },
+  dragon_form_jay:{ torso:'#74daff', arm:'#7cdcff', leg:'#437e93', hood:'#74daff', accent:'#ffe0f3', emblem:'究', skin:'#f6cf2e', strap:'#346272', weapon:'#a4e6ff', trim:'#c7f0ff' },
+  dragon_form_cole:{ torso:'#b78348', arm:'#bb8a52', leg:'#6a4b29', hood:'#b78348', accent:'#ffe0f3', emblem:'究', skin:'#f6cf2e', strap:'#523a20', weapon:'#d0ae88', trim:'#e2cdb5' },
+  dragon_form_zane:{ torso:'#f2ffff', arm:'#f2ffff', leg:'#8c9393', hood:'#f2ffff', accent:'#ffe0f3', emblem:'究', skin:'#dce7ef', strap:'#6c7272', weapon:'#f6ffff', trim:'#f9ffff' },
+  ultimate_spinjitzu_master:{ torso:'#fff0ab', arm:'#fff0b0', leg:'#938b63', hood:'#fff0ab', accent:'#ffe0f3', emblem:'極', skin:'#f6cf2e', strap:'#726b4c', weapon:'#fff5c8', trim:'#fff9dd' },
 };
-const PLACEHOLDER_VISUAL = { torso:'#75502d', arm:'#75502d', leg:'#2f2115', hood:'#9e7840', accent:'#ffde9f', emblem:'忍', skin:'#f1d1a0', strap:'#4a341d', weapon:'#c09a66', trim:'#e9d2ab' };
+const PLACEHOLDER_VISUAL = { torso:'#75502d', arm:'#8c6338', leg:'#2f2115', hood:'#9e7840', accent:'#ffde9f', emblem:'忍', skin:'#f1d1a0', strap:'#4a341d', weapon:'#c09a66', trim:'#e9d2ab' };
 
 const RESEARCH = [
-  { key:'luck', name:'Lucky Samples', desc:'+2% Rare+ odds per level.', max:12, base:2, effect:s=>`${s.research.luck * 2}% Rare+ luck` },
-  { key:'income', name:'Efficient Smelting', desc:'+12% global income per level.', max:15, base:2, effect:s=>`+${s.research.income * 12}% income` },
-  { key:'pity', name:'Pity Core', desc:'+4% pity cap and +0.1 pity gain per level.', max:8, base:3, effect:s=>`${getPityCap()}% cap` },
-  { key:'auto', name:'Automation Logic', desc:'Auto-roll gets 8% faster per level.', max:8, base:3, effect:s=>`${getAutoDelay()}ms auto delay` },
-  { key:'offline', name:'Roster Scheduler', desc:'+1 hour offline income cap per level.', max:8, base:2, effect:s=>`${getOfflineCapHours()}h offline cap` },
-  { key:'fusion', name:'Forge Heat', desc:'Fusion rewards improve and fusion energy fills faster.', max:8, base:2, effect:s=>`Lv.${s.research.fusion}` }
+  { key:'luck', name:'Destiny Scrolls', desc:'+2.5% Rare+ odds per level.', max:14, base:2, effect:s=>`${(s.research.luck * 2.5).toFixed(1)}% Rare+ luck` },
+  { key:'income', name:'Training Regimen', desc:'+15% global income per level.', max:16, base:2, effect:s=>`+${s.research.income * 15}% income` },
+  { key:'pity', name:'Fortune Focus', desc:'+5% pity cap and faster pity growth per level.', max:10, base:3, effect:s=>`${getPityCap()}% cap` },
+  { key:'auto', name:'Borg Automation', desc:'Auto-roll gets 9% faster per level.', max:10, base:3, effect:s=>`${getAutoDelay()}ms auto delay` },
+  { key:'offline', name:'Monastery Schedules', desc:'+1 hour offline income cap per level.', max:10, base:2, effect:s=>`${getOfflineCapHours()}h offline cap` },
+  { key:'fusion', name:'Dragon Forge', desc:'Fusion rewards improve and fusion energy fills faster.', max:10, base:3, effect:s=>`Lv.${s.research.fusion}` }
 ];
 
 const MILESTONES = [
-  { key:'firstOre', name:'First Find', desc:'Roll any character.', reward:'2 RP', target:s=>s.totalFinds, need:1, grant:s=>s.rp+=2 },
-  { key:'roll100', name:'Ninja Apprentice', desc:'Roll 100 times.', reward:'3 RP', target:s=>s.totalRolls, need:100, grant:s=>s.rp+=3 },
+  { key:'firstFind', name:'First Roll', desc:'Roll any character.', reward:'2 RP', target:s=>s.totalFinds, need:1, grant:s=>s.rp+=2 },
+  { key:'roll50', name:'Novice Ninja', desc:'Roll 50 times.', reward:'3 RP', target:s=>s.totalRolls, need:50, grant:s=>s.rp+=3 },
   { key:'firstRare', name:'Blue Spark', desc:'Roll any Rare character.', reward:'4 RP', target:s=>countByRank(s, 'Rare'), need:1, grant:s=>s.rp+=4 },
-  { key:'firstEpic', name:'Deep Shine', desc:'Roll any Epic character.', reward:'5 RP', target:s=>countByRank(s, 'Epic'), need:1, grant:s=>s.rp+=5 },
-  { key:'collector10', name:'Collector I', desc:'Discover 10 unique characters.', reward:'6 RP', target:s=>discoveredCount(s), need:10, grant:s=>s.rp+=6 },
-  { key:'firstRelic', name:'Relic Breakthrough', desc:'Roll any Relic character.', reward:'1 RBP and 10 RP', target:s=>countByRank(s, 'Relic'), need:1, grant:s=>{s.rbp+=1; s.rp+=10;} },
-  { key:'rebirth1', name:'Reborn Ninja', desc:'Rebirth once.', reward:'8 RP', target:s=>s.rebirths, need:1, grant:s=>s.rp+=8 },
-  { key:'income500', name:'Powerful Roster', desc:'Reach $500/s income.', reward:'10 RP', target:s=>computeMPS(), need:500, grant:s=>s.rp+=10 }
+  { key:'collector10', name:'Collector I', desc:'Discover 10 unique characters.', reward:'5 RP', target:s=>discoveredCount(s), need:10, grant:s=>s.rp+=5 },
+  { key:'firstEpic', name:'Hidden Power', desc:'Roll any Epic character.', reward:'6 RP', target:s=>countByRank(s, 'Epic'), need:1, grant:s=>s.rp+=6 },
+  { key:'income250', name:'Dojo Payroll', desc:'Reach $250/s income.', reward:'8 RP', target:s=>computeMPS(), need:250, grant:s=>s.rp+=8 },
+  { key:'collector25', name:'Collector II', desc:'Discover 25 unique characters.', reward:'10 RP', target:s=>discoveredCount(s), need:25, grant:s=>s.rp+=10 },
+  { key:'roll500', name:'Spinjitzu Streak', desc:'Roll 500 times.', reward:'12 RP', target:s=>s.totalRolls, need:500, grant:s=>s.rp+=12 },
+  { key:'firstLegendary', name:'Golden Flash', desc:'Roll any Legendary character.', reward:'14 RP', target:s=>countByRank(s, 'Legendary'), need:1, grant:s=>s.rp+=14 },
+  { key:'firstMythic', name:'Rising Legend', desc:'Roll any Mythic character.', reward:'18 RP', target:s=>countByRank(s, 'Mythic'), need:1, grant:s=>s.rp+=18 },
+  { key:'collector40', name:'Collector III', desc:'Discover 40 unique characters.', reward:'20 RP', target:s=>discoveredCount(s), need:40, grant:s=>s.rp+=20 },
+  { key:'income2500', name:'Elemental Fortune', desc:'Reach $2.5k/s income.', reward:'1 RBP and 25 RP', target:s=>computeMPS(), need:2500, grant:s=>{s.rbp+=1; s.rp+=25;} },
+  { key:'firstRelic', name:'Relic Breakthrough', desc:'Roll any Relic character.', reward:'2 RBP and 40 RP', target:s=>countByRank(s, 'Relic'), need:1, grant:s=>{s.rbp+=2; s.rp+=40;} },
+  { key:'collector55', name:'Collector IV', desc:'Discover 55 unique characters.', reward:'2 RBP and 50 RP', target:s=>discoveredCount(s), need:55, grant:s=>{s.rbp+=2; s.rp+=50;} },
+  { key:'rebirth1', name:'Reborn Ninja', desc:'Rebirth once.', reward:'15 RP', target:s=>s.rebirths, need:1, grant:s=>s.rp+=15 },
+  { key:'income10000', name:'Dragon Treasury', desc:'Reach $10k/s income.', reward:'3 RBP and 75 RP', target:s=>computeMPS(), need:10000, grant:s=>{s.rbp+=3; s.rp+=75;} }
 ];
 
 const EVENT_TYPES = {
-  meteor:{ name:'Meteor Shower', cost:2500, duration:90, desc:'Relic and Mythic character odds improve. First Relic during this event gives +5 RP.', apply:'rare' },
-  golden:{ name:'Golden Vein', cost:1500, duration:75, desc:'Income is doubled while active.', apply:'income' },
-  deep:{ name:'Deep Cave', cost:2000, duration:80, desc:'Epic+ character odds improve and fusion energy fills faster.', apply:'deep' }
+  meteor:{ name:'Meteor Shower', cost:12000, duration:90, desc:'Legendary+ odds improve. First Relic during this event gives +10 RP.', apply:'rare' },
+  golden:{ name:'Golden Festival', cost:9000, duration:75, desc:'Income is tripled while active.', apply:'income' },
+  deep:{ name:'Dragon Rift', cost:15000, duration:80, desc:'Epic+ character odds improve and fusion energy fills faster.', apply:'deep' }
 };
 
 const state = freshState();
@@ -1020,6 +1486,7 @@ let lastTick = performance.now();
 let autoTimer = null;
 let incomeTimer = null;
 let saveTimer = null;
+let summonFxTimer = null;
 
 const el = id => document.getElementById(id);
 const refs = {
@@ -1028,8 +1495,8 @@ const refs = {
   mainGem:el('mainGem'), lastOreName:el('lastOreName'), lastOreMeta:el('lastOreMeta'), lastOreIncome:el('lastOreIncome'),
   goalTitle:el('goalTitle'), goalText:el('goalText'), goalBar:el('goalBar'), rollsPill:el('rollsPill'), findRatePill:el('findRatePill'),
   fusionPill:el('fusionPill'), rebirthCostPill:el('rebirthCostPill'), inventoryList:el('inventoryList'), milestoneList:el('milestoneList'),
-  collectionGrid:el('collectionGrid'), researchGrid:el('researchGrid'), fusionList:el('fusionList'), log:el('log'), toastWrap:el('toastWrap'),
-  eventDesc:el('eventDesc'), eventBar:el('eventBar'), leaderboardList:el('leaderboardList'), modal:el('modal'), modalTitle:el('modalTitle'), modalText:el('modalText')
+  collectionGrid:el('collectionGrid'), collectionPageInfo:el('collectionPageInfo'), collectionShelfInfo:el('collectionShelfInfo'), collectionPrevBtn:el('collectionPrevBtn'), collectionNextBtn:el('collectionNextBtn'), researchGrid:el('researchGrid'), fusionList:el('fusionList'), log:el('log'), toastWrap:el('toastWrap'),
+  eventDesc:el('eventDesc'), eventBar:el('eventBar'), leaderboardList:el('leaderboardList'), modal:el('modal'), modalTitle:el('modalTitle'), modalText:el('modalText'), summonFx:el('summonFx'), summonFxCard:el('summonFxCard')
 };
 
 function freshState(){
@@ -1057,6 +1524,7 @@ function freshState(){
     eventRelicReward:false,
     focusEnds:0,
     lastFoundKey:null,
+    collectionPage:0,
     lastSavedAt:Date.now()
   };
 }
@@ -1084,7 +1552,7 @@ function getLuck(){
 }
 function getIncomeMult(){
   let mult = 1 + state.research.income * 0.12 + state.rebirths * 0.45;
-  if (state.event === 'golden') mult *= 2;
+  if (state.event === 'golden') mult *= 3;
   return mult;
 }
 function getAutoDelay(){
@@ -1116,8 +1584,8 @@ function effectiveOneIn(ore){
     eff *= Math.max(.08, 1 - getLuck()/100);
     eff *= Math.max(.08, 1 - Math.min(state.pity, getPityCap())/100);
   }
-  if (state.event === 'meteor' && rank >= rarityRank('Mythic')) eff *= .58;
-  if (state.event === 'deep' && rank >= rarityRank('Epic')) eff *= .7;
+  if (state.event === 'meteor' && rank >= rarityRank('Legendary')) eff *= .62;
+  if (state.event === 'deep' && rank >= rarityRank('Epic')) eff *= .68;
   if (state.focus === ore.key && Date.now() < state.focusEnds) eff *= .5;
   return Math.max(1, Math.floor(eff));
 }
@@ -1151,6 +1619,28 @@ function openModal(title, text){
 function closeModal(){
   refs.modal.classList.remove('active');
   refs.modal.setAttribute('aria-hidden','true');
+}
+
+function showSummonFx(ore){
+  if (!refs.summonFx || !refs.summonFxCard) return;
+  const visual = getVisualForCharacter(ore);
+  const rarityClass = 'rarity-' + ore.rarity.toLowerCase();
+  const isUltimate = ore.key === 'ultimate_spinjitzu_master';
+  refs.summonFx.className = 'summon-fx ' + rarityClass + (isUltimate ? ' ultimate-master' : '');
+  refs.summonFx.style.setProperty('--fxColor', ore.color);
+  refs.summonFx.style.setProperty('--fxAccent', visual.accent);
+  refs.summonFx.style.setProperty('--fxWeapon', visual.weapon);
+  refs.summonFxCard.innerHTML = `
+    <div class="summon-fx__rarity">${isUltimate ? 'Ascended Pull' : ore.rarity}</div>
+    <div class="summon-fx__name">${ore.name}</div>
+    <div class="summon-fx__figure">${buildMinifigMarkup(ore, 'large', false)}</div>
+    <div class="summon-fx__meta">${isUltimate ? '15 second master summon • unlocked only after the full roster' : `1 in ${ore.oneIn}${ore.requiresAllOthers ? ' • Final Unlock' : ''}`}</div>
+  `;
+  void refs.summonFx.offsetWidth;
+  refs.summonFx.classList.add('active');
+  clearTimeout(summonFxTimer);
+  const duration = parseInt(getComputedStyle(refs.summonFx).getPropertyValue('--fxDuration')) || 1200;
+  summonFxTimer = setTimeout(()=>refs.summonFx.classList.remove('active'), duration);
 }
 function storageGet(key){
   try{ return window.localStorage.getItem(key); }
@@ -1191,6 +1681,19 @@ function getVisualForCharacter(ore){
 }
 function hasRequirementLock(ore){
   return !!(ore && ore.requiresAllOthers && !hasRolledAllOtherCharacters());
+}
+
+function getCollectionPageSize(){ return 12; }
+function getCollectionPageCount(){ return Math.max(1, Math.ceil(ORES.length / getCollectionPageSize())); }
+function clampCollectionPage(){
+  const max = getCollectionPageCount() - 1;
+  if (!Number.isFinite(state.collectionPage)) state.collectionPage = 0;
+  state.collectionPage = Math.max(0, Math.min(max, state.collectionPage));
+}
+function setCollectionPage(page){
+  state.collectionPage = page;
+  clampCollectionPage();
+  renderCollection();
 }
 function buildMinifigMarkup(ore, size='large', locked=false){
   const visual = getVisualForCharacter(ore);
@@ -1249,6 +1752,7 @@ function doRoll(options={}){
   state.totalRolls++;
   const found = rollRNG();
   if (found){
+    const isNewDiscovery = !state.discoveries[found.key];
     state.totalFinds++;
     state.inventory[found.key] = (state.inventory[found.key] || 0) + 1;
     state.discoveries[found.key] = true;
@@ -1257,10 +1761,10 @@ function doRoll(options={}){
     const rank = rarityRank(found.rarity);
     const energyGain = 1 + Math.max(0, rank - 1) + state.research.fusion + (state.event === 'deep' ? 3 : 0);
     state.fusionEnergy = Math.min(100, state.fusionEnergy + energyGain);
-    showFound(found, quiet);
+    showFound(found, quiet, isNewDiscovery);
     if (state.event === 'meteor' && found.rarity === 'Relic' && !state.eventRelicReward){
       state.eventRelicReward = true;
-      state.rp += 5;
+      state.rp += 10;
       toast('Meteor reward', '+5 RP for finding a Relic during Meteor Shower.');
     }
     if (state.autoEnabled && state.autoPauseRare && rank >= rarityRank('Epic')){
@@ -1286,7 +1790,7 @@ async function doManyRolls(amount, cost){
     if (i % 20 === 0) await new Promise(r=>setTimeout(r, 0));
   }
 }
-function showFound(ore, quiet){
+function showFound(ore, quiet, isNewDiscovery=false){
   const count = state.inventory[ore.key];
   state.lastFoundKey = ore.key;
   renderMainCharacter(false);
@@ -1303,6 +1807,7 @@ function showFound(ore, quiet){
   if (!quiet || rank >= rarityRank('Epic')){
     toast(ore.name, `${ore.rarity}, owned #${count}`);
   }
+  if (isNewDiscovery) showSummonFx(ore);
   if (rank >= rarityRank('Mythic')){
     openModal(`${ore.rarity} Discovery`, `${ore.name} entered your collection. This is a major roll.`);
   }
@@ -1336,24 +1841,24 @@ function buyResearch(key){
 function fuse(type){
   if (type === 'common'){
     const commons = ORES.filter(o=>o.rarity === 'Common');
-    if (sumOres(commons) < 25) return toast('Not enough copies', 'Need 25 Common character copies.');
-    consumeOres(commons, 25);
+    if (sumOres(commons) < 35) return toast('Not enough copies', 'Need 35 Common character copies.');
+    consumeOres(commons, 35);
     awardRandom('Rare');
-    state.fusionEnergy = Math.min(100, state.fusionEnergy + 8);
+    state.fusionEnergy = Math.min(100, state.fusionEnergy + 10 + state.research.fusion);
   }
   if (type === 'epic'){
     const epics = ORES.filter(o=>o.rarity === 'Epic');
-    if (sumOres(epics) < 5) return toast('Not enough copies', 'Need 5 Epic character copies.');
-    consumeOres(epics, 5);
+    if (sumOres(epics) < 10) return toast('Not enough copies', 'Need 10 Epic character copies.');
+    consumeOres(epics, 10);
     awardRandom('Legendary');
-    state.fusionEnergy = Math.min(100, state.fusionEnergy + 14);
+    state.fusionEnergy = Math.min(100, state.fusionEnergy + 18 + state.research.fusion);
   }
   if (type === 'core'){
     const relics = ORES.filter(o=>o.rarity === 'Relic');
-    if (sumOres(relics) < 3 || state.fusionEnergy < 100) return toast('Forge not ready', 'Need 3 Relic character copies and 100 fusion energy.');
-    consumeOres(relics, 3);
+    if (sumOres(relics) < 4 || state.fusionEnergy < 100) return toast('Forge not ready', 'Need 4 Relic character copies and 100 fusion energy.');
+    consumeOres(relics, 4);
     state.fusionEnergy = 0;
-    state.rp += 10 + state.research.fusion;
+    state.rp += 20 + state.research.fusion * 2;
     state.rbp += 1;
     toast('Relic Core forged', '+1 RBP and bonus RP.');
   }
@@ -1370,12 +1875,62 @@ function consumeOres(list, amount){
     if (left <= 0) break;
   }
 }
+function openAdminModal(){
+  const modal = el('adminModal');
+  const select = el('adminCharacterSelect');
+  if (select && !select.dataset.ready){
+    select.innerHTML = ORES.map(o=>`<option value="${o.key}">${o.name} (${o.rarity})</option>`).join('');
+    select.dataset.ready = '1';
+  }
+  el('adminCodeInput').value = '';
+  el('adminForceAnim').checked = false;
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden','false');
+  setTimeout(()=>el('adminCodeInput').focus(), 30);
+}
+
+function closeAdminModal(){
+  const modal = el('adminModal');
+  modal.classList.remove('active');
+  modal.setAttribute('aria-hidden','true');
+}
+
+function adminPullSelected(){
+  const code = (el('adminCodeInput').value || '').trim();
+  if (code !== ADMIN_CODE){
+    toast('Wrong admin code', 'Use the correct admin code to pull a character.');
+    return;
+  }
+  const key = el('adminCharacterSelect').value;
+  const ore = ORES.find(o=>o.key === key);
+  if (!ore) return toast('Admin error', 'That character could not be found.');
+  const wasNewDiscovery = !state.discoveries[ore.key];
+  const forceAnim = !!el('adminForceAnim').checked;
+
+  state.totalRolls++;
+  state.totalFinds++;
+  state.inventory[ore.key] = (state.inventory[ore.key] || 0) + 1;
+  state.discoveries[ore.key] = true;
+  state.rolledCharacters[ore.key] = true;
+  state.pity = 0;
+  state.lastFoundKey = ore.key;
+  state.fusionEnergy = Math.min(100, state.fusionEnergy + 10);
+
+  showFound(ore, false, wasNewDiscovery || forceAnim);
+  addLog(`Admin pulled ${ore.name}.`, 'warn');
+  checkMilestones();
+  renderAll();
+  storageSet(SAVE_KEY, JSON.stringify(state));
+  toast('Admin pull complete', `${ore.name} added to your collection.`);
+}
+
 function awardRandom(rarity){
   const choices = ORES.filter(o=>o.rarity === rarity && (!o.requiresAllOthers || hasRolledAllOtherCharacters()));
   const ore = choices[Math.floor(Math.random() * choices.length)];
+  const isNewDiscovery = !state.discoveries[ore.key];
   state.inventory[ore.key] = (state.inventory[ore.key] || 0) + 1;
   state.discoveries[ore.key] = true;
-  showFound(ore, false);
+  showFound(ore, false, isNewDiscovery);
 }
 function startEvent(key){
   const ev = EVENT_TYPES[key];
@@ -1526,21 +2081,38 @@ function renderMilestones(){
   }).join('');
 }
 function renderCollection(){
-  refs.collectionGrid.innerHTML = ORES.map(o=>{
-    const seen = !!state.discoveries[o.key];
-    const count = state.inventory[o.key] || 0;
-    const lockedByRequirement = hasRequirementLock(o) && !seen;
-    const subtitle = seen ? `${o.rarity} - 1 in ${o.oneIn}` : (lockedByRequirement ? 'Locked until all other characters are rolled' : 'Undiscovered');
-    const scoreLine = seen ? `${count} owned - ${fmtMoney(oreIncome(o))}/s base` : (lockedByRequirement ? 'Final unlock character' : '???');
-    return `<div class="ore-tile ${seen ? '' : 'locked'}">
-      <div class="tile-head">
-        <div class="small-gem">${buildMinifigMarkup(seen ? o : null, 'mini', !seen)}</div>
-        <strong>${seen ? o.name : (lockedByRequirement ? 'Ultimate Master Locked' : 'Unknown Character')}</strong>
-      </div>
-      <div class="muted">${subtitle}</div>
-      <div class="score">${scoreLine}</div>
-    </div>`;
-  }).join('');
+  clampCollectionPage();
+  const pageSize = getCollectionPageSize();
+  const pageCount = getCollectionPageCount();
+  const start = state.collectionPage * pageSize;
+  const items = ORES.slice(start, start + pageSize);
+  const shelves = [];
+  for (let i = 0; i < items.length; i += 4) shelves.push(items.slice(i, i + 4));
+
+  refs.collectionGrid.innerHTML = `<div class="collection-cabinet"><div class="cabinet-page">${shelves.map(shelf => `
+    <div class="cabinet-shelf">
+      ${shelf.map(o=>{
+        const seen = !!state.discoveries[o.key];
+        const count = state.inventory[o.key] || 0;
+        const lockedByRequirement = hasRequirementLock(o) && !seen;
+        const name = seen ? o.name : (lockedByRequirement ? 'Locked Final Slot' : 'Unknown Character');
+        const meta = seen ? `${o.rarity} • 1 in ${o.oneIn}` : (lockedByRequirement ? 'Unlock every other character first' : 'Undiscovered');
+        const income = seen ? `${fmtMoney(oreIncome(o))}/s base` : (lockedByRequirement ? 'Ultimate unlock' : '???');
+        const copies = seen ? `${count} copies` : 'Locked';
+        return `<div class="cabinet-slot ${seen ? '' : 'locked'}">
+          <div class="small-gem">${buildMinifigMarkup(seen ? o : null, 'mini', !seen)}</div>
+          <h3>${name}</h3>
+          <div class="slot-meta">${meta}</div>
+          <div class="slot-income">${income}</div>
+          <div class="slot-copies">${copies}</div>
+        </div>`;
+      }).join('')}
+    </div>`).join('')}</div></div>`;
+
+  if (refs.collectionPageInfo) refs.collectionPageInfo.textContent = `Page ${state.collectionPage + 1} / ${pageCount}`;
+  if (refs.collectionShelfInfo) refs.collectionShelfInfo.textContent = `${discoveredCount()}/${ORES.length} unlocked`;
+  if (refs.collectionPrevBtn) refs.collectionPrevBtn.disabled = state.collectionPage <= 0;
+  if (refs.collectionNextBtn) refs.collectionNextBtn.disabled = state.collectionPage >= pageCount - 1;
 }
 function renderResearch(){
   refs.researchGrid.innerHTML = RESEARCH.map(r=>{
@@ -1562,9 +2134,9 @@ function renderFusion(){
   const epicCount = sumOres(ORES.filter(o=>o.rarity === 'Epic'));
   const relicCount = sumOres(ORES.filter(o=>o.rarity === 'Relic'));
   refs.fusionList.innerHTML = `
-    <div class="row two"><div><strong>Common Bundle</strong><div class="muted">${commonCount}/25 Common character copies. Creates a random Rare character.</div></div><button data-fuse="common" ${commonCount < 25 ? 'disabled' : ''}>Fuse</button></div>
-    <div class="row two"><div><strong>Epic Forge</strong><div class="muted">${epicCount}/5 Epic character copies. Creates a random Legendary character.</div></div><button data-fuse="epic" ${epicCount < 5 ? 'disabled' : ''}>Fuse</button></div>
-    <div class="row two"><div><strong>Relic Core</strong><div class="muted">${relicCount}/3 Relic character copies and ${Math.floor(state.fusionEnergy)}/100 energy. Gives +1 RBP and RP.</div></div><button data-fuse="core" ${relicCount < 3 || state.fusionEnergy < 100 ? 'disabled' : ''}>Forge</button></div>
+    <div class="row two"><div><strong>Common Bundle</strong><div class="muted">${commonCount}/35 Common character copies. Creates a random Rare character.</div></div><button data-fuse="common" ${commonCount < 35 ? 'disabled' : ''}>Fuse</button></div>
+    <div class="row two"><div><strong>Epic Forge</strong><div class="muted">${epicCount}/10 Epic character copies. Creates a random Legendary character.</div></div><button data-fuse="epic" ${epicCount < 10 ? 'disabled' : ''}>Fuse</button></div>
+    <div class="row two"><div><strong>Relic Core</strong><div class="muted">${relicCount}/4 Relic character copies and ${Math.floor(state.fusionEnergy)}/100 energy. Gives +1 RBP and bonus RP.</div></div><button data-fuse="core" ${relicCount < 4 || state.fusionEnergy < 100 ? 'disabled' : ''}>Forge</button></div>
   `;
   document.querySelectorAll('[data-fuse]').forEach(b=>b.onclick=()=>fuse(b.dataset.fuse));
 }
@@ -1590,7 +2162,7 @@ function renderLeaderboard(){
   refs.leaderboardList.innerHTML = board.length ? board.map((p,i)=>`
     <div class="row">
       <span class="score">#${i+1}</span>
-      <div><strong>${p.name}</strong><div class="muted">${p.rebirths} rebirths - ${p.rolls} rolls - ${p.collection}/${ORES.length} ores</div></div>
+      <div><strong>${p.name}</strong><div class="muted">${p.rebirths} rebirths - ${p.rolls} rolls - ${p.collection}/${ORES.length} characters</div></div>
       <span class="score">${p.score.toLocaleString()} pts</span>
     </div>
   `).join('') : '<div class="muted">No scores yet.</div>';
@@ -1720,25 +2292,36 @@ el('autoPauseRare').onchange = e=>{ state.autoPauseRare = e.target.checked; rend
 el('autoHideCommon').onchange = e=>{ state.autoHideCommon = e.target.checked; renderAll(); };
 el('modalClose').onclick = closeModal;
 refs.modal.addEventListener('click', e=>{ if (e.target === refs.modal) closeModal(); });
+el('adminBtn').onclick = openAdminModal;
+el('adminPullBtn').onclick = adminPullSelected;
+el('adminCloseBtn').onclick = closeAdminModal;
 el('saveBtn').onclick = saveGame;
 el('exportBtn').onclick = exportSave;
 el('importBtn').onclick = importSave;
 el('submitScoreBtn').onclick = submitScore;
 el('resetBtn').onclick = hardReset;
+el('collectionPrevBtn').onclick = ()=>setCollectionPage(state.collectionPage - 1);
+el('collectionNextBtn').onclick = ()=>setCollectionPage(state.collectionPage + 1);
 window.addEventListener('keydown', e=>{
-  if (e.code === 'Space' && !refs.modal.classList.contains('active')){ e.preventDefault(); doRoll(); }
-  if (e.key.toLowerCase() === 'a') buyAutoOrToggle();
-  if (e.key.toLowerCase() === 's') saveGame();
-  if (e.key === 'Escape') closeModal();
+  const adminOpen = el('adminModal').classList.contains('active');
+  if (e.code === 'Space' && !refs.modal.classList.contains('active') && !adminOpen){ e.preventDefault(); doRoll(); }
+  if (!adminOpen && e.key.toLowerCase() === 'a') buyAutoOrToggle();
+  if (!adminOpen && e.key.toLowerCase() === 's') saveGame();
+  if (e.key === 'Escape'){
+    closeModal();
+    closeAdminModal();
+  }
 });
 
 function init(){
   loadGame();
   sanitizeState();
   el('focusSelect').innerHTML = ORES.map(o=>`<option value="${o.key}">${o.name} (${o.rarity})</option>`).join('');
+  el('adminCharacterSelect').innerHTML = ORES.map(o=>`<option value="${o.key}">${o.name} (${o.rarity})</option>`).join('');
+  el('adminCharacterSelect').dataset.ready = '1';
   el('autoPauseRare').checked = state.autoPauseRare;
   el('autoHideCommon').checked = state.autoHideCommon;
-  addLog('Welcome to the Ninjago Build. Roll characters, research, fuse, and rebirth deeper.', 'warn');
+  addLog('Welcome to the expanded Ninjago roster. Recruit heroes and villains, master research, and chase the Ultimate Spinjitzu Master.', 'warn');
   checkMilestones();
   renderAll();
   startIncomeLoop();
