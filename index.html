@@ -925,6 +925,49 @@
     color:rgba(255,255,255,.82);
     letter-spacing:.06em;
   }
+  .summon-fx__scene-title{
+    position:absolute;
+    top:8vh;
+    left:50%;
+    transform:translateX(-50%);
+    min-width:min(90vw, 740px);
+    text-align:center;
+    font-weight:1000;
+    text-transform:uppercase;
+    letter-spacing:.38em;
+    font-size:clamp(26px, 3vw, 44px);
+    color:white;
+    opacity:0;
+    text-shadow:0 0 24px rgba(255,255,255,.55), 0 0 34px color-mix(in srgb, var(--fxColor) 86%, transparent);
+    pointer-events:none;
+  }
+  .summon-fx__dialogue{
+    position:absolute;
+    left:50%;
+    bottom:8vh;
+    transform:translateX(-50%);
+    width:min(90vw, 860px);
+    padding:18px 24px;
+    border-radius:20px;
+    background:linear-gradient(180deg, rgba(13,14,20,.88), rgba(6,8,12,.92));
+    border:1px solid rgba(255,255,255,.16);
+    box-shadow:0 14px 36px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.14);
+    color:white;
+    font-weight:900;
+    font-size:clamp(20px, 2.6vw, 34px);
+    letter-spacing:.05em;
+    text-align:center;
+    opacity:0;
+    pointer-events:none;
+  }
+  .summon-fx__dialogue::before{
+    content:'ULTIMATE';
+    display:block;
+    margin-bottom:8px;
+    font-size:clamp(11px, 1vw, 14px);
+    letter-spacing:.34em;
+    color:rgba(255,255,255,.7);
+  }
   .summon-fx__figure{
     transform:scale(1.24);
     margin:8px 0 16px;
@@ -1158,6 +1201,47 @@
   @keyframes fxDragon{ 0%{ opacity:0; transform:scale(.14) rotate(0deg); } 18%{ opacity:1; transform:scale(.72) rotate(150deg); } 72%{ opacity:.95; transform:scale(1.12) rotate(780deg); } 100%{ opacity:0; transform:scale(1.42) rotate(1080deg); } }
   @keyframes fxSolar{ 0%{ opacity:0; transform:scale(.12); } 20%{ opacity:1; transform:scale(.75); } 78%{ opacity:.95; transform:scale(1.1); } 100%{ opacity:0; transform:scale(1.34); } }
   @keyframes fxRift{ 0%{ opacity:0; transform:scale(.22) rotate(0deg); } 15%{ opacity:1; } 40%{ opacity:.45; } 54%{ opacity:1; } 100%{ opacity:0; transform:scale(1.34) rotate(260deg); } }
+  @keyframes ultimateSceneTitle{
+    0%,4%{ opacity:0; transform:translateX(-50%) scale(.85); }
+    8%,24%{ opacity:1; transform:translateX(-50%) scale(1); }
+    30%,100%{ opacity:0; transform:translateX(-50%) scale(1.06); }
+  }
+  @keyframes ultimateDialogue{
+    0%,73%{ opacity:0; transform:translateX(-50%) translateY(30px); }
+    78%,92%{ opacity:1; transform:translateX(-50%) translateY(0); }
+    100%{ opacity:0; transform:translateX(-50%) translateY(10px); }
+  }
+  @keyframes ultimateRarity{
+    0%,5%{ opacity:0; transform:translateY(10px) scale(.8); }
+    9%,23%{ opacity:1; transform:translateY(0) scale(1); }
+    28%,100%{ opacity:0; transform:translateY(-14px) scale(1.06); }
+  }
+  @keyframes ultimateOmen{
+    0%,12%{ opacity:0; transform:translateY(18px) scale(.9); }
+    18%,34%{ opacity:1; transform:translateY(0) scale(1); }
+    42%,100%{ opacity:0; transform:translateY(-10px) scale(1.04); }
+  }
+  @keyframes ultimateName{
+    0%,20%{ opacity:0; transform:translateY(34px) scale(.9); }
+    26%,80%{ opacity:1; transform:translateY(0) scale(1); }
+    92%,100%{ opacity:0; transform:translateY(-12px) scale(1.04); }
+  }
+  @keyframes ultimateFigure{
+    0%,22%{ opacity:0; transform:scale(.35) translateY(90px); filter:blur(10px) drop-shadow(0 0 6px rgba(255,255,255,.1)); }
+    30%,78%{ opacity:1; transform:scale(1.56) translateY(0); filter:drop-shadow(0 0 56px rgba(255,255,255,.7)) drop-shadow(0 0 90px color-mix(in srgb, var(--fxColor) 92%, transparent)); }
+    84%{ opacity:1; transform:scale(1.62) translateY(-14px); }
+    100%{ opacity:0; transform:scale(1.75) translateY(-22px); }
+  }
+  @keyframes ultimateFlavor{
+    0%,28%{ opacity:0; transform:translateY(18px); }
+    36%,72%{ opacity:1; transform:translateY(0); }
+    82%,100%{ opacity:0; transform:translateY(-8px); }
+  }
+  @keyframes ultimateMeta{
+    0%,34%{ opacity:0; }
+    40%,72%{ opacity:1; }
+    82%,100%{ opacity:0; }
+  }
   @keyframes solsRaysUltimate{
     0%{ opacity:0; transform:scale(.08) rotate(0deg); filter:blur(10px) brightness(.7); }
     6%{ opacity:.08; transform:scale(.18) rotate(30deg); }
@@ -1512,6 +1596,8 @@
   <div class="summon-fx__storm"></div>
   <div class="summon-fx__sigils"></div>
   <div class="summon-fx__burst"></div>
+  <div id="summonFxSceneTitle" class="summon-fx__scene-title"></div>
+  <div id="summonFxDialogue" class="summon-fx__dialogue"></div>
   <div id="summonFxCard" class="summon-fx__card"></div>
 </div>
 
@@ -1783,6 +1869,10 @@ let autoTimer = null;
 let incomeTimer = null;
 let saveTimer = null;
 let summonFxTimer = null;
+let summonCueTimers = [];
+let summonSpeechTimer = null;
+let summonAudioCtx = null;
+let summonAudioNodes = [];
 
 const el = id => document.getElementById(id);
 const refs = {
@@ -1792,7 +1882,7 @@ const refs = {
   goalTitle:el('goalTitle'), goalText:el('goalText'), goalBar:el('goalBar'), rollsPill:el('rollsPill'), findRatePill:el('findRatePill'),
   fusionPill:el('fusionPill'), rebirthCostPill:el('rebirthCostPill'), inventoryList:el('inventoryList'), milestoneList:el('milestoneList'),
   collectionGrid:el('collectionGrid'), collectionPageInfo:el('collectionPageInfo'), collectionShelfInfo:el('collectionShelfInfo'), collectionPrevBtn:el('collectionPrevBtn'), collectionNextBtn:el('collectionNextBtn'), researchGrid:el('researchGrid'), fusionList:el('fusionList'), log:el('log'), toastWrap:el('toastWrap'),
-  eventDesc:el('eventDesc'), eventBar:el('eventBar'), leaderboardList:el('leaderboardList'), modal:el('modal'), modalTitle:el('modalTitle'), modalText:el('modalText'), summonFx:el('summonFx'), summonFxCard:el('summonFxCard')
+  eventDesc:el('eventDesc'), eventBar:el('eventBar'), leaderboardList:el('leaderboardList'), modal:el('modal'), modalTitle:el('modalTitle'), modalText:el('modalText'), summonFx:el('summonFx'), summonFxCard:el('summonFxCard'), summonFxSceneTitle:el('summonFxSceneTitle'), summonFxDialogue:el('summonFxDialogue')
 };
 
 function freshState(){
@@ -1917,8 +2007,101 @@ function closeModal(){
   refs.modal.setAttribute('aria-hidden','true');
 }
 
+function clearSummonCues(){
+  summonCueTimers.forEach(id=>clearTimeout(id));
+  summonCueTimers = [];
+  if (summonSpeechTimer) clearTimeout(summonSpeechTimer);
+  summonSpeechTimer = null;
+  if (window.speechSynthesis) {
+    try{ window.speechSynthesis.cancel(); }catch{}
+  }
+  summonAudioNodes.forEach(n=>{ try{ if (n.stop) n.stop(); }catch{} try{ if (n.disconnect) n.disconnect(); }catch{} });
+  summonAudioNodes = [];
+  if (summonAudioCtx){
+    try{ summonAudioCtx.close(); }catch{}
+    summonAudioCtx = null;
+  }
+  if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = '';
+  if (refs.summonFxDialogue) refs.summonFxDialogue.textContent = '';
+}
+function scheduleSummonCue(ms, fn){
+  const id = setTimeout(fn, ms);
+  summonCueTimers.push(id);
+}
+function playUltimateInspiredTrack(){
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtx) return;
+  try{
+    const ctx = new AudioCtx();
+    summonAudioCtx = ctx;
+    const master = ctx.createGain();
+    master.gain.value = 0.08;
+    master.connect(ctx.destination);
+    const now = ctx.currentTime + 0.03;
+    const lead = [392, 440, 523.25, 587.33, 698.46, 783.99, 659.25, 523.25];
+    lead.forEach((freq, i)=>{
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = i % 2 ? 'triangle' : 'sawtooth';
+      osc.frequency.setValueAtTime(freq, now + i * 0.38);
+      osc.connect(gain);
+      gain.connect(master);
+      gain.gain.setValueAtTime(0.0001, now + i * 0.38);
+      gain.gain.exponentialRampToValueAtTime(0.08, now + i * 0.38 + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.38 + 0.34);
+      osc.start(now + i * 0.38);
+      osc.stop(now + i * 0.38 + 0.36);
+      summonAudioNodes.push(osc, gain);
+    });
+    for (let i=0;i<18;i++){
+      const t = now + i * 0.8;
+      const bass = ctx.createOscillator();
+      const bassGain = ctx.createGain();
+      bass.type = 'sine';
+      bass.frequency.setValueAtTime(i % 4 < 2 ? 98 : 130.81, t);
+      bass.connect(bassGain);
+      bassGain.connect(master);
+      bassGain.gain.setValueAtTime(0.0001, t);
+      bassGain.gain.exponentialRampToValueAtTime(0.06, t + 0.02);
+      bassGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
+      bass.start(t);
+      bass.stop(t + 0.45);
+      summonAudioNodes.push(bass, bassGain);
+    }
+    for (let i=0;i<42;i++){
+      const t = now + i * 0.35;
+      const spark = ctx.createOscillator();
+      const sparkGain = ctx.createGain();
+      spark.type = 'square';
+      spark.frequency.setValueAtTime(1046.5 + (i%5)*110, t);
+      spark.connect(sparkGain);
+      sparkGain.connect(master);
+      sparkGain.gain.setValueAtTime(0.0001, t);
+      sparkGain.gain.exponentialRampToValueAtTime(0.012, t + 0.01);
+      sparkGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+      spark.start(t);
+      spark.stop(t + 0.1);
+      summonAudioNodes.push(spark, sparkGain);
+    }
+  }catch{}
+}
+function speakUltimateLine(){
+  if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
+  summonSpeechTimer = setTimeout(()=>{
+    try{
+      const utter = new SpeechSynthesisUtterance('Behold the Ultimate Spinjitzu Master!');
+      utter.rate = 0.9;
+      utter.pitch = 0.75;
+      utter.volume = 1;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+    }catch{}
+  }, 11200);
+}
+
 function showSummonFx(ore){
   if (!refs.summonFx || !refs.summonFxCard) return;
+  clearSummonCues();
   const visual = getVisualForCharacter(ore);
   const rarityClass = 'rarity-' + ore.rarity.toLowerCase();
   const signature = getSummonSignature(ore);
@@ -1929,19 +2112,31 @@ function showSummonFx(ore){
   refs.summonFx.style.setProperty('--fxAccent', visual.accent);
   refs.summonFx.style.setProperty('--fxWeapon', visual.weapon);
   refs.summonFx.style.setProperty('--fxTrim', visual.trim);
+  if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = isUltimate ? 'Stage 1 • Golden Awakening' : '';
+  if (refs.summonFxDialogue) refs.summonFxDialogue.textContent = isUltimate ? 'Behold the Ultimate Spinjitzu Master!' : '';
   refs.summonFxCard.innerHTML = `
     <div class="summon-fx__rarity">${isUltimate ? 'BREAKTHROUGH' : ore.rarity}</div>
     <div class="summon-fx__omen">${signature.banner}</div>
     <div class="summon-fx__name">${ore.name}</div>
     <div class="summon-fx__figure">${buildMinifigMarkup(ore, 'large', false)}</div>
-    <div class="summon-fx__flavor">${signature.flavor}</div>
-    <div class="summon-fx__meta">${isUltimate ? 'A heavenly aura has chosen you • 15 second sols-inspired reveal' : `1 in ${ore.oneIn}${ore.requiresAllOthers ? ' • Final Unlock' : ''}`}</div>
+    <div class="summon-fx__flavor">${isUltimate ? 'Golden light floods the screen, then the master rises into a celestial aura.' : signature.flavor}</div>
+    <div class="summon-fx__meta">${isUltimate ? 'Original electronic theme inspired by high-energy rhythm game reveals • 15 second staged cutscene' : `1 in ${ore.oneIn}${ore.requiresAllOthers ? ' • Final Unlock' : ''}`}</div>
   `;
   void refs.summonFx.offsetWidth;
   refs.summonFx.classList.add('active');
   clearTimeout(summonFxTimer);
   const duration = parseInt(getComputedStyle(refs.summonFx).getPropertyValue('--fxDuration')) || 1200;
-  summonFxTimer = setTimeout(()=>refs.summonFx.classList.remove('active'), duration);
+  if (isUltimate){
+    scheduleSummonCue(4200, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = 'Stage 2 • Celestial Ascension'; });
+    scheduleSummonCue(9000, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = 'Stage 3 • Final Decree'; });
+    scheduleSummonCue(12800, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = ''; });
+    playUltimateInspiredTrack();
+    speakUltimateLine();
+  }
+  summonFxTimer = setTimeout(()=>{
+    refs.summonFx.classList.remove('active');
+    clearSummonCues();
+  }, duration);
 }
 function storageGet(key){
   try{ return window.localStorage.getItem(key); }
