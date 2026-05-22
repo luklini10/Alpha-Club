@@ -968,6 +968,34 @@
     letter-spacing:.34em;
     color:rgba(255,255,255,.7);
   }
+  .summon-fx__caption{
+    position:absolute;
+    left:50%;
+    bottom:3.2vh;
+    transform:translateX(-50%);
+    width:min(92vw, 980px);
+    text-align:center;
+    font-weight:1000;
+    font-size:clamp(18px, 2.4vw, 34px);
+    line-height:1.15;
+    letter-spacing:.08em;
+    color:#f7f7f7;
+    text-shadow:-2px 0 0 rgba(0,0,0,.95), 2px 0 0 rgba(0,0,0,.95), 0 -2px 0 rgba(0,0,0,.95), 0 2px 0 rgba(0,0,0,.95), 0 0 18px rgba(0,0,0,.4);
+    opacity:0;
+    pointer-events:none;
+    z-index:3;
+  }
+  .summon-fx__caption .accent{
+    color:#ff6b5f;
+    text-shadow:-2px 0 0 rgba(0,0,0,.95), 2px 0 0 rgba(0,0,0,.95), 0 -2px 0 rgba(0,0,0,.95), 0 2px 0 rgba(0,0,0,.95), 0 0 18px rgba(255,90,90,.45);
+  }
+  .summon-fx.with-caption.active .summon-fx__caption{
+    animation:captionPulse var(--fxDuration) linear forwards;
+  }
+  .summon-fx::marker{ content:''; }
+  .summon-fx.with-edit-bars::before{
+    box-shadow:inset 0 90px 0 rgba(0,0,0,.34), inset 0 -90px 0 rgba(0,0,0,.34);
+  }
   .summon-fx.with-scene.active:not(.ultimate-master) .summon-fx__scene-title{
     animation:summonScenePulse var(--fxDuration) linear forwards;
   }
@@ -1225,6 +1253,16 @@
   @keyframes fxDragon{ 0%{ opacity:0; transform:scale(.14) rotate(0deg); } 18%{ opacity:1; transform:scale(.72) rotate(150deg); } 72%{ opacity:.95; transform:scale(1.12) rotate(780deg); } 100%{ opacity:0; transform:scale(1.42) rotate(1080deg); } }
   @keyframes fxSolar{ 0%{ opacity:0; transform:scale(.12); } 20%{ opacity:1; transform:scale(.75); } 78%{ opacity:.95; transform:scale(1.1); } 100%{ opacity:0; transform:scale(1.34); } }
   @keyframes fxRift{ 0%{ opacity:0; transform:scale(.22) rotate(0deg); } 15%{ opacity:1; } 40%{ opacity:.45; } 54%{ opacity:1; } 100%{ opacity:0; transform:scale(1.34) rotate(260deg); } }
+  @keyframes captionPulse{
+    0%,100%{ opacity:0; transform:translateX(-50%) translateY(10px) scale(.98); }
+    10%,82%{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+    90%{ opacity:0; transform:translateX(-50%) translateY(-4px) scale(1.02); }
+  }
+  @keyframes captionSwap{
+    0%{ opacity:0; transform:translateX(-50%) translateY(12px) scale(.95); }
+    20%,80%{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+    100%{ opacity:0; transform:translateX(-50%) translateY(-5px) scale(1.03); }
+  }
   @keyframes summonScenePulse{
     0%,8%{ opacity:0; transform:translateX(-50%) scale(.76); }
     14%,46%{ opacity:1; transform:translateX(-50%) scale(1); }
@@ -1511,7 +1549,6 @@
             <button id="rollBtn" class="roll-btn">ROLL</button>
             <div class="quick-actions">
               <button id="roll10Btn">Roll x10</button>
-              <button id="roll100Btn">Roll x100</button>
               <button id="autoBtn">Buy Auto</button>
             </div>
             <div class="mini" style="width:min(430px, 100%);">
@@ -1679,6 +1716,7 @@
   <div class="summon-fx__burst"></div>
   <div id="summonFxSceneTitle" class="summon-fx__scene-title"></div>
   <div id="summonFxDialogue" class="summon-fx__dialogue"></div>
+  <div id="summonFxCaption" class="summon-fx__caption"></div>
   <div id="summonFxCard" class="summon-fx__card"></div>
 </div>
 
@@ -1706,7 +1744,6 @@
 <script>
 const ROLL_COST = 1;
 const ROLL10_COST = 10;
-const ROLL100_COST = 95;
 const AUTO_COST = 250;
 const AUTO_DELAY_BASE = 700;
 const PITY_GAIN = 0.6;
@@ -1818,6 +1855,52 @@ const SUMMON_STYLE_STAGES = {
 function getSummonStages(ore){
   const signature = getSummonSignature(ore);
   return SUMMON_STYLE_STAGES[signature.style] || ['Power Surge', ore.rarity + ' Reveal'];
+}
+
+function stylizeCaption(primary, accent){
+  if (!accent) return primary;
+  const safePrimary = String(primary);
+  const safeAccent = String(accent);
+  return `${safePrimary} <span class="accent">${safeAccent}</span>`;
+}
+function getSummonCaptions(ore){
+  const signature = getSummonSignature(ore);
+  if (ore.key === 'ultimate_spinjitzu_master'){
+    return [
+      stylizeCaption('WHEN DESTINY REACHES', 'ITS PEAK'),
+      stylizeCaption('THE MASTER RISES', 'IN GOLDEN LIGHT'),
+      stylizeCaption('AURA LEVEL', 'INFINITE'),
+      stylizeCaption('I AM THE', 'ULTIMATE SPINJITZU MASTER!')
+    ];
+  }
+  const base = {
+    fire:[stylizeCaption('EMBERS GATHER', 'THEN ERUPT'), stylizeCaption('THE FLAME BEARS THE NAME', ore.name.toUpperCase())],
+    lightning:[stylizeCaption('THE SKY SPLITS', 'WITH VOLTAGE'), stylizeCaption('THE STORM CHOOSES', ore.name.toUpperCase())],
+    earth:[stylizeCaption('THE GROUND TREMBLES', 'UNDER POWER'), stylizeCaption('STONE AWAKENS', ore.name.toUpperCase())],
+    ice:[stylizeCaption('THE AIR TURNS', 'TO CRYSTAL'), stylizeCaption('ZERO LIGHT FORMS', ore.name.toUpperCase())],
+    water:[stylizeCaption('THE CURRENT BUILDS', 'WITHOUT MERCY'), stylizeCaption('THE TIDE DELIVERS', ore.name.toUpperCase())],
+    wind:[stylizeCaption('THE HORIZON TWISTS', 'INTO A CYCLONE'), stylizeCaption('THE TEMPEST REVEALS', ore.name.toUpperCase())],
+    tech:[stylizeCaption('THE SIGNAL LOCKS', 'ONTO TARGET'), stylizeCaption('SYSTEM OVERRIDE:', ore.name.toUpperCase())],
+    time:[stylizeCaption('SECONDS SHATTER', 'OUT OF ORDER'), stylizeCaption('TIME BENDS TOWARD', ore.name.toUpperCase())],
+    shadow:[stylizeCaption('THE VOID OPENS', 'WITHOUT WARNING'), stylizeCaption('THE DARKNESS REVEALS', ore.name.toUpperCase())],
+    royal:[stylizeCaption('THE CROWN DESCENDS', 'IN SILENCE'), stylizeCaption('THE COURT ACKNOWLEDGES', ore.name.toUpperCase())],
+    snake:[stylizeCaption('THE COILS TIGHTEN', 'AROUND FATE'), stylizeCaption('VENOM GUIDES', ore.name.toUpperCase())],
+    steel:[stylizeCaption('METAL STRIKES', 'LIKE THUNDER'), stylizeCaption('FORGED FOR BATTLE:', ore.name.toUpperCase())],
+    dragon:[stylizeCaption('ANCIENT POWER', 'BREAKS THROUGH'), stylizeCaption('THE DRAGON CALLS', ore.name.toUpperCase())],
+    golden:[stylizeCaption('THE SCREEN FLOODS', 'WITH GOLD'), stylizeCaption('RADIANCE TAKES FORM:', ore.name.toUpperCase())],
+    master:[stylizeCaption('INNER BALANCE', 'BECOMES POWER'), stylizeCaption('THE MASTER EMERGES:', ore.name.toUpperCase())],
+    oni:[stylizeCaption('THE RIFT OPENS', 'AND STARES BACK'), stylizeCaption('CORRUPTION CROWNS', ore.name.toUpperCase())]
+  };
+  const lines = base[signature.style] || [stylizeCaption('POWER SURGES', 'INTO VIEW'), stylizeCaption('SUMMON COMPLETE:', ore.name.toUpperCase())];
+  if (rarityRank(ore.rarity) >= rarityRank('Legendary')) lines.push(stylizeCaption('AURA CLASSIFIED AS', ore.rarity.toUpperCase()));
+  return lines;
+}
+function setSummonCaption(html){
+  if (!refs.summonFxCaption) return;
+  refs.summonFxCaption.innerHTML = html || '';
+  refs.summonFxCaption.style.animation = 'none';
+  void refs.summonFxCaption.offsetWidth;
+  refs.summonFxCaption.style.animation = 'captionSwap 1.6s ease-out forwards';
 }
 
 const ORES = [
@@ -2000,7 +2083,7 @@ const refs = {
   goalTitle:el('goalTitle'), goalText:el('goalText'), goalBar:el('goalBar'), rollsPill:el('rollsPill'), findRatePill:el('findRatePill'),
   fusionPill:el('fusionPill'), rebirthCostPill:el('rebirthCostPill'), inventoryList:el('inventoryList'), milestoneList:el('milestoneList'),
   collectionGrid:el('collectionGrid'), collectionPageInfo:el('collectionPageInfo'), collectionShelfInfo:el('collectionShelfInfo'), collectionPrevBtn:el('collectionPrevBtn'), collectionNextBtn:el('collectionNextBtn'), accountSelect:el('accountSelect'), newAccountName:el('newAccountName'), createAccountBtn:el('createAccountBtn'), deleteAccountBtn:el('deleteAccountBtn'), accountStatus:el('accountStatus'), researchGrid:el('researchGrid'), fusionList:el('fusionList'), log:el('log'), toastWrap:el('toastWrap'),
-  eventDesc:el('eventDesc'), eventBar:el('eventBar'), leaderboardList:el('leaderboardList'), modal:el('modal'), modalTitle:el('modalTitle'), modalText:el('modalText'), summonFx:el('summonFx'), summonFxCard:el('summonFxCard'), summonFxSceneTitle:el('summonFxSceneTitle'), summonFxDialogue:el('summonFxDialogue')
+  eventDesc:el('eventDesc'), eventBar:el('eventBar'), leaderboardList:el('leaderboardList'), modal:el('modal'), modalTitle:el('modalTitle'), modalText:el('modalText'), summonFx:el('summonFx'), summonFxCard:el('summonFxCard'), summonFxSceneTitle:el('summonFxSceneTitle'), summonFxDialogue:el('summonFxDialogue'), summonFxCaption:el('summonFxCaption')
 };
 
 function freshState(){
@@ -2141,6 +2224,7 @@ function clearSummonCues(){
   }
   if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = '';
   if (refs.summonFxDialogue) refs.summonFxDialogue.textContent = '';
+  if (refs.summonFxCaption) refs.summonFxCaption.innerHTML = '';
 }
 function scheduleSummonCue(ms, fn){
   const id = setTimeout(fn, ms);
@@ -2224,40 +2308,44 @@ function showSummonFx(ore){
   const rarityClass = 'rarity-' + ore.rarity.toLowerCase();
   const signature = getSummonSignature(ore);
   const stages = getSummonStages(ore);
+  const captions = getSummonCaptions(ore);
   const isUltimate = ore.key === 'ultimate_spinjitzu_master';
   const intense = rarityRank(ore.rarity) >= rarityRank('Rare');
   const styleClass = 'style-' + signature.style;
-  refs.summonFx.className = 'summon-fx with-scene ' + rarityClass + ' ' + styleClass + (intense ? ' intense' : '') + (isUltimate ? ' ultimate-master' : '');
+  refs.summonFx.className = 'summon-fx with-scene with-caption with-edit-bars ' + rarityClass + ' ' + styleClass + (intense ? ' intense' : '') + (isUltimate ? ' ultimate-master' : '');
   refs.summonFx.style.setProperty('--fxColor', ore.color);
   refs.summonFx.style.setProperty('--fxAccent', visual.accent);
   refs.summonFx.style.setProperty('--fxWeapon', visual.weapon);
   refs.summonFx.style.setProperty('--fxTrim', visual.trim);
-  if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = isUltimate ? 'Stage 1 • Golden Seal Breach' : stages[0];
-  if (refs.summonFxDialogue) refs.summonFxDialogue.textContent = isUltimate ? 'Behold the Ultimate Spinjitzu Master!' : '';
+  if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = isUltimate ? 'Stage 1 • Golden Signal' : stages[0];
+  if (refs.summonFxDialogue) refs.summonFxDialogue.textContent = isUltimate ? 'I am the Ultimate Spinjitzu Master!' : '';
+  if (refs.summonFxCaption) refs.summonFxCaption.innerHTML = captions[0] || '';
   refs.summonFxCard.innerHTML = `
     <div class="summon-fx__rarity">${isUltimate ? 'BREAKTHROUGH' : ore.rarity}</div>
     <div class="summon-fx__omen">${signature.banner}</div>
     <div class="summon-fx__name">${ore.name}</div>
     <div class="summon-fx__figure">${buildMinifigMarkup(ore, 'large', false)}</div>
-    <div class="summon-fx__flavor">${isUltimate ? 'A golden screen erupts, the aura stabilizes, and the master ascends through a three-part reveal.' : signature.flavor}</div>
-    <div class="summon-fx__meta">${isUltimate ? 'Original electronic cue inspired by high-energy aura summons • staged 15 second cutscene' : `1 in ${ore.oneIn}${ore.requiresAllOthers ? ' • Final Unlock' : ''}`}</div>
+    <div class="summon-fx__flavor">${isUltimate ? 'A full-screen golden cut-in gives way to a floating aura reveal and a final spoken declaration.' : signature.flavor}</div>
+    <div class="summon-fx__meta">${isUltimate ? 'Edit-style cutscene with timed captions and a staged aura reveal' : `1 in ${ore.oneIn}${ore.requiresAllOthers ? ' • Final Unlock' : ''}`}</div>
   `;
   void refs.summonFx.offsetWidth;
   refs.summonFx.classList.add('active');
   clearTimeout(summonFxTimer);
   const duration = parseInt(getComputedStyle(refs.summonFx).getPropertyValue('--fxDuration')) || 1200;
+  setSummonCaption(captions[0] || '');
   if (isUltimate){
-    scheduleSummonCue(2900, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = 'Stage 2 • Aura Reading: Infinite'; });
-    scheduleSummonCue(6900, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = 'Stage 3 • Celestial Ascension'; });
-    scheduleSummonCue(10900, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = 'Stage 4 • Final Manifestation'; });
+    scheduleSummonCue(2400, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = 'Stage 2 • Aura Reading'; setSummonCaption(captions[1] || ''); });
+    scheduleSummonCue(6200, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = 'Stage 3 • Celestial Rise'; setSummonCaption(captions[2] || ''); });
+    scheduleSummonCue(10300, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = 'Stage 4 • Final Declaration'; setSummonCaption(captions[3] || ''); });
     scheduleSummonCue(13800, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = ''; });
     playUltimateInspiredTrack();
     speakUltimateLine();
   } else {
-    const secondCue = Math.floor(duration * (rarityRank(ore.rarity) >= rarityRank('Epic') ? 0.44 : 0.5));
-    const finalCue = Math.floor(duration * (rarityRank(ore.rarity) >= rarityRank('Legendary') ? 0.76 : 0.68));
-    scheduleSummonCue(secondCue, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = stages[1]; });
-    scheduleSummonCue(finalCue, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = ore.name.toUpperCase(); });
+    const cue1 = Math.floor(duration * 0.46);
+    const cue2 = Math.floor(duration * 0.74);
+    scheduleSummonCue(cue1, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = stages[1]; if (captions[1]) setSummonCaption(captions[1]); });
+    if (captions[2]) scheduleSummonCue(cue2, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = ore.name.toUpperCase(); setSummonCaption(captions[2]); });
+    else scheduleSummonCue(cue2, ()=>{ if (refs.summonFxSceneTitle) refs.summonFxSceneTitle.textContent = ore.name.toUpperCase(); });
   }
   summonFxTimer = setTimeout(()=>{
     refs.summonFx.classList.remove('active');
@@ -2785,7 +2873,6 @@ function renderAll(){
   refs.rebirthCostPill.textContent = fmtMoney(getRebirthCost());
   el('rollBtn').disabled = state.money < ROLL_COST;
   el('roll10Btn').disabled = state.money < ROLL10_COST;
-  el('roll100Btn').disabled = state.money < ROLL100_COST;
   el('autoBtn').textContent = state.autoUnlocked ? (state.autoEnabled ? 'Stop Auto' : 'Start Auto') : `Buy Auto (${fmtMoney(AUTO_COST)})`;
   el('focusBtn').disabled = state.money < 80 || (state.focus && Date.now() < state.focusEnds);
   el('rebirthBtn').disabled = state.money < getRebirthCost();
@@ -3018,7 +3105,6 @@ document.querySelectorAll('.tab').forEach(tab=>{
 });
 el('rollBtn').onclick = ()=>doRoll();
 el('roll10Btn').onclick = ()=>doManyRolls(10, ROLL10_COST);
-el('roll100Btn').onclick = ()=>doManyRolls(100, ROLL100_COST);
 el('autoBtn').onclick = buyAutoOrToggle;
 el('focusBtn').onclick = activateFocus;
 el('rebirthBtn').onclick = rebirth;
