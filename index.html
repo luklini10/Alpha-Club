@@ -831,65 +831,77 @@ function simplePasswordHash(password){
   }
   return (h >>> 0).toString(16);
 }
-saveProfileBtn.addEventListener('click', ()=>{
+saveProfileBtn.textContent = 'Save Cloud';
+loadProfileBtn.textContent = 'Load / Login';
+
+async function waitForFirebaseHelpers(){
+  for (let i=0; i<50; i++){
+    if (typeof window.login === 'function' && typeof window.signup === 'function' && typeof window.saveCloudGame === 'function' && typeof window.loadCloudGame === 'function') return true;
+    await new Promise(r => setTimeout(r, 100));
+  }
+  return false;
+}
+
+async function loginOrSignupForProfile(email, password){
   try{
-    const username = prompt('Create / enter username for this save:');
-    if (!username || !username.trim()){ log('Save cancelled. Username required.', 'warn'); return; }
-    const password = prompt('Create / enter password for this save:');
-    if (!password){ log('Save cancelled. Password required.', 'warn'); return; }
-
-    const payload = {
-      username: username.trim(),
-      passwordHash: simplePasswordHash(password),
-      profile: createProfileData()
-    };
-
-    localStorage.setItem(profileKey(username), JSON.stringify(payload));
-    localStorage.setItem('ore_rng_last_username', username.trim());
-    localStorage.setItem('ore_rng_full_profile', JSON.stringify(createProfileData())); // legacy backup
-    localStorage.setItem('ore_rng_skip_profile', JSON.stringify(Array.from(skipSet))); // keeps old skip-profile compatibility
-    log(`Profile saved for ${username.trim()}.`, 'warn');
+    await window.login(email, password);
+    return true;
   }catch(err){
-    log('Profile save failed. Browser storage may be full or blocked.', 'warn');
+    // window.login handles its own alert, so this catch is mostly for unexpected cases.
+  }
+  return false;
+}
+
+saveProfileBtn.addEventListener('click', async ()=>{
+  const ready = await waitForFirebaseHelpers();
+  if (!ready){ alert('Firebase is still loading. Try again in a moment.'); return; }
+
+  const email = prompt('Enter your account email to save:');
+  if (!email || !email.trim()){ log('Cloud save cancelled. Email required.', 'warn'); return; }
+
+  const password = prompt('Enter your account password:');
+  if (!password){ log('Cloud save cancelled. Password required.', 'warn'); return; }
+
+  try{
+    try{
+      await window.login(email.trim(), password);
+    }catch(loginErr){
+      // If the account does not exist yet, try creating it.
+      await window.signup(email.trim(), password);
+    }
+
+    const profile = createProfileData();
+    profile.playerEmail = email.trim();
+    await window.saveCloudGame(profile);
+    localStorage.setItem('ore_rng_last_email', email.trim());
+    log(`Cloud profile saved for ${email.trim()}.`, 'warn');
+  }catch(err){
+    alert(err?.message || 'Cloud save failed. Check your Firebase Auth/Firestore setup.');
+    log('Cloud profile save failed.', 'warn');
   }
 });
-loadProfileBtn.addEventListener('click', ()=>{
+
+loadProfileBtn.addEventListener('click', async ()=>{
+  const ready = await waitForFirebaseHelpers();
+  if (!ready){ alert('Firebase is still loading. Try again in a moment.'); return; }
+
+  const suggested = localStorage.getItem('ore_rng_last_email') || '';
+  const email = prompt('Enter your account email to login/load:', suggested);
+  if (!email || !email.trim()){ log('Login/load cancelled. Email required.', 'warn'); return; }
+
+  const password = prompt('Enter your account password:');
+  if (!password){ log('Login/load cancelled. Password required.', 'warn'); return; }
+
   try{
-    const suggested = localStorage.getItem('ore_rng_last_username') || '';
-    const username = prompt('Enter username to load:', suggested);
-    if (!username || !username.trim()){ log('Load cancelled. Username required.', 'warn'); return; }
-    const password = prompt('Enter password:');
-    if (!password){ log('Load cancelled. Password required.', 'warn'); return; }
-
-    const raw = localStorage.getItem(profileKey(username));
-    if (raw){
-      const saved = JSON.parse(raw);
-      if (saved.passwordHash !== simplePasswordHash(password)){
-        log('Incorrect username or password.', 'warn');
-        return;
-      }
-      applyProfileData(saved.profile);
-      localStorage.setItem('ore_rng_last_username', username.trim());
-      log(`Profile loaded for ${username.trim()}.`, 'warn');
-      return;
-    }
-
-    // Backwards compatibility for older versions that had one unnamed save.
-    const oldRaw = localStorage.getItem('ore_rng_full_profile');
-    if (oldRaw){
-      applyProfileData(JSON.parse(oldRaw));
-      log('Loaded old unnamed profile backup.', 'warn');
-      return;
-    }
-
-    const oldSkips = localStorage.getItem('ore_rng_skip_profile');
-    if (!oldSkips){ log('No saved profile found for that username.', 'warn'); return; }
-    skipSet.clear();
-    JSON.parse(oldSkips).forEach(k => { if (ORES.some(o => o.key === k)) skipSet.add(k); });
-    renderSkips();
-    log('Old skip-only profile loaded.', 'warn');
+    await window.login(email.trim(), password);
+    const data = await window.loadCloudGame();
+    if (!data){ log('No cloud profile found for this account.', 'warn'); return; }
+    applyProfileData(data.profile ? data.profile : data);
+    localStorage.setItem('ore_rng_last_email', email.trim());
+    log(`Logged in and loaded cloud profile for ${email.trim()}.`, 'warn');
   }catch(err){
-    log('Profile load failed. Username/password save may be corrupted.', 'warn');
+    alert(err?.message || 'Login/load failed. Check your email, password, and Firebase settings.');
+    log('Cloud profile load failed.', 'warn');
   }
 });
 
@@ -1301,9 +1313,10 @@ window.signup = async function(email, password){
   try{
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     setLoggedInDisplay(cred.user);
-    alert("Account created!");
+    return cred.user;
   }catch(err){
-    alert(err.message);
+    console.warn(err);
+    throw err;
   }
 }
 
@@ -1311,9 +1324,10 @@ window.login = async function(email, password){
   try{
     const cred = await signInWithEmailAndPassword(auth, email, password);
     setLoggedInDisplay(cred.user);
-    alert("Logged in!");
+    return cred.user;
   }catch(err){
-    alert(err.message);
+    console.warn(err);
+    throw err;
   }
 }
 
