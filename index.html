@@ -1,649 +1,351 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cosmic Castaway - Space Fishing</title>
-  <style>
-    :root{
-      --bg:#050713;
-      --panel:rgba(14,18,38,.92);
-      --panel2:rgba(24,30,60,.94);
-      --line:rgba(255,255,255,.12);
-      --text:#f8fbff;
-      --muted:#a8b2ce;
-      --cyan:#43e8ff;
-      --blue:#4b8cff;
-      --purple:#9d5cff;
-      --pink:#ff4fad;
-      --gold:#ffd166;
-      --green:#2ee89c;
-      --red:#ff4d6d;
-      --orange:#ff8a3d;
-      --shadow:0 25px 80px rgba(0,0,0,.42);
-      --radius:24px;
-      --common:#cbd5e1;
-      --uncommon:#34d399;
-      --rare:#38bdf8;
-      --epic:#c084fc;
-      --legendary:#fbbf24;
-      --mythic:#fb7185;
-      --void:#f8fafc;
-    }
-    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    body{
-      min-height:100vh;color:var(--text);
-      background:
-        radial-gradient(circle at 10% 10%,rgba(67,232,255,.18),transparent 32%),
-        radial-gradient(circle at 85% 18%,rgba(255,79,173,.18),transparent 28%),
-        radial-gradient(circle at 50% 100%,rgba(157,92,255,.20),transparent 36%),
-        linear-gradient(135deg,#040511 0%,#091025 52%,#12081e 100%);
-      overflow-x:hidden;
-    }
-    body:before{
-      content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;
-      background-image:
-        radial-gradient(circle,rgba(255,255,255,.9) 1px,transparent 1.5px),
-        radial-gradient(circle,rgba(255,255,255,.6) 1px,transparent 1.5px);
-      background-size:90px 90px,150px 150px;
-      background-position:0 0,30px 70px;
-      animation:stars 20s linear infinite;
-    }
-    @keyframes stars{to{background-position:300px 500px,430px 650px}}
-    button,input{font:inherit}
-    button{
-      border:none;border-radius:16px;padding:12px 15px;color:var(--text);font-weight:950;cursor:pointer;
-      background:linear-gradient(135deg,var(--cyan),var(--purple));
-      box-shadow:0 16px 35px rgba(67,232,255,.16);
-      transition:.14s ease transform,.14s ease filter,.14s ease opacity;
-    }
-    button:hover{transform:translateY(-2px);filter:brightness(1.08)}
-    button:active{transform:scale(.98)}
-    button:disabled{opacity:.42;cursor:not-allowed;transform:none;filter:grayscale(.7)}
-    .green{background:linear-gradient(135deg,var(--green),#12c982);color:#03150e}
-    .gold{background:linear-gradient(135deg,var(--gold),var(--orange));color:#170d00}
-    .danger{background:linear-gradient(135deg,var(--red),var(--orange))}
-    .ghost{background:rgba(255,255,255,.07);border:1px solid var(--line);box-shadow:none}
-    .app{position:relative;z-index:1;width:min(1500px,calc(100% - 28px));margin:0 auto;padding:18px 0 38px}
-    .topbar{
-      position:sticky;top:10px;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:14px;
-      padding:14px;border:1px solid var(--line);border-radius:30px;background:rgba(6,9,24,.78);
-      backdrop-filter:blur(18px);box-shadow:var(--shadow);margin-bottom:16px;
-    }
-    .brand{display:flex;align-items:center;gap:12px;min-width:275px}
-    .logo{
-      width:58px;height:58px;border-radius:21px;display:grid;place-items:center;font-size:31px;
-      background:linear-gradient(135deg,var(--cyan),var(--purple) 52%,var(--pink));
-      box-shadow:0 18px 50px rgba(157,92,255,.28)
-    }
-    h1{font-size:clamp(20px,2vw,31px);letter-spacing:-.055em;line-height:1}
-    .brand p{color:var(--muted);font-size:12px;margin-top:5px;font-weight:800}
-    .tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-    .tab{font-size:13px;padding:10px 12px;border-radius:15px;background:rgba(255,255,255,.06);box-shadow:none}
-    .tab.active{background:linear-gradient(135deg,rgba(67,232,255,.26),rgba(255,79,173,.20));border:1px solid rgba(255,255,255,.15)}
-    .stats{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;min-width:315px}
-    .pill{background:rgba(255,255,255,.075);border:1px solid var(--line);border-radius:17px;padding:9px 12px;min-width:82px}
-    .pill span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:950}
-    .pill strong{font-size:15px}
-    .grid{display:grid;grid-template-columns:335px minmax(0,1fr) 350px;gap:16px}
-    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-    .head{padding:16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.055),transparent)}
-    .head h2{font-size:18px;letter-spacing:-.035em;display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .head p{color:var(--muted);font-size:13px;line-height:1.42;margin-top:6px}
-    .body{padding:16px}
-    .chip{font-size:11px;border-radius:999px;padding:5px 8px;background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--muted);font-weight:950;white-space:nowrap}
-    .planet-list,.log-list,.rod-list,.quest-list,.book-list{display:grid;gap:10px}
-    .planet,.rod,.quest,.upgrade,.fish-card{
-      background:rgba(255,255,255,.055);border:1px solid var(--line);border-radius:18px;padding:13px
-    }
-    .planet.unlocked{cursor:pointer}
-    .planet.unlocked:hover,.rod:hover{background:rgba(255,255,255,.085)}
-    .planet.active{border-color:rgba(67,232,255,.6);background:rgba(67,232,255,.12)}
-    .planet.locked{opacity:.45}
-    .row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-    .small{font-size:12px;color:var(--muted);line-height:1.45;margin-top:6px}
-    .price{color:var(--gold);font-weight:950;white-space:nowrap}
-    .bar-wrap{height:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);border-radius:999px;overflow:hidden}
-    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--cyan),var(--purple),var(--pink));border-radius:999px;transition:width .25s ease}
-    .panel{display:none}.panel.active{display:block}
-    .lake{
-      position:relative;min-height:500px;overflow:hidden;padding:18px;
-      background:
-        radial-gradient(circle at 50% 22%,rgba(255,209,102,.10),transparent 23%),
-        linear-gradient(180deg,rgba(67,232,255,.09),rgba(157,92,255,.08));
-    }
-    .planet-orb{
-      position:absolute;right:28px;top:28px;width:120px;height:120px;border-radius:50%;
-      background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.5),transparent 16%),linear-gradient(135deg,var(--cyan),var(--purple),var(--pink));
-      box-shadow:0 0 70px rgba(67,232,255,.24);
-      opacity:.72;
-    }
-    .water{
-      position:absolute;left:-10%;right:-10%;bottom:-4%;height:48%;
-      background:
-        radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.18),transparent 55%),
-        repeating-linear-gradient(170deg,rgba(67,232,255,.12) 0 12px,rgba(157,92,255,.10) 12px 24px),
-        linear-gradient(180deg,rgba(31,91,155,.75),rgba(13,24,60,.95));
-      border-radius:50% 50% 0 0/18% 18% 0 0;
-      animation:wave 4s ease-in-out infinite alternate;
-    }
-    @keyframes wave{from{transform:translateY(0)}to{transform:translateY(9px)}}
-    .fishing-area{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:15px;min-height:465px;align-items:end}
-    .angler,.catch-preview{
-      border:1px solid var(--line);border-radius:30px;background:rgba(0,0,0,.24);padding:16px;text-align:center;
-      min-height:345px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;
-    }
-    .avatar{font-size:84px;margin-bottom:10px;filter:drop-shadow(0 16px 28px rgba(0,0,0,.35))}
-    .fish-emoji{font-size:82px;margin-bottom:10px;filter:drop-shadow(0 16px 28px rgba(0,0,0,.35))}
-    .angler h3,.catch-preview h3{font-size:21px;letter-spacing:-.04em}
-    .angler p,.catch-preview p{font-size:13px;color:var(--muted);font-weight:760;margin-top:4px}
-    .skill-box{
-      position:absolute;left:18px;right:18px;top:18px;z-index:4;
-      background:rgba(0,0,0,.30);border:1px solid var(--line);border-radius:21px;padding:12px
-    }
-    .skill-track{height:18px;border-radius:999px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.10);overflow:hidden;position:relative}
-    .sweet{
-      position:absolute;top:0;bottom:0;background:rgba(46,232,156,.38);border-left:2px solid var(--green);border-right:2px solid var(--green);
-      border-radius:999px;
-    }
-    .cursor{
-      position:absolute;top:-3px;width:8px;height:24px;border-radius:999px;background:#fff;box-shadow:0 0 18px rgba(255,255,255,.85);
-      left:0%;
-    }
-    .fishing .cursor{animation:cursorMove var(--cursorSpeed,1.6s) linear infinite alternate}
-    @keyframes cursorMove{from{left:0%}to{left:calc(100% - 8px)}}
-    .actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px;border-top:1px solid var(--line)}
-    .big{min-height:62px}
-    .wide{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
-    .two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-    .rod{display:grid;grid-template-columns:64px 1fr;gap:11px}
-    .rod-icon,.fish-icon{
-      width:62px;height:62px;border-radius:19px;display:grid;place-items:center;font-size:34px;background:rgba(255,255,255,.08);border:1px solid var(--line)
-    }
-    .rod.selected{border-color:rgba(255,209,102,.75);background:rgba(255,209,102,.11)}
-    .mini{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .mini button{font-size:11px;padding:7px 9px;border-radius:11px;box-shadow:none}
-    .log{font-size:12px;color:var(--muted);line-height:1.42;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:10px}
-    .log strong{color:var(--text)}
-    .rarity{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:950}
-    .Common{color:var(--common)}.Uncommon{color:var(--uncommon)}.Rare{color:var(--rare)}.Epic{color:var(--epic)}.Legendary{color:var(--legendary)}.Mythic{color:var(--mythic)}.Void{color:var(--void);text-shadow:0 0 10px white}
-    .fish-card{display:grid;grid-template-columns:66px 1fr auto;gap:11px;align-items:center}
-    .modal-bg{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.67);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(12px)}
-    .modal-bg.active{display:flex}
-    .modal{width:min(630px,100%);background:linear-gradient(180deg,rgba(24,30,60,.98),rgba(7,10,25,.98));border:1px solid var(--line);border-radius:30px;box-shadow:0 35px 90px rgba(0,0,0,.62);overflow:hidden}
-    .modal-content{text-align:center;padding:24px}
-    .modal-content h2{font-size:30px;letter-spacing:-.055em}
-    .reward{margin:16px 0;padding:18px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid var(--line)}
-    .toast-wrap{position:fixed;right:18px;bottom:18px;z-index:120;display:grid;gap:10px;width:min(365px,calc(100vw - 36px))}
-    .toast{background:rgba(14,18,38,.96);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow);font-size:13px;color:var(--muted);line-height:1.42;animation:in .2s ease}
-    .toast strong{color:var(--text)}
-    @keyframes in{from{transform:translateX(24px);opacity:0}to{transform:translateX(0);opacity:1}}
-    .input-row{display:flex;gap:10px;margin-top:12px}
-    .input-row input{flex:1;min-width:0;background:rgba(0,0,0,.24);border:1px solid var(--line);border-radius:14px;padding:12px;color:var(--text);outline:none}
-    @media(max-width:1160px){.grid{grid-template-columns:1fr}.topbar{position:static;flex-direction:column;align-items:stretch}.brand,.stats{min-width:0;justify-content:center}.tabs{justify-content:center}}
-    @media(max-width:720px){.fishing-area{grid-template-columns:1fr}.actions{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.fish-card{grid-template-columns:58px 1fr}.fish-card .chip{display:none}.stats .pill{flex:1}.brand{justify-content:center}}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hoop Pack Legends</title>
+<style>
+:root{
+  --bg:#070914;--panel:#101827;--line:rgba(255,255,255,.11);
+  --text:#f8fafc;--muted:#94a3b8;--accent:#ff7a18;
+  --good:#22c55e;--bad:#ef4444
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 12% 15%,rgba(255,122,24,.3),transparent 32%),
+    radial-gradient(circle at 85% 5%,rgba(56,189,248,.22),transparent 32%),
+    linear-gradient(135deg,#050712,#111827 55%,#070914);
+  overflow-x:hidden;
+}
+button{
+  border:0;cursor:pointer;color:white;background:linear-gradient(135deg,#f97316,#facc15);
+  border-radius:16px;padding:11px 15px;font-weight:900;
+  box-shadow:0 14px 30px rgba(0,0,0,.28);
+  transition:.15s transform,.15s filter,.15s opacity;
+}
+button:hover{transform:translateY(-2px);filter:brightness(1.08)}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none;filter:none}
+.ghost{background:#243044}.danger{background:linear-gradient(135deg,#dc2626,#fb7185)}
+.good{background:linear-gradient(135deg,#16a34a,#22c55e)}
+.tiny{font-size:12px;padding:7px 10px;border-radius:11px}
+.app{max-width:1360px;margin:auto;padding:18px}
+.shell{display:grid;grid-template-columns:235px 1fr;gap:16px}
+.sidebar{
+  position:sticky;top:18px;height:calc(100vh - 36px);
+  background:rgba(15,23,42,.9);border:1px solid var(--line);
+  border-radius:28px;padding:16px;box-shadow:0 25px 70px rgba(0,0,0,.38);
+  display:flex;flex-direction:column
+}
+.brand{padding:10px 8px 18px}.brand h1{font-size:26px;line-height:1;margin:0}
+.brand p{margin:8px 0 0;color:var(--muted);font-size:13px}
+.nav{display:grid;gap:9px}
+.nav button{text-align:left;background:#151f31;border:1px solid var(--line);box-shadow:none}
+.nav button.active{background:linear-gradient(135deg,#f97316,#facc15);color:#111827}
+.sideStats{margin-top:auto;display:grid;gap:9px}
+.stat{background:#0b1220;border:1px solid var(--line);padding:10px 12px;border-radius:17px}
+.stat b{display:block;font-size:19px}.stat span{font-size:12px;color:var(--muted)}
+.screen{display:none}.screen.active{display:block}
+.hero{
+  min-height:430px;border:1px solid var(--line);border-radius:34px;overflow:hidden;position:relative;
+  background:
+    linear-gradient(135deg,rgba(249,115,22,.22),rgba(15,23,42,.9)),
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="900" height="500"><rect width="900" height="500" fill="%230b1020"/><g opacity=".28" stroke="%23ffffff" stroke-width="6" fill="none"><path d="M0 385h900M450 385V80M215 385c0-120 470-120 470 0M330 385c0-60 240-60 240 0"/><circle cx="450" cy="235" r="74"/><rect x="365" y="80" width="170" height="105" rx="8"/></g></svg>') center/cover;
+  box-shadow:0 28px 80px rgba(0,0,0,.38);padding:28px;
+  display:grid;grid-template-columns:1.1fr .9fr;gap:20px;align-items:center
+}
+.hero h2{font-size:54px;line-height:.95;margin:0 0 12px;letter-spacing:-2px}
+.hero p{color:#dbeafe;max-width:560px;font-size:16px;line-height:1.5}
+.heroCard{background:rgba(2,6,23,.72);border:1px solid var(--line);border-radius:28px;padding:18px;backdrop-filter:blur(8px)}
+.powerCircle{
+  height:210px;border-radius:26px;
+  background:radial-gradient(circle at 50% 42%,rgba(250,204,21,.2),transparent 34%),linear-gradient(135deg,#172033,#0b1220);
+  display:grid;place-items:center;text-align:center
+}
+.powerCircle b{font-size:58px}.powerCircle span{display:block;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:14px}
+.panel{background:rgba(15,23,42,.88);border:1px solid var(--line);border-radius:26px;padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.32)}
+.panel h2,.panel h3{margin:0 0 10px}
+.hint{color:var(--muted);font-size:14px;line-height:1.45}
+.sectionTitle{display:flex;justify-content:space-between;gap:12px;align-items:end;margin:0 0 14px}
+.sectionTitle h2{font-size:30px;margin:0}
+.pack{position:relative;min-height:275px;overflow:hidden}
+.pack:before{content:"";position:absolute;inset:-40%;background:conic-gradient(transparent,rgba(255,255,255,.18),transparent);animation:spin 8s linear infinite;opacity:.22}
+@keyframes spin{to{transform:rotate(360deg)}}
+.packInner{position:relative;z-index:1;display:flex;flex-direction:column;gap:9px;height:100%}
+.packArt{
+  height:145px;border-radius:22px;display:grid;place-items:center;text-align:center;
+  font-weight:1000;font-size:22px;letter-spacing:.5px;border:1px solid var(--line);
+  position:relative;overflow:hidden;color:#07111f
+}
+.price{font-size:20px;font-weight:1000}
+.odds{font-size:12px;color:#cbd5e1;line-height:1.35}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:12px}
+.card{
+  position:relative;background:linear-gradient(145deg,#1e293b,#0f172a);
+  border:1px solid var(--line);border-radius:22px;padding:10px;min-height:292px;overflow:hidden;
+  box-shadow:0 16px 35px rgba(0,0,0,.28);transform-style:preserve-3d
+}
+.card.locked{filter:grayscale(1);opacity:.45}
+.shine{position:absolute;inset:-80%;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.24),transparent 60%);transform:rotate(15deg);animation:shine 4s infinite;pointer-events:none}
+@keyframes shine{0%{translate:-40% 0}55%,100%{translate:40% 0}}
+.rarityTag{display:inline-block;font-size:11px;font-weight:1000;padding:5px 8px;border-radius:999px;color:#07111f;margin-bottom:8px}
+.rating{position:absolute;right:10px;top:10px;background:#f8fafc;color:#07111f;border-radius:13px;padding:5px 8px;font-weight:1000;font-size:18px;z-index:3;pointer-events:none}
+.rating small{display:block;font-size:9px;line-height:.8}
+.playerArt{
+  height:140px;border-radius:18px;margin-bottom:9px;
+  background:radial-gradient(circle at 50% 20%,rgba(255,255,255,.28),transparent 38%),linear-gradient(135deg,#243044,#0b1220);
+  display:grid;place-items:center;position:relative;overflow:hidden
+}
+.playerArt:before{content:"";position:absolute;left:12px;right:12px;bottom:12px;height:30px;border:2px solid rgba(255,255,255,.16);border-top:0;border-radius:0 0 45px 45px}
+.playerArt:after{content:"";position:absolute;left:50%;bottom:20px;width:46px;height:3px;background:rgba(255,255,255,.16);transform:translateX(-50%);border-radius:999px}
+.avatar{width:122px;height:136px;position:relative;filter:drop-shadow(0 12px 12px rgba(0,0,0,.35))}
+.neck{position:absolute;left:50px;top:49px;width:25px;height:21px;background:var(--skin);border-radius:4px;box-shadow:inset -4px 0 0 rgba(0,0,0,.12)}
+.head{position:absolute;left:39px;top:14px;width:46px;height:47px;border-radius:48% 48% 45% 45%;background:var(--skin);border:3px solid rgba(0,0,0,.2);z-index:3;box-shadow:inset -7px -8px 0 rgba(0,0,0,.12),inset 5px 4px 0 rgba(255,255,255,.12)}
+.ear{position:absolute;top:31px;width:9px;height:15px;background:var(--skin);border-radius:50%;z-index:2}
+.ear.l{left:34px}.ear.r{right:34px}
+.eye{position:absolute;top:34px;width:6px;height:5px;border-radius:50%;background:#111;z-index:4;box-shadow:0 0 0 2px rgba(255,255,255,.08)}
+.eye.l{left:53px}.eye.r{right:53px}
+.nose{position:absolute;left:61px;top:39px;width:5px;height:10px;border-radius:999px;background:rgba(0,0,0,.18);z-index:4}
+.cheek{position:absolute;top:43px;width:9px;height:5px;border-radius:999px;background:rgba(255,255,255,.13);z-index:4}
+.cheek.l{left:47px}.cheek.r{right:47px}
+.brow{position:absolute;top:28px;width:14px;height:4px;background:var(--hair);border-radius:999px;z-index:4}
+.brow.l{left:48px;transform:rotate(-8deg)}.brow.r{right:48px;transform:rotate(8deg)}
+.mouth{position:absolute;left:55px;top:50px;width:15px;height:5px;border-bottom:2px solid rgba(0,0,0,.45);border-radius:50%;z-index:4}
+.hairBase{position:absolute;left:35px;top:4px;width:56px;height:29px;background:var(--hair);border-radius:50% 50% 35% 35%;z-index:4;box-shadow:inset 0 -5px 0 rgba(255,255,255,.06)}
+.hair.short{height:18px;top:7px}.hair.buzz{height:13px;top:10px;border-radius:50%}
+.hair.curls{background:transparent}.hair.curls:before{content:"";position:absolute;left:0;top:0;width:54px;height:24px;background:radial-gradient(circle at 8px 12px,var(--hair) 0 7px,transparent 8px),radial-gradient(circle at 20px 7px,var(--hair) 0 8px,transparent 9px),radial-gradient(circle at 34px 9px,var(--hair) 0 8px,transparent 9px),radial-gradient(circle at 47px 13px,var(--hair) 0 7px,transparent 8px)}
+.hair.dreads{background:transparent}.hair.dreads:before{content:"";position:absolute;left:6px;top:0;width:42px;height:48px;background:repeating-linear-gradient(90deg,var(--hair) 0 5px,transparent 5px 9px);border-radius:14px;clip-path:polygon(0 0,100% 0,90% 100%,10% 100%)}
+.hair.headband{height:16px}.hair.headband:after{content:"";position:absolute;left:-2px;right:-2px;bottom:-7px;height:7px;background:#f8fafc;border-radius:999px}
+.beard{position:absolute;left:39px;top:42px;width:38px;height:20px;background:var(--hair);border-radius:0 0 18px 18px;z-index:3;opacity:.95}
+.beard.goatee{left:50px;top:48px;width:15px;height:12px;border-radius:0 0 9px 9px}
+.body{position:absolute;left:29px;top:66px;width:68px;height:62px;background:var(--jersey);clip-path:polygon(18% 0,82% 0,100% 100%,0 100%);border-radius:12px;z-index:2;box-shadow:inset 0 0 0 3px rgba(255,255,255,.18),inset -10px -10px 0 rgba(0,0,0,.12)}
+.body:before{content:"";position:absolute;left:10px;right:10px;top:7px;height:6px;background:rgba(255,255,255,.35);border-radius:999px}
+.body:after{content:attr(data-no);position:absolute;inset:18px 0 0;text-align:center;color:white;font-weight:1000;font-size:23px;text-shadow:0 2px 5px rgba(0,0,0,.4)}
+.arm{position:absolute;top:72px;width:20px;height:54px;background:var(--skin);border-radius:999px;z-index:1;box-shadow:inset -4px -4px 0 rgba(0,0,0,.12)}
+.arm.l{left:11px;transform:rotate(18deg)}.arm.r{right:11px;transform:rotate(-18deg)}
+.wrist{position:absolute;top:116px;width:16px;height:10px;background:#f8fafc;border-radius:999px;z-index:2}
+.wrist.l{left:16px;transform:rotate(18deg)}.wrist.r{right:16px;transform:rotate(-18deg)}
+.shorts{position:absolute;left:36px;top:118px;width:54px;height:18px;background:#111827;border-radius:0 0 10px 10px;z-index:2}
+.shoe{position:absolute;top:130px;width:26px;height:9px;background:#f8fafc;border-radius:999px;z-index:3}
+.shoe.l{left:33px}.shoe.r{right:33px}
+.ball{position:absolute;right:1px;top:43px;width:29px;height:29px;border-radius:50%;background:#f97316;border:2px solid #7c2d12;box-shadow:inset 0 0 0 2px rgba(0,0,0,.15);z-index:5}
+.ball:before{content:"";position:absolute;inset:4px;border-left:2px solid #7c2d12;border-right:2px solid #7c2d12;border-radius:50%}
+.ball:after{content:"";position:absolute;left:2px;right:2px;top:12px;height:2px;background:#7c2d12;border-radius:999px}
+.name{font-weight:1000;font-size:15px}.income{font-size:13px;color:#dbeafe;margin:5px 0}.owned{font-size:12px;color:var(--muted)}
+.cardActions{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}.cardActions button{flex:1;min-width:67px}
+.slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.slot{min-height:115px;border:1px dashed rgba(255,255,255,.25);border-radius:19px;padding:10px;background:#0b1220}
+.slot b{font-size:13px}.slot small{display:block;color:var(--muted);margin-top:4px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.filters button.active{background:linear-gradient(135deg,#38bdf8,#818cf8)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.76);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal.active{display:flex}
+.openStage{width:min(600px,96vw);min-height:650px;background:radial-gradient(circle at 50% 0,rgba(249,115,22,.25),transparent 35%),linear-gradient(145deg,#111827,#020617);border:1px solid rgba(255,255,255,.14);border-radius:34px;padding:18px;text-align:center;position:relative;overflow:hidden;box-shadow:0 35px 95px rgba(0,0,0,.72)}
+.sliceWrap{width:310px;height:390px;margin:18px auto 10px;position:relative;perspective:900px}
+.bigPack{position:absolute;inset:0;border-radius:30px;box-shadow:0 30px 70px rgba(249,115,22,.35);display:grid;place-items:center;color:#07111f;font-size:42px;font-weight:1000;overflow:hidden;user-select:none}
+.packLabel{text-align:center;line-height:1}.packLabel small{display:block;font-size:13px;letter-spacing:2px;opacity:.7;margin-top:6px}
+.sliceLine{position:absolute;left:28px;right:28px;top:82px;height:12px;border-radius:999px;background:rgba(2,6,23,.28);overflow:hidden}
+.sliceFill{height:100%;width:0;background:white;box-shadow:0 0 22px white}
+.tear{position:absolute;left:0;right:0;top:0;height:105px;background:rgba(255,255,255,.16);border-radius:30px 30px 10px 10px;transform-origin:top;transition:.7s transform,.7s opacity;z-index:3}
+.bigPack.opened .tear{transform:translateY(-150px) rotateX(75deg);opacity:0}
+.wrapperCard{position:absolute;left:26px;right:26px;bottom:20px;height:275px;transform:translateY(165px);opacity:0;transition:.85s cubic-bezier(.2,1.35,.24,1);z-index:4}
+.wrapperCard.out{transform:translateY(-20px);opacity:1}
+.flipCard{width:100%;height:100%;transform-style:preserve-3d;transition:1s transform}.flipCard.flipped{transform:rotateY(180deg)}
+.cardBack,.cardFace{position:absolute;inset:0;backface-visibility:hidden;border-radius:24px}.cardBack{background:linear-gradient(135deg,#0f172a,#334155);border:2px solid rgba(255,255,255,.2);display:grid;place-items:center;font-size:48px}.cardFace{transform:rotateY(180deg)}
+.burst{position:absolute;inset:0;pointer-events:none;overflow:hidden}.spark{position:absolute;width:8px;height:8px;border-radius:99px;background:white;animation:pop 1s forwards}
+@keyframes pop{to{transform:translate(var(--x),var(--y)) scale(0);opacity:0}}
+.toast{position:fixed;right:16px;bottom:16px;background:#0b1220;border:1px solid var(--line);padding:12px 14px;border-radius:16px;box-shadow:0 14px 35px rgba(0,0,0,.4);display:none;z-index:70}.toast.show{display:block;animation:fadeToast 2s forwards}@keyframes fadeToast{0%,75%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(12px)}}
+.confirmBox{width:min(430px,92vw);background:#111827;border:1px solid var(--line);border-radius:24px;padding:18px;text-align:center}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1}.smallText{font-size:12px;color:var(--muted)}
+@media(max-width:850px){.shell{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.sideStats{grid-template-columns:repeat(3,1fr);margin-top:14px}.hero{grid-template-columns:1fr}.hero h2{font-size:40px}}
+@media(max-width:560px){.sideStats{grid-template-columns:1fr}.cards{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.hero{padding:20px}.hero h2{font-size:34px}}
+</style>
 </head>
 <body>
-  <div class="app">
-    <header class="topbar">
-      <div class="brand">
-        <div class="logo">🎣</div>
-        <div>
-          <h1>Cosmic Castaway</h1>
-          <p>Harder space fishing • planets • alien collection</p>
-        </div>
-      </div>
-      <nav class="tabs">
-        <button class="tab active" data-tab="fish">Fishing</button>
-        <button class="tab" data-tab="rods">Rods</button>
-        <button class="tab" data-tab="shop">Upgrades</button>
-        <button class="tab" data-tab="book">Collection</button>
-        <button class="tab" data-tab="quests">Quests</button>
-        <button class="tab" data-tab="save">Save</button>
-      </nav>
-      <div class="stats">
-        <div class="pill"><span>Credits</span><strong id="creditsText">0</strong></div>
-        <div class="pill"><span>Stardust</span><strong id="dustText">0</strong></div>
-        <div class="pill"><span>Energy</span><strong id="energyText">0/0</strong></div>
-      </div>
-    </header>
-
-    <main class="grid">
-      <aside class="card">
-        <div class="head">
-          <h2>Planets <span class="chip" id="planetCount">0/0</span></h2>
-          <p>Unlock harder planets with rarer alien fish and stronger bite resistance.</p>
-        </div>
-        <div class="body planet-list" id="planetList"></div>
-      </aside>
-
-      <section>
-        <div class="panel active" id="fishPanel">
-          <div class="card">
-            <div class="head">
-              <h2><span id="planetTitle">Moon Pond</span><span class="chip" id="difficultyText">Difficulty 1</span></h2>
-              <p id="planetDesc">A calm crater lake full of tiny space guppies.</p>
-            </div>
-            <div class="lake" id="lake">
-              <div class="planet-orb" id="planetOrb"></div>
-              <div class="water"></div>
-              <div class="skill-box">
-                <div class="row" style="margin-bottom:8px">
-                  <strong id="castStatus">Ready to cast</strong>
-                  <span class="chip" id="catchChance">Skill check inactive</span>
-                </div>
-                <div class="skill-track">
-                  <div class="sweet" id="sweetSpot"></div>
-                  <div class="cursor" id="cursor"></div>
-                </div>
-              </div>
-              <div class="fishing-area">
-                <div class="angler">
-                  <div class="avatar">🧑‍🚀</div>
-                  <h3 id="rodName">Rusty Moon Rod</h3>
-                  <p id="rodStats">Power 1 • Control 1 • Luck 1</p>
-                </div>
-                <div class="catch-preview">
-                  <div class="fish-emoji" id="previewFish">❔</div>
-                  <h3 id="previewName">No fish hooked</h3>
-                  <p id="previewStats">Cast your line, then stop the marker inside the green zone.</p>
-                </div>
-              </div>
-            </div>
-            <div class="actions">
-              <button class="big" id="castBtn">Cast Line</button>
-              <button class="big green" id="reelBtn" disabled>Reel In</button>
-              <button class="big gold" id="sellBtn">Sell Fish</button>
-              <button class="big ghost" id="restBtn">Recharge</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel" id="rodsPanel">
-          <h2 style="font-size:24px;letter-spacing:-.045em;margin-bottom:12px">Your Rods</h2>
-          <div class="card">
-            <div class="head">
-              <h2>Rod Rack <span class="chip" id="rodCount">1 owned</span></h2>
-              <p>Better rods make skill zones bigger, rare catches more likely, and difficult fish easier.</p>
-            </div>
-            <div class="body rod-list" id="rodList"></div>
-          </div>
-        </div>
-
-        <div class="panel" id="shopPanel">
-          <h2 style="font-size:24px;letter-spacing:-.045em;margin-bottom:12px">Upgrade Shop</h2>
-          <div class="wide" id="shopList"></div>
-        </div>
-
-        <div class="panel" id="bookPanel">
-          <h2 style="font-size:24px;letter-spacing:-.045em;margin-bottom:12px">Alien Collection Book</h2>
-          <div class="card">
-            <div class="head">
-              <h2>Discovered Species <span class="chip" id="bookCount">0/0</span></h2>
-              <p>Catch every alien creature. Rare species need stronger rods, harder planets, and good timing.</p>
-            </div>
-            <div class="body book-list" id="bookList"></div>
-          </div>
-        </div>
-
-        <div class="panel" id="questsPanel">
-          <h2 style="font-size:24px;letter-spacing:-.045em;margin-bottom:12px">Space Angler Quests</h2>
-          <div class="quest-list" id="questList"></div>
-        </div>
-
-        <div class="panel" id="savePanel">
-          <div class="card">
-            <div class="head">
-              <h2>Save Controls</h2>
-              <p>Your progress autosaves in this browser. Export a code to move your save.</p>
-            </div>
-            <div class="body">
-              <div class="two">
-                <button id="exportBtn">Export Save</button>
-                <button class="ghost" id="importBtn">Import Save</button>
-                <button class="green" id="manualSaveBtn">Manual Save</button>
-                <button class="danger" id="resetBtn">Reset Game</button>
-              </div>
-              <div class="input-row"><input id="saveCode" placeholder="Save code appears here, or paste one to import"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <aside class="card">
-        <div class="head">
-          <h2>Captain Log <span class="chip" id="rankText">Rookie</span></h2>
-          <p>See catches, failed reels, unlocks, upgrades, and rare discoveries.</p>
-        </div>
-        <div class="body log-list" id="logList"></div>
-      </aside>
-    </main>
+<div class="app"><div class="shell">
+<aside class="sidebar">
+  <div class="brand"><h1>🏀 Hoop Pack<br>Legends</h1><p>Collect cards. Equip 5. Build team power.</p></div>
+  <div class="nav">
+    <button class="tab active" data-screen="home">🏠 Home</button>
+    <button class="tab" data-screen="packs">🎁 Packs</button>
+    <button class="tab" data-screen="equip">⭐ Equip Team</button>
+    <button class="tab" data-screen="collection">📚 Collection</button>
+    <button class="tab" data-screen="save">💾 Save</button>
   </div>
-
-  <div class="modal-bg" id="modalBg">
-    <div class="modal"><div class="modal-content" id="modalContent"></div></div>
+  <div class="sideStats">
+    <div class="stat"><b id="moneyText">$0.00</b><span>Money Bag</span></div>
+    <div class="stat"><b id="incomeText">$0.00/s</b><span>Income</span></div>
+    <div class="stat"><b id="powerText">0</b><span>Team Power</span></div>
+    <div class="stat"><b id="cardsText">0</b><span>Cards Owned</span></div>
   </div>
-  <div class="toast-wrap" id="toastWrap"></div>
+</aside>
+<main>
+<section id="home" class="screen active">
+  <div class="hero">
+    <div><h2>Rip packs.<br>Build a five.<br>Raise power.</h2><p>Open packs, build your starting five, earn cash, and chase rare pulls.</p><button onclick="showScreen('packs')">Open Packs</button></div>
+    <div class="heroCard"><h3>Current Team Power</h3><div class="powerCircle"><div><b id="homePower">0</b><span>Average rating of equipped cards</span></div></div></div>
+  </div>
+  <div class="panel" style="margin-top:16px"><div class="sectionTitle"><h2>Rarity Ladder</h2></div><div id="rarityLegend" class="grid"></div></div>
+</section>
+<section id="packs" class="screen"><div class="sectionTitle"><h2>Pack Shop</h2></div><div id="packGrid" class="grid"></div></section>
+<section id="equip" class="screen">
+  <div class="panel"><div class="sectionTitle"><h2>Equipped Starting Five</h2><span class="hint">Max 5 cards</span></div><div id="slots" class="slots"></div></div>
+  <div class="panel" style="margin-top:14px"><h2>Your Owned Cards</h2><div id="equipCards" class="cards"></div></div>
+</section>
+<section id="collection" class="screen"><div class="panel"><div class="sectionTitle"><h2>Collection</h2></div><div id="filters" class="filters"></div><div id="collectionCards" class="cards"></div></div></section>
+<section id="save" class="screen">
+  <div class="grid">
+    <div class="panel"><h2>Save</h2><p class="hint">Auto-save is on, but this forces a save.</p><button class="good" onclick="saveGame(true)">Save Game</button></div>
+    <div class="panel"><h2>Load</h2><p class="hint">Load your local browser save.</p><button onclick="loadGame(true)">Load Game</button></div>
+    <div class="panel"><h2>Reset</h2><p class="hint">Deletes money, cards, equipped team, and local save.</p><button class="danger" onclick="openResetConfirm()">Reset Everything</button></div>
+  </div>
+</section>
+</main></div></div>
+
+<div id="openModal" class="modal">
+  <div class="openStage">
+    <div class="burst" id="burst"></div>
+    <h2 id="openTitle">Slice the pack</h2>
+    <p id="openHint" class="hint">Hold your mouse or finger and drag across the top line.</p>
+    <div class="sliceWrap">
+      <div id="bigPack" class="bigPack"><div class="tear"></div><div id="packLabel" class="packLabel">BASE PACK</div><div class="sliceLine"><div id="sliceFill" class="sliceFill"></div></div></div>
+      <div id="wrapperCard" class="wrapperCard"><div id="flipCard" class="flipCard"><div class="cardBack">🏀</div><div id="cardFace" class="cardFace"></div></div></div>
+    </div>
+    <button id="closeOpen" style="display:none" onclick="closeOpenModal()">Claim Card</button>
+  </div>
+</div>
+<div id="resetModal" class="modal"><div class="confirmBox"><h2>Are you sure?</h2><p class="hint">This will delete your local save and put you back to $0 with no cards.</p><div class="row"><button class="danger" onclick="resetGame()">Yes, Reset</button><button class="ghost" onclick="document.getElementById('resetModal').classList.remove('active')">Cancel</button></div></div></div>
+<div id="toast" class="toast"></div>
 
 <script>
-const $=s=>document.querySelector(s);
-const $$=s=>Array.from(document.querySelectorAll(s));
-
-const RARITY={
-  Common:{mult:1,color:'Common'},Uncommon:{mult:1.7,color:'Uncommon'},Rare:{mult:3.1,color:'Rare'},
-  Epic:{mult:5.8,color:'Epic'},Legendary:{mult:11,color:'Legendary'},Mythic:{mult:22,color:'Mythic'},Void:{mult:48,color:'Void'}
-};
-
-const PLANETS=[
-  {id:'moon',name:'Moon Pond',emoji:'🌙',difficulty:1,unlock:0,need:null,desc:'A calm crater lake full of tiny space guppies.',color:['#43e8ff','#9d5cff'],energy:6,pool:[['moon_guppy',42],['crater_crab',28],['star_tadpole',18],['silver_eel',9],['lunar_ray',3]]},
-  {id:'mars',name:'Mars Canals',emoji:'🔴',difficulty:3,unlock:1200,need:12,desc:'Red dust storms make bites harder to control.',color:['#ff4d6d','#ff8a3d'],energy:8,pool:[['crater_crab',24],['dust_piranha',30],['rust_squid',22],['solar_koi',15],['sand_serpent',8],['comet_jelly',1]]},
-  {id:'europa',name:'Europa Ice Sea',emoji:'🧊',difficulty:6,unlock:6500,need:45,desc:'Frozen oceans hide powerful alien creatures under the ice.',color:['#bff7ff','#4b8cff'],energy:10,pool:[['silver_eel',18],['ice_whale',28],['frost_fang',24],['aurora_manta',18],['crystal_kraken',10],['void_shrimp',2]]},
-  {id:'saturn',name:'Saturn Ring Reef',emoji:'🪐',difficulty:10,unlock:28000,need:140,desc:'Fishing between rings is beautiful, fast, and unforgiving.',color:['#ffd166','#9d5cff'],energy:12,pool:[['solar_koi',18],['ring_ray',28],['plasma_puffer',24],['nebula_lobster',18],['titan_shark',10],['star_dragon',2]]},
-  {id:'neptune',name:'Neptune Abyss',emoji:'🌊',difficulty:16,unlock:110000,need:420,desc:'Dark storms and deep pressure make every reel a challenge.',color:['#4b8cff','#12081e'],energy:15,pool:[['aurora_manta',14],['void_shrimp',20],['gravity_grouper',26],['abyss_angelfish',22],['storm_leviathan',15],['cosmic_hydra',3]]},
-  {id:'blackhole',name:'Black Hole Basin',emoji:'🕳️',difficulty:26,unlock:420000,need:1200,desc:'The final fishing zone. The fish fight like bosses.',color:['#f8fafc','#050713'],energy:20,pool:[['gravity_grouper',16],['storm_leviathan',23],['cosmic_hydra',25],['event_horizon_eel',22],['galaxy_serpent',12],['void_emperor',2]]}
+const SAVE_KEY='hoop_pack_legends_save_v3',OLD_KEYS=['hoop_pack_legends_save_v2','hoop_pack_legends_save_v1'];
+const MAX_EQUIP=5;
+const rarities=[
+{id:'bronze',name:'Bronze',color:'#cd7f32',min:.01,max:.05,sell:1,rMin:60,rMax:63},
+{id:'common',name:'Common',color:'#cbd5e1',min:.05,max:.20,sell:3,rMin:61,rMax:66},
+{id:'uncommon',name:'Uncommon',color:'#22c55e',min:.22,max:.70,sell:10,rMin:65,rMax:70},
+{id:'rare',name:'Rare',color:'#38bdf8',min:.75,max:2.25,sell:35,rMin:68,rMax:73},
+{id:'ultra',name:'Ultra Rare',color:'#818cf8',min:2.5,max:7.5,sell:120,rMin:72,rMax:77},
+{id:'epic',name:'Epic',color:'#c084fc',min:8,max:22,sell:420,rMin:76,rMax:82},
+{id:'legendary',name:'Legendary',color:'#facc15',min:25,max:75,sell:1500,rMin:82,rMax:89},
+{id:'mythic',name:'Mythic',color:'#fb7185',min:85,max:240,sell:5500,rMin:88,rMax:94},
+{id:'galactic',name:'Galactic',color:'#2dd4bf',min:270,max:800,sell:20000,rMin:93,rMax:97},
+{id:'goat',name:'GOAT',color:'#f97316',min:1000,max:2500,sell:75000,rMin:96,rMax:99},
+{id:'cosmic',name:'Cosmic',color:'#f0abfc',min:3000,max:9000,sell:250000,rMin:98,rMax:101},
+{id:'oneofone',name:'One of One',color:'#fff',min:12000,max:30000,sell:1000000,rMin:100,rMax:105}
 ];
-
-const FISH=[
-  {id:'moon_guppy',name:'Moon Guppy',emoji:'🐟',rarity:'Common',base:20,power:1,planet:'Moon Pond'},
-  {id:'crater_crab',name:'Crater Crab',emoji:'🦀',rarity:'Common',base:28,power:2,planet:'Moon/Mars'},
-  {id:'star_tadpole',name:'Star Tadpole',emoji:'🐸',rarity:'Uncommon',base:55,power:3,planet:'Moon Pond'},
-  {id:'silver_eel',name:'Silver Eel',emoji:'🐍',rarity:'Rare',base:135,power:6,planet:'Moon/Europa'},
-  {id:'lunar_ray',name:'Lunar Ray',emoji:'🛸',rarity:'Epic',base:320,power:9,planet:'Moon Pond'},
-  {id:'dust_piranha',name:'Dust Piranha',emoji:'🐠',rarity:'Common',base:46,power:4,planet:'Mars Canals'},
-  {id:'rust_squid',name:'Rust Squid',emoji:'🦑',rarity:'Uncommon',base:95,power:6,planet:'Mars Canals'},
-  {id:'solar_koi',name:'Solar Koi',emoji:'🐡',rarity:'Rare',base:230,power:11,planet:'Mars/Saturn'},
-  {id:'sand_serpent',name:'Sand Serpent',emoji:'🐉',rarity:'Epic',base:520,power:17,planet:'Mars Canals'},
-  {id:'comet_jelly',name:'Comet Jelly',emoji:'🎐',rarity:'Legendary',base:1400,power:28,planet:'Mars Canals'},
-  {id:'ice_whale',name:'Ice Whale',emoji:'🐋',rarity:'Uncommon',base:180,power:13,planet:'Europa Ice Sea'},
-  {id:'frost_fang',name:'Frost Fang',emoji:'🦈',rarity:'Rare',base:380,power:18,planet:'Europa Ice Sea'},
-  {id:'aurora_manta',name:'Aurora Manta',emoji:'🪽',rarity:'Epic',base:890,power:29,planet:'Europa/Neptune'},
-  {id:'crystal_kraken',name:'Crystal Kraken',emoji:'🐙',rarity:'Legendary',base:2300,power:46,planet:'Europa Ice Sea'},
-  {id:'void_shrimp',name:'Void Shrimp',emoji:'🦐',rarity:'Mythic',base:6200,power:70,planet:'Europa/Neptune'},
-  {id:'ring_ray',name:'Ring Ray',emoji:'🐬',rarity:'Uncommon',base:350,power:24,planet:'Saturn Ring Reef'},
-  {id:'plasma_puffer',name:'Plasma Puffer',emoji:'☄️',rarity:'Rare',base:760,power:35,planet:'Saturn Ring Reef'},
-  {id:'nebula_lobster',name:'Nebula Lobster',emoji:'🦞',rarity:'Epic',base:1800,power:52,planet:'Saturn Ring Reef'},
-  {id:'titan_shark',name:'Titan Shark',emoji:'🦈',rarity:'Legendary',base:4800,power:84,planet:'Saturn Ring Reef'},
-  {id:'star_dragon',name:'Star Dragon',emoji:'🐲',rarity:'Mythic',base:14000,power:120,planet:'Saturn Ring Reef'},
-  {id:'gravity_grouper',name:'Gravity Grouper',emoji:'🐟',rarity:'Rare',base:1600,power:78,planet:'Neptune/Black Hole'},
-  {id:'abyss_angelfish',name:'Abyss Angelfish',emoji:'👼',rarity:'Epic',base:4200,power:110,planet:'Neptune Abyss'},
-  {id:'storm_leviathan',name:'Storm Leviathan',emoji:'🐋',rarity:'Legendary',base:11500,power:170,planet:'Neptune/Black Hole'},
-  {id:'cosmic_hydra',name:'Cosmic Hydra',emoji:'🐉',rarity:'Mythic',base:32000,power:260,planet:'Neptune/Black Hole'},
-  {id:'event_horizon_eel',name:'Event Horizon Eel',emoji:'🌀',rarity:'Legendary',base:26000,power:310,planet:'Black Hole Basin'},
-  {id:'galaxy_serpent',name:'Galaxy Serpent',emoji:'🌌',rarity:'Mythic',base:88000,power:460,planet:'Black Hole Basin'},
-  {id:'void_emperor',name:'Void Emperor',emoji:'👑',rarity:'Void',base:350000,power:900,planet:'Black Hole Basin'}
+const packs=[
+{id:'base',name:'Base Pack',target:'bronze',price:0,gradient:'linear-gradient(135deg,#b45309,#facc15)'},
+{id:'common',name:'Common Pack',target:'common',price:10,gradient:'linear-gradient(135deg,#94a3b8,#f8fafc)'},
+{id:'uncommon',name:'Uncommon Pack',target:'uncommon',price:100,gradient:'linear-gradient(135deg,#15803d,#86efac)'},
+{id:'rare',name:'Rare Pack',target:'rare',price:900,gradient:'linear-gradient(135deg,#0369a1,#7dd3fc)'},
+{id:'ultra',name:'Ultra Rare Pack',target:'ultra',price:4500,gradient:'linear-gradient(135deg,#4338ca,#c4b5fd)'},
+{id:'epic',name:'Epic Pack',target:'epic',price:30000,gradient:'linear-gradient(135deg,#7e22ce,#f0abfc)'},
+{id:'legendary',name:'Legendary Pack',target:'legendary',price:180000,gradient:'linear-gradient(135deg,#ca8a04,#fef08a)'},
+{id:'mythic',name:'Mythic Pack',target:'mythic',price:1200000,gradient:'linear-gradient(135deg,#be123c,#fb7185)'},
+{id:'galactic',name:'Galactic Pack',target:'galactic',price:8500000,gradient:'linear-gradient(135deg,#0f766e,#5eead4)'},
+{id:'goat',name:'GOAT Pack',target:'goat',price:60000000,gradient:'linear-gradient(135deg,#9a3412,#fdba74)'},
+{id:'cosmic',name:'Cosmic Pack',target:'cosmic',price:420000000,gradient:'linear-gradient(135deg,#86198f,#f5d0fe)'},
+{id:'oneofone',name:'One of One Pack',target:'oneofone',price:3500000000,gradient:'linear-gradient(135deg,#f8fafc,#94a3b8,#ffffff)'}
 ];
-
-const RODS=[
-  {id:'rusty',name:'Rusty Moon Rod',emoji:'🎣',price:0,dust:0,need:0,power:1,control:1,luck:1,desc:'Barely holds together, but it catches moon guppies.'},
-  {id:'carbon',name:'Carbon Comet Rod',emoji:'🪝',price:1800,dust:0,need:20,power:4,control:4,luck:2,desc:'Good early rod for Mars and basic rare fish.'},
-  {id:'ion',name:'Ion Pulse Rod',emoji:'⚡',price:9000,dust:10,need:85,power:9,control:7,luck:5,desc:'Electric tension control makes hard catches possible.'},
-  {id:'nebula',name:'Nebula Silk Rod',emoji:'🌈',price:42000,dust:40,need:240,power:18,control:14,luck:10,desc:'Smooth reels and strong rare bonuses.'},
-  {id:'gravity',name:'Gravity Anchor Rod',emoji:'🧲',price:180000,dust:120,need:700,power:36,control:25,luck:18,desc:'Built for deep planets and legendary pulls.'},
-  {id:'void',name:'Voidmaster Rod',emoji:'🕳️',price:750000,dust:400,need:1600,power:80,control:44,luck:36,desc:'End-game rod for Black Hole Basin creatures.'}
+const players=[
+{name:'LeBrawn Jomes',skin:'#6b3f24',hair:'#171717',hairStyle:'headband',beard:'full',tiers:['rare','ultra','epic','legendary','mythic','galactic','goat','cosmic','oneofone']},
+{name:'Steph Curryson',skin:'#c98b58',hair:'#3b2414',hairStyle:'curls',beard:'goatee',tiers:['common','uncommon','rare','ultra','epic','legendary','mythic','goat','cosmic']},
+{name:'Kobe Bryent',skin:'#6b3f24',hair:'#171717',hairStyle:'buzz',beard:'goatee',tiers:['uncommon','rare','ultra','epic','legendary','mythic','goat','oneofone']},
+{name:'Mikel Jordawn',skin:'#5b351f',hair:'#111111',hairStyle:'buzz',beard:'none',tiers:['rare','ultra','epic','legendary','mythic','galactic','goat','cosmic','oneofone']},
+{name:'Shaq O Meal',skin:'#5b351f',hair:'#111111',hairStyle:'buzz',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic']},
+{name:'Kevin Durannt',skin:'#5f3922',hair:'#111',hairStyle:'short',beard:'goatee',tiers:['common','uncommon','rare','ultra','epic','legendary','mythic','galactic']},
+{name:'Luka Donchik',skin:'#f1c27d',hair:'#4b2e1d',hairStyle:'short',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic']},
+{name:'Nikola Jokerr',skin:'#f1c27d',hair:'#4b2e1d',hairStyle:'short',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic','galactic']},
+{name:'Giannis Antetokounbro',skin:'#4b2a1a',hair:'#111',hairStyle:'short',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic','galactic','goat']},
+{name:'Jayson Taytum',skin:'#8d5524',hair:'#111',hairStyle:'curls',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic']},
+{name:'Ja Moranty',skin:'#6b3f24',hair:'#111',hairStyle:'dreads',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Damian Lillerd',skin:'#7a4728',hair:'#111',hairStyle:'short',beard:'full',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'James Hardin',skin:'#6b3f24',hair:'#111',hairStyle:'short',beard:'full',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic']},
+{name:'Kawhi Leonerd',skin:'#6b3f24',hair:'#111',hairStyle:'dreads',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic']},
+{name:'Anthony Davids',skin:'#5f3922',hair:'#111',hairStyle:'short',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic']},
+{name:'Joel Embiidle',skin:'#4b2a1a',hair:'#111',hairStyle:'short',beard:'full',tiers:['common','uncommon','rare','ultra','epic','legendary','mythic']},
+{name:'Devin Bookar',skin:'#c68642',hair:'#2c1b12',hairStyle:'short',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Kyrie Irvving',skin:'#9c5a31',hair:'#111',hairStyle:'curls',beard:'full',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Jimmy Butlar',skin:'#6b3f24',hair:'#111',hairStyle:'dreads',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Chris Powl',skin:'#8d5524',hair:'#111',hairStyle:'short',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic']},
+{name:'Trae Yong',skin:'#c98b58',hair:'#3b2414',hairStyle:'curls',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic']},
+{name:'Zion Williamz',skin:'#5f3922',hair:'#111',hairStyle:'short',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Russ Westbrick',skin:'#6b3f24',hair:'#111',hairStyle:'short',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Dirk Nowitzzki',skin:'#f1c27d',hair:'#d6a15d',hairStyle:'short',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic']},
+{name:'Magic Johnsun',skin:'#5b351f',hair:'#111',hairStyle:'short',beard:'none',tiers:['uncommon','rare','ultra','epic','legendary','mythic','goat']},
+{name:'Larry Burd',skin:'#f1c27d',hair:'#d6a15d',hairStyle:'short',beard:'none',tiers:['uncommon','rare','ultra','epic','legendary','mythic','goat']},
+{name:'Allen Iversonn',skin:'#6b3f24',hair:'#111',hairStyle:'dreads',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic']},
+{name:'Dennis Rodmyn',skin:'#6b3f24',hair:'#22c55e',hairStyle:'short',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Wilt Chamberlane',skin:'#4b2a1a',hair:'#111',hairStyle:'short',beard:'goatee',tiers:['rare','ultra','epic','legendary','mythic','goat','oneofone']},
+{name:'Charles Barklee',skin:'#5b351f',hair:'#111',hairStyle:'buzz',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Dwyane Waid',skin:'#6b3f24',hair:'#111',hairStyle:'short',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic']},
+{name:'Vince Cartr',skin:'#7a4728',hair:'#111',hairStyle:'short',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Steve Nesh',skin:'#f1c27d',hair:'#d6a15d',hairStyle:'short',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Kevin Garnettz',skin:'#4b2a1a',hair:'#111',hairStyle:'short',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic']},
+{name:'Scottie Pippin',skin:'#5f3922',hair:'#111',hairStyle:'short',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic']},
+{name:'Ray Allenn',skin:'#6b3f24',hair:'#111',hairStyle:'buzz',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Reggie Millar',skin:'#6b3f24',hair:'#111',hairStyle:'short',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Tony Parkar',skin:'#c98b58',hair:'#2c1b12',hairStyle:'short',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic']},
+{name:'Manu Ginobli',skin:'#f1c27d',hair:'#2c1b12',hairStyle:'short',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Pau Gasowl',skin:'#f1c27d',hair:'#4b2e1d',hairStyle:'short',beard:'full',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Derrick Rosse',skin:'#6b3f24',hair:'#111',hairStyle:'short',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic']},
+{name:'Dwight Howurd',skin:'#4b2a1a',hair:'#111',hairStyle:'short',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Yao Mingg',skin:'#f1c27d',hair:'#111',hairStyle:'short',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Jason Kiddz',skin:'#8d5524',hair:'#111',hairStyle:'buzz',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Karl Maloon',skin:'#4b2a1a',hair:'#111',hairStyle:'buzz',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic']},
+{name:'John Stocktin',skin:'#f1c27d',hair:'#4b2e1d',hairStyle:'short',beard:'none',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary']},
+{name:'Oscar Robertsun',skin:'#5b351f',hair:'#111',hairStyle:'short',beard:'none',tiers:['rare','ultra','epic','legendary','mythic','goat']},
+{name:'Hakeem Olajuwonny',skin:'#4b2a1a',hair:'#111',hairStyle:'short',beard:'goatee',tiers:['uncommon','rare','ultra','epic','legendary','mythic','goat']},
+{name:'Tim Duncun',skin:'#5f3922',hair:'#111',hairStyle:'short',beard:'goatee',tiers:['bronze','common','uncommon','rare','ultra','epic','legendary','mythic','goat']}
 ];
-
-const UPGRADES=[
-  {id:'oxygen',name:'Oxygen Tanks',emoji:'🫧',desc:'Increases max energy by 4 each level.',base:400,mult:1.9,max:20,currency:'credits'},
-  {id:'bait',name:'Quantum Bait',emoji:'🪱',desc:'Improves rare catch odds slightly.',base:600,mult:2.0,max:18,currency:'credits'},
-  {id:'scanner',name:'Alien Scanner',emoji:'📡',desc:'Increases credit value from catches.',base:8,mult:1.85,max:15,currency:'dust'},
-  {id:'gloves',name:'Reel Gloves',emoji:'🧤',desc:'Makes the green skill zone wider.',base:10,mult:1.9,max:15,currency:'dust'}
-];
-
-const QUESTS=[
-  {id:'q1',name:'First Contact',desc:'Catch 5 alien fish.',type:'caught',target:5,reward:{credits:500,dust:2}},
-  {id:'q2',name:'Moon Market',desc:'Earn 5,000 total credits.',type:'totalCredits',target:5000,reward:{credits:1500,dust:5}},
-  {id:'q3',name:'Species Hunter',desc:'Discover 10 unique fish.',type:'unique',target:10,reward:{credits:7500,dust:18}},
-  {id:'q4',name:'Rare Collector',desc:'Catch 15 Rare or better fish.',type:'rareCaught',target:15,reward:{credits:22000,dust:45}},
-  {id:'q5',name:'Planet Hopper',desc:'Unlock all planets.',type:'planets',target:6,reward:{credits:100000,dust:140}},
-  {id:'q6',name:'Void Legend',desc:'Catch the Void Emperor.',type:'voidEmperor',target:1,reward:{credits:1000000,dust:1000}}
-];
-
-let state, hooked=null, fishing=false, cursorSpeed=1.6;
-
-function fmt(n){n=Math.floor(n);if(n<1000)return n.toString();const u=['','K','M','B','T'];let i=0;while(n>=1000&&i<u.length-1){n/=1000;i++}return n.toFixed(n>=100?0:n>=10?1:2)+u[i]}
-function money(n){return fmt(n)+' cr'}
-function uid(){return Math.random().toString(16).slice(2)+Date.now().toString(16)}
-function planet(){return PLANETS.find(p=>p.id===state.planet)||PLANETS[0]}
-function rod(){return state.rods.find(r=>r.id===state.rod)||state.rods[0]}
-function rodBase(id=state.rod){return RODS.find(r=>r.id===id)}
-function fish(id){return FISH.find(f=>f.id===id)}
-function maxEnergy(){return 35+(state.upgrades.oxygen||0)*4}
-function rank(){if(state.stats.voidEmperor)return'Void Legend';if(state.stats.unique>=20)return'Cosmic Expert';if(state.unlocked.length>=4)return'Planet Hopper';if(state.stats.caught>=50)return'Alien Angler';return'Rookie'}
-function defaultState(){return{credits:120,dust:0,energy:35,planet:'moon',unlocked:['moon'],rods:['rusty'],rod:'rusty',bucket:[],book:{},claimed:[],upgrades:{oxygen:0,bait:0,scanner:0,gloves:0},stats:{caught:0,failed:0,totalCredits:120,rareCaught:0,unique:0,planets:1,voidEmperor:0},logs:[]}}
-function load(){
-  try{const s=JSON.parse(localStorage.getItem('cosmicCastawaySave'));state={...defaultState(),...s};state.stats={...defaultState().stats,...(s.stats||{})};state.upgrades={...defaultState().upgrades,...(s.upgrades||{})};if(!state.rods.includes(state.rod))state.rod=state.rods[0];}
-  catch{state=defaultState();log('Welcome to <strong>Cosmic Castaway</strong>. Cast your line, stop the marker in the green zone, and collect alien fish.')}
-  state.energy=Math.min(state.energy,maxEnergy());save();
-}
-function save(){localStorage.setItem('cosmicCastawaySave',JSON.stringify(state))}
-function log(html){const time=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});state.logs.unshift(`<span class="chip">${time}</span> ${html}`);state.logs=state.logs.slice(0,32)}
-function toast(html){const el=document.createElement('div');el.className='toast';el.innerHTML=html;$('#toastWrap').appendChild(el);setTimeout(()=>{el.style.opacity=0;el.style.transform='translateX(20px)';setTimeout(()=>el.remove(),250)},2800)}
-
-function rodPower(){
-  const r=rodBase();
-  return r.power + r.control*.65 + r.luck*.45 + (state.upgrades.bait||0)*.55 + (state.upgrades.gloves||0)*.75;
-}
-function pickFish(){
-  const p=planet();
-  const luck=rodBase().luck+(state.upgrades.bait||0)*1.4;
-  const adjusted=p.pool.map(([id,w])=>{
-    const f=fish(id), rarityMult={Common:.4,Uncommon:.75,Rare:1.15,Epic:1.75,Legendary:2.8,Mythic:4.2,Void:7}[f.rarity];
-    return [id,w*(1+luck*0.035*rarityMult)];
-  });
-  const total=adjusted.reduce((s,[,w])=>s+w,0);let roll=Math.random()*total;
-  for(const [id,w] of adjusted){roll-=w;if(roll<=0)return id}
-  return adjusted[0][0];
-}
-function catchDifficulty(f){
-  const p=planet();
-  return f.power*(1+p.difficulty*.18);
-}
-function sweetWidth(f){
-  const base=32 + rodBase().control*1.25 + (state.upgrades.gloves||0)*2.2 - planet().difficulty*2.2 - f.power*.08;
-  return Math.max(8,Math.min(48,base));
-}
-function catchChanceText(f){
-  const diff=catchDifficulty(f);
-  const advantage=rodPower()-diff;
-  return Math.max(10,Math.min(94,Math.round(62+advantage*1.8)));
-}
-function cast(){
-  if(fishing)return;
-  const p=planet();
-  if(state.energy<p.energy)return toast('Not enough energy. Recharge first.');
-  state.energy-=p.energy;
-  const id=pickFish();
-  const f=fish(id);
-  hooked={id,started:Date.now(),sweetStart:0,sweetWidth:0};
-  const width=sweetWidth(f);
-  const start=10+Math.random()*(80-width);
-  hooked.sweetStart=start;hooked.sweetWidth=width;
-  cursorSpeed=Math.max(.58,1.85 - planet().difficulty*.045 - f.power*.002 + rodBase().control*.012);
-  $('#lake').style.setProperty('--cursorSpeed',cursorSpeed+'s');
-  $('#sweetSpot').style.left=start+'%';$('#sweetSpot').style.width=width+'%';
-  $('#previewFish').textContent=f.emoji;$('#previewName').textContent='Hooked: '+f.name;
-  $('#previewStats').innerHTML=`<span class="rarity ${f.rarity}">${f.rarity}</span> • Difficulty ${Math.round(catchDifficulty(f))}`;
-  $('#castStatus').textContent='Fish hooked! Stop marker in green.';
-  $('#catchChance').textContent=`Base chance ${catchChanceText(f)}%`;
-  $('#castBtn').disabled=true;$('#reelBtn').disabled=false;
-  $('#lake').classList.add('fishing');fishing=true;renderStats();
-}
-function reel(){
-  if(!fishing||!hooked)return;
-  const cursor=$('#cursor'), track=$('.skill-track');
-  const cRect=cursor.getBoundingClientRect(), tRect=track.getBoundingClientRect();
-  const pos=((cRect.left+cRect.width/2)-tRect.left)/tRect.width*100;
-  const f=fish(hooked.id);
-  const inSweet=pos>=hooked.sweetStart&&pos<=hooked.sweetStart+hooked.sweetWidth;
-  const baseChance=catchChanceText(f);
-  let chance=inSweet?baseChance:Math.max(3,baseChance*.22);
-  if(Math.random()*100<chance)catchFish(f,inSweet);else failFish(f,inSweet);
-  fishing=false;hooked=null;$('#lake').classList.remove('fishing');$('#castBtn').disabled=false;$('#reelBtn').disabled=true;$('#castStatus').textContent='Ready to cast';$('#catchChance').textContent='Skill check inactive';save();render();
-}
-function catchFish(f,perfect){
-  const size=(0.7+Math.random()*1.15)*(perfect?1.15:1);
-  const value=Math.floor(f.base*RARITY[f.rarity].mult*size*(1+(state.upgrades.scanner||0)*.12));
-  const item={id:f.id,size:+size.toFixed(2),value,uid:uid()};
-  state.bucket.push(item);
-  state.stats.caught++;
-  if(['Rare','Epic','Legendary','Mythic','Void'].includes(f.rarity))state.stats.rareCaught++;
-  if(f.id==='void_emperor')state.stats.voidEmperor=1;
-  if(!state.book[f.id]){state.book[f.id]={count:0,biggest:0};modal('New Species!',f.emoji,`${f.name} discovered`,`${f.rarity} • Worth ${money(value)}`);}
-  state.book[f.id].count++;state.book[f.id].biggest=Math.max(state.book[f.id].biggest,size);
-  state.stats.unique=Object.keys(state.book).length;
-  const dustGain=['Legendary','Mythic','Void'].includes(f.rarity)?(f.rarity==='Void'?60:f.rarity==='Mythic'?12:4):0;
-  state.dust+=dustGain;
-  log(`✅ Caught <strong>${f.name}</strong> <span class="rarity ${f.rarity}">${f.rarity}</span> worth <strong>${money(value)}</strong>${perfect?' with a clean reel.':'.'}${dustGain?` +${dustGain} stardust.`:''}`);
-}
-function failFish(f,inSweet){
-  state.stats.failed++;
-  log(`❌ <strong>${f.name}</strong> escaped. ${inSweet?'Bad luck even inside the skill zone.':'You missed the green zone.'}`);
-  toast('Fish escaped. Harder fish need better rods and timing.');
-}
-function sellFish(){
-  if(!state.bucket.length)return toast('No fish to sell.');
-  const total=state.bucket.reduce((s,x)=>s+x.value,0);
-  state.credits+=total;state.stats.totalCredits+=total;
-  log(`💰 Sold ${state.bucket.length} fish for <strong>${money(total)}</strong>.`);
-  state.bucket=[];unlockPlanets();checkQuests(false);render();save();
-}
-function recharge(){
-  const missing=maxEnergy()-state.energy;
-  if(missing<=0)return toast('Energy is already full.');
-  const cost=Math.ceil(missing*(7+state.unlocked.length*5));
-  if(state.credits>=cost){state.credits-=cost;state.energy=maxEnergy();log(`🔋 Recharged energy for <strong>${money(cost)}</strong>.`);}
-  else{state.energy=Math.min(maxEnergy(),state.energy+Math.ceil(maxEnergy()*.35));log('🫧 Took a free short rest. Energy partly restored.')}
-  render();save();
-}
-function unlockPlanets(){
-  for(const p of PLANETS){
-    if(state.unlocked.includes(p.id))continue;
-    if(state.credits>=p.unlock && state.stats.caught>=p.need){
-      state.credits-=p.unlock;state.unlocked.push(p.id);state.stats.planets=state.unlocked.length;
-      log(`🪐 Unlocked <strong>${p.name}</strong>.`);toast(`New planet unlocked: <strong>${p.name}</strong>`);
-    }
-  }
-}
-function buyRod(id){
-  const r=rodBase(id);
-  if(state.rods.includes(id))return toast('You already own this rod.');
-  if(state.credits<r.price)return toast(`Need ${money(r.price)}.`);
-  if(state.dust<r.dust)return toast(`Need ${r.dust} stardust.`);
-  if(state.stats.caught<r.need)return toast(`Catch ${r.need} fish first.`);
-  state.credits-=r.price;state.dust-=r.dust;state.rods.push(id);state.rod=id;
-  log(`🎣 Bought <strong>${r.name}</strong>.`);render();save();
-}
-function selectRod(id){state.rod=id;render();save()}
-function buyUpgrade(id){
-  const u=UPGRADES.find(x=>x.id===id), lvl=state.upgrades[id]||0;
-  if(lvl>=u.max)return toast('Upgrade maxed.');
-  const cost=Math.floor(u.base*Math.pow(u.mult,lvl));
-  if(u.currency==='credits'&&state.credits<cost)return toast(`Need ${money(cost)}.`);
-  if(u.currency==='dust'&&state.dust<cost)return toast(`Need ${cost} stardust.`);
-  if(u.currency==='credits')state.credits-=cost;else state.dust-=cost;
-  state.upgrades[id]++;state.energy=Math.min(maxEnergy(),state.energy+4);
-  log(`⬆️ Upgraded <strong>${u.name}</strong> to Lv. ${state.upgrades[id]}.`);render();save();
-}
-function progress(q){if(q.type==='unique')return Object.keys(state.book).length;if(q.type==='planets')return state.unlocked.length;return state.stats[q.type]||0}
-function claimQuest(id){
-  const q=QUESTS.find(x=>x.id===id);if(!q||state.claimed.includes(id))return;
-  if(progress(q)<q.target)return toast('Quest not finished.');
-  state.claimed.push(id);state.credits+=q.reward.credits;state.dust+=q.reward.dust;state.stats.totalCredits+=q.reward.credits;
-  log(`🎁 Quest claimed: <strong>${q.name}</strong>.`);render();save();
-}
-function checkQuests(show=true){QUESTS.forEach(q=>{if(!state.claimed.includes(q.id)&&progress(q)>=q.target&&show)toast(`Quest ready: <strong>${q.name}</strong>`)})}
-function modal(title,emoji,desc,reward){
-  $('#modalContent').innerHTML=`<h2>${title}</h2><div class="reward"><div style="font-size:78px">${emoji}</div><h3 style="font-size:23px;margin-top:8px">${desc}</h3><p style="margin-top:12px;color:var(--gold);font-weight:950">${reward}</p></div><button onclick="closeModal()">Continue</button>`;
-  $('#modalBg').classList.add('active');
-}
-function closeModal(){$('#modalBg').classList.remove('active')}
-window.closeModal=closeModal;
-
-function render(){unlockPlanets();renderStats();renderPlanets();renderFishing();renderRods();renderShop();renderBook();renderQuests();renderLogs();}
-function renderStats(){
-  $('#creditsText').textContent=money(state.credits);$('#dustText').textContent=fmt(state.dust);$('#energyText').textContent=`${Math.floor(state.energy)}/${maxEnergy()}`;$('#rankText').textContent=rank();
-}
-function renderPlanets(){
-  $('#planetCount').textContent=`${state.unlocked.length}/${PLANETS.length}`;
-  $('#planetList').innerHTML=PLANETS.map(p=>{
-    const unlocked=state.unlocked.includes(p.id), active=state.planet===p.id;
-    const pct=unlocked?state.planet===p.id?70:45:0;
-    return `<div class="planet ${unlocked?'unlocked':'locked'} ${active?'active':''}" data-planet="${p.id}">
-      <div class="row"><strong>${p.emoji} ${p.name}</strong><span class="chip">${unlocked?'Open':money(p.unlock)}</span></div>
-      <div class="bar-wrap" style="margin:9px 0"><div class="bar" style="width:${pct}%"></div></div>
-      <p class="small">${unlocked?p.desc:`Needs ${p.need||0} catches`}</p>
-    </div>`
-  }).join('');
-  $$('.planet.unlocked').forEach(el=>el.onclick=()=>{state.planet=el.dataset.planet;log(`Landed on <strong>${planet().name}</strong>.`);render();save()});
-}
-function renderFishing(){
-  const p=planet(), r=rodBase();
-  $('#planetTitle').textContent=`${p.emoji} ${p.name}`;$('#difficultyText').textContent=`Difficulty ${p.difficulty}`;$('#planetDesc').textContent=p.desc;
-  $('#planetOrb').style.background=`radial-gradient(circle at 35% 30%,rgba(255,255,255,.55),transparent 16%),linear-gradient(135deg,${p.color[0]},${p.color[1]})`;
-  $('#rodName').textContent=r.name;$('#rodStats').textContent=`Power ${r.power} • Control ${r.control} • Luck ${r.luck}`;
-  if(!fishing){$('#previewFish').textContent='❔';$('#previewName').textContent=`Bucket: ${state.bucket.length} fish`;$('#previewStats').textContent='Cast your line, then stop the marker inside the green zone.'}
-  $('#castBtn').disabled=fishing||state.energy<p.energy;$('#sellBtn').textContent=`Sell Fish (${state.bucket.length})`;
-}
-function renderRods(){
-  $('#rodCount').textContent=`${state.rods.length} owned`;
-  $('#rodList').innerHTML=RODS.map(r=>{
-    const owned=state.rods.includes(r.id);
-    return `<div class="rod ${state.rod===r.id?'selected':''}">
-      <div class="rod-icon">${r.emoji}</div>
-      <div>
-        <div class="row"><strong>${r.name}</strong><span class="price">${owned?'Owned':money(r.price)}</span></div>
-        <p class="small">${r.desc}</p>
-        <p class="small">Power ${r.power} • Control ${r.control} • Luck ${r.luck} • Needs ${r.need} catches • ${r.dust} dust</p>
-        <div class="mini">${owned?`<button onclick="selectRod('${r.id}')">Select</button>`:`<button onclick="buyRod('${r.id}')">Buy Rod</button>`}</div>
-      </div>
-    </div>`
-  }).join('');
-}
-function renderShop(){
-  $('#shopList').innerHTML=UPGRADES.map(u=>{
-    const lvl=state.upgrades[u.id]||0,cost=Math.floor(u.base*Math.pow(u.mult,lvl));
-    return `<div class="upgrade">
-      <div class="row"><div><strong>${u.emoji} ${u.name}</strong><p class="small">${u.desc}</p></div><span class="price">Lv. ${lvl}/${u.max}</span></div>
-      <button style="margin-top:12px" onclick="buyUpgrade('${u.id}')" ${lvl>=u.max?'disabled':''}>Upgrade ${u.currency==='credits'?money(cost):cost+' dust'}</button>
-    </div>`
-  }).join('');
-}
-function renderBook(){
-  $('#bookCount').textContent=`${Object.keys(state.book).length}/${FISH.length}`;
-  $('#bookList').innerHTML=FISH.map(f=>{
-    const found=state.book[f.id];
-    return `<div class="fish-card" style="opacity:${found?1:.43}">
-      <div class="fish-icon">${found?f.emoji:'❔'}</div>
-      <div><strong>${found?f.name:'Unknown Species'} <span class="rarity ${f.rarity}">${f.rarity}</span></strong><p class="small">${found?`Caught ${found.count} • Biggest ${found.biggest.toFixed(2)}m • Found at ${f.planet}`:'Catch this species to reveal details.'}</p></div>
-      <span class="chip">${found?'Found':'Locked'}</span>
-    </div>`
-  }).join('');
-}
-function renderQuests(){
-  $('#questList').innerHTML=QUESTS.map(q=>{
-    const p=progress(q), pct=Math.min(100,p/q.target*100), claimed=state.claimed.includes(q.id), ready=p>=q.target&&!claimed;
-    return `<div class="quest">
-      <div class="row"><div><strong>${claimed?'✅':ready?'🎁':'🎯'} ${q.name}</strong><p class="small">${q.desc}</p></div><span class="price">${fmt(p)}/${fmt(q.target)}</span></div>
-      <div class="bar-wrap" style="margin:10px 0"><div class="bar" style="width:${pct}%"></div></div>
-      <button onclick="claimQuest('${q.id}')" ${ready?'':'disabled'}>${claimed?'Claimed':ready?'Claim Reward':`${money(q.reward.credits)} + ${q.reward.dust} dust`}</button>
-    </div>`
-  }).join('');
-}
-function renderLogs(){ $('#logList').innerHTML=state.logs.map(l=>`<div class="log">${l}</div>`).join('')||'<div class="log">No log entries yet.</div>' }
-function exportSave(){const code=btoa(unescape(encodeURIComponent(JSON.stringify(state))));$('#saveCode').value=code;navigator.clipboard?.writeText(code).catch(()=>{});toast('Save exported.')}
-function importSave(){try{state=JSON.parse(decodeURIComponent(escape(atob($('#saveCode').value.trim()))));render();save();toast('Save imported.')}catch{toast('Invalid save code.')}}
-function reset(){if(!confirm('Reset all Cosmic Castaway progress?'))return;localStorage.removeItem('cosmicCastawaySave');state=defaultState();log('Game reset. Back to the Moon Pond.');render();save()}
-function bind(){
-  $$('.tab').forEach(t=>t.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('active'));$$('.panel').forEach(p=>p.classList.remove('active'));t.classList.add('active');$('#'+t.dataset.tab+'Panel').classList.add('active')});
-  $('#castBtn').onclick=cast;$('#reelBtn').onclick=reel;$('#sellBtn').onclick=sellFish;$('#restBtn').onclick=recharge;
-  $('#exportBtn').onclick=exportSave;$('#importBtn').onclick=importSave;$('#manualSaveBtn').onclick=()=>{save();toast('Saved.')};$('#resetBtn').onclick=reset;
-  $('#modalBg').onclick=e=>{if(e.target.id==='modalBg')closeModal()};
-  addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.code==='Space'){e.preventDefault();fishing?reel():cast()}if(e.key.toLowerCase()==='s')sellFish();if(e.key.toLowerCase()==='r')recharge()});
-  addEventListener('beforeunload',save);
-}
-window.buyRod=buyRod;window.selectRod=selectRod;window.buyUpgrade=buyUpgrade;window.claimQuest=claimQuest;
-load();bind();render();setInterval(()=>checkQuests(true),9000);setInterval(save,30000);
+let cards=[],state={money:0,owned:{},sellBank:{},equipped:[],lastSave:Date.now()},currentFilter='all',pendingCard=null,pendingSellValue=0,sliceStart=null,sliceDone=false;
+function hash(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i)|0;return Math.abs(h)}
+function money(n){if(n>=1e9)return'$'+(n/1e9).toFixed(2)+'B';if(n>=1e6)return'$'+(n/1e6).toFixed(2)+'M';if(n>=1e3)return'$'+(n/1e3).toFixed(2)+'K';return'$'+n.toFixed(2)}
+function rarity(id){return rarities.find(r=>r.id===id)}function rarityIndex(id){return rarities.findIndex(r=>r.id===id)}
+function makeCards(){let id=0;players.forEach(p=>{p.tiers.forEach(t=>{const r=rarity(t),seed=hash(p.name+t),rating=Math.min(r.rMax,r.rMin+(seed%(r.rMax-r.rMin+1))),income=+(r.min+(rating-r.rMin)/Math.max(1,(r.rMax-r.rMin))*(r.max-r.min)).toFixed(2);cards.push({id:'c'+id++,base:p.name,name:p.name,rarity:t,rating,income,sell:Math.round(r.sell*(.85+(rating-r.rMin)*.08)),skin:p.skin,hair:p.hair,hairStyle:p.hairStyle,beard:p.beard,number:(seed%99)+1})})});cards.sort((a,b)=>rarityIndex(a.rarity)-rarityIndex(b.rarity)||a.rating-b.rating)}
+makeCards();
+function avatarHTML(c,big=false){let beard='';if(c.beard==='full')beard='<div class="beard"></div>';if(c.beard==='goatee')beard='<div class="beard goatee"></div>';return `<div class="avatar" style="--skin:${c.skin};--hair:${c.hair};--jersey:${rarity(c.rarity).color};${big?'transform:scale(1.08)':''}"><div class="hairBase hair ${c.hairStyle}"></div><div class="ear l"></div><div class="ear r"></div><div class="head"></div>${beard}<div class="brow l"></div><div class="brow r"></div><div class="eye l"></div><div class="eye r"></div><div class="nose"></div><div class="cheek l"></div><div class="cheek r"></div><div class="mouth"></div><div class="neck"></div><div class="arm l"></div><div class="arm r"></div><div class="wrist l"></div><div class="wrist r"></div><div class="body" data-no="${c.number}"></div><div class="shorts"></div><div class="shoe l"></div><div class="shoe r"></div><div class="ball"></div></div>`}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.screen===id));renderAll()}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>showScreen(b.dataset.screen));
+function getOwnedCount(){return Object.values(state.owned).reduce((a,b)=>a+b,0)}
+function getIncome(){return state.equipped.reduce((s,id)=>s+(cards.find(c=>c.id===id)?.income||0),0)}
+function getPower(){if(!state.equipped.length)return 0;return Math.round(state.equipped.reduce((s,id)=>s+(cards.find(c=>c.id===id)?.rating||0),0)/state.equipped.length)}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show';setTimeout(()=>t.className='toast',2100)}
+function packOdds(pack){const ti=rarityIndex(pack.target);let weights={};rarities.forEach((r,i)=>{const diff=i-ti;if(diff===0)weights[r.id]=56;else if(diff===-1)weights[r.id]=24;else if(diff<0)weights[r.id]=Math.max(3,16-Math.abs(diff)*3);else if(diff===1)weights[r.id]=5;else weights[r.id]=Math.max(.08,1.1-diff*.16)});if(pack.id==='base')weights={bronze:76,common:18,uncommon:4,rare:1.2,ultra:.55,epic:.18,legendary:.05,mythic:.015,galactic:.004,goat:.001,cosmic:.0004,oneofone:.0001};const total=Object.values(weights).reduce((a,b)=>a+b,0);return Object.fromEntries(Object.entries(weights).map(([k,v])=>[k,v/total]))}
+function chooseRarity(pack){const odds=packOdds(pack);let roll=Math.random(),acc=0;for(const [id,p]of Object.entries(odds)){acc+=p;if(roll<=acc)return id}return Object.keys(odds)[0]}
+function chooseCard(pack){const rid=chooseRarity(pack),pool=cards.filter(c=>c.rarity===rid);return pool[Math.floor(Math.random()*pool.length)]}
+function buyPack(id){const p=packs.find(x=>x.id===id);if(state.money<p.price){toast('Not enough money.');return}state.money-=p.price;pendingCard=chooseCard(p);pendingSellValue=Math.max(0.25,p.price*0.25);openSliceModal(p);updateTop()}
+function openSliceModal(pack){sliceStart=null;sliceDone=false;const bp=document.getElementById('bigPack');bp.className='bigPack';bp.style.background=pack.gradient;document.getElementById('packLabel').innerHTML=pack.name.toUpperCase();document.getElementById('openModal').classList.add('active');document.getElementById('openTitle').textContent='Slice the pack';document.getElementById('openHint').textContent='Hold and drag across the top line to rip it open.';document.getElementById('sliceFill').style.width='0%';document.getElementById('wrapperCard').className='wrapperCard';document.getElementById('flipCard').className='flipCard';document.getElementById('cardFace').innerHTML='';document.getElementById('closeOpen').style.display='none';document.getElementById('burst').innerHTML=''}
+const bigPack=document.getElementById('bigPack');
+bigPack.addEventListener('pointerdown',e=>{const r=bigPack.getBoundingClientRect();if(e.clientY-r.top<130){sliceStart=e.clientX-r.left;bigPack.setPointerCapture(e.pointerId)}});
+bigPack.addEventListener('pointermove',e=>{if(sliceStart===null||sliceDone)return;const r=bigPack.getBoundingClientRect(),x=e.clientX-r.left,progress=Math.max(0,Math.min(1,(x-sliceStart)/(r.width*.72)));document.getElementById('sliceFill').style.width=(progress*100)+'%';if(progress>.92)finishSlice()});
+bigPack.addEventListener('pointerup',()=>{if(!sliceDone){sliceStart=null;document.getElementById('sliceFill').style.width='0%'}});
+function finishSlice(){sliceDone=true;document.getElementById('bigPack').classList.add('opened');document.getElementById('openTitle').textContent='Wrapper sliced!';document.getElementById('openHint').textContent='The card is sliding out...';setTimeout(()=>{document.getElementById('wrapperCard').classList.add('out');document.getElementById('cardFace').innerHTML=cardHTML(pendingCard,true)},600);setTimeout(()=>{document.getElementById('flipCard').classList.add('flipped');document.getElementById('openTitle').textContent='You pulled '+pendingCard.name+'!';makeBurst(rarity(pendingCard.rarity).color);addCard(pendingCard.id,pendingSellValue);saveGame(false);renderAll();document.getElementById('closeOpen').style.display='inline-block'},1400)}
+function closeOpenModal(){document.getElementById('openModal').classList.remove('active')}
+function makeBurst(color){const b=document.getElementById('burst');for(let i=0;i<90;i++){const s=document.createElement('div');s.className='spark';s.style.left='50%';s.style.top='45%';s.style.background=color;s.style.setProperty('--x',(Math.random()*760-380)+'px');s.style.setProperty('--y',(Math.random()*760-380)+'px');b.appendChild(s)}}
+function addCard(id,sellValue=0.25){state.owned[id]=(state.owned[id]||0)+1;state.sellBank=state.sellBank||{};state.sellBank[id]=(state.sellBank[id]||0)+sellValue}
+function cardHTML(c,reveal=false){const r=rarity(c.rarity),count=state.owned[c.id]||0;return `<div class="card" style="border-color:${r.color};box-shadow:0 0 25px ${r.color}33,0 16px 35px rgba(0,0,0,.28)"><div class="shine"></div><div class="rating">${c.rating}<small>OVR</small></div><span class="rarityTag" style="background:${r.color}">${r.name}</span><div class="playerArt" style="box-shadow:inset 0 0 35px ${r.color}55">${avatarHTML(c)}</div><div class="name">${c.name}</div><div class="income">${money(c.income)} / sec</div><div class="owned">Owned: ${count}${reveal?' • Sell: '+money(c.sell):''}</div></div>`}
+function cardElement(c,mode){const wrap=document.createElement('div');wrap.innerHTML=cardHTML(c);const el=wrap.firstElementChild,actions=document.createElement('div');actions.className='cardActions';const count=state.owned[c.id]||0;if(mode==='equip'){const isEq=state.equipped.includes(c.id),b=document.createElement('button');b.className=isEq?'danger tiny':'good tiny';b.textContent=isEq?'Unequip':'Equip';b.disabled=!count&&!isEq;b.addEventListener('click',()=>isEq?unequip(c.id):equip(c.id));actions.appendChild(b)}const sell=document.createElement('button');sell.className='ghost tiny';sell.textContent='Sell';sell.disabled=count<=0;sell.addEventListener('click',()=>sellCard(c.id));actions.appendChild(sell);el.appendChild(actions);if(!count&&mode==='collection')el.classList.add('locked');return el}
+function equip(id){if(state.equipped.includes(id))return;if((state.owned[id]||0)<=0){toast('You do not own this card.');return}if(state.equipped.length>=MAX_EQUIP){toast('You can only equip 5 cards.');return}state.equipped.push(id);saveGame(false);renderAll();toast('Equipped.')}
+function unequip(id){const i=state.equipped.indexOf(id);if(i>-1)state.equipped.splice(i,1);saveGame(false);renderAll();toast('Unequipped.')}
+function sellCard(id){const owned=state.owned[id]||0;if(owned<=0)return;const eq=state.equipped.filter(x=>x===id).length;if(owned<=eq){toast('Unequip it before selling your last equipped copy.');return}const c=cards.find(x=>x.id===id);state.sellBank=state.sellBank||{};const payout=(state.sellBank[id]||c.sell)/owned;state.owned[id]=owned-1;state.sellBank[id]=Math.max(0,(state.sellBank[id]||payout)-payout);if(state.owned[id]<=0){delete state.owned[id];delete state.sellBank[id]}state.money+=payout;saveGame(false);renderAll();toast('Sold for '+money(payout))}
+function togglePackInfo(btn){const odds=btn.parentElement.querySelector('.odds');odds.style.display=odds.style.display==='none'?'block':'none';btn.textContent=odds.style.display==='none'?'Info':'Hide Info'}
+function renderPacks(){const g=document.getElementById('packGrid');g.innerHTML='';packs.forEach(p=>{const odds=packOdds(p),can=state.money>=p.price,d=document.createElement('div');d.className='panel pack';const visibleOdds=Object.entries(odds).filter(([id,v])=>v*100>=0.01).map(([id,v])=>`${rarity(id).name}: ${(v*100).toFixed(v*100<1?2:1)}%`).join('<br>');d.innerHTML=`<div class="packInner"><div class="packArt" style="background:${p.gradient}">${p.name.toUpperCase()}</div><h3>${p.name}</h3><div class="price">${p.price===0?'FREE':money(p.price)}</div><button ${can?'':'disabled'}>${p.price===0?'Open Pack':'Buy Pack'}</button><button class="ghost infoBtn" type="button">Info</button><div class="odds" style="display:none;margin-top:8px">${visibleOdds}<br><br><span class="smallText">All rarities are possible. Some odds are too low to be shown.</span></div></div>`;d.querySelector('button').onclick=()=>buyPack(p.id);d.querySelector('.infoBtn').onclick=(e)=>togglePackInfo(e.target);g.appendChild(d)})}
+function renderEquip(){const s=document.getElementById('slots');s.innerHTML='';for(let i=0;i<MAX_EQUIP;i++){const id=state.equipped[i],c=cards.find(x=>x.id===id),d=document.createElement('div');d.className='slot';d.innerHTML=c?`<b>${i+1}. ${c.name}</b><small>${rarity(c.rarity).name} • ${c.rating} OVR • ${money(c.income)}/s</small><button class="tiny danger" style="margin-top:8px" onclick="unequip('${c.id}')">Unequip</button>`:`<b>${i+1}. Empty Slot</b><small>Equip a card to raise power.</small>`;s.appendChild(d)}const ec=document.getElementById('equipCards');ec.innerHTML='';cards.filter(c=>(state.owned[c.id]||0)>0).sort((a,b)=>b.rating-a.rating||b.income-a.income).forEach(c=>ec.appendChild(cardElement(c,'equip')));if(!ec.children.length)ec.innerHTML='<p class="hint">No cards yet. Open Base Packs first.</p>'}
+function renderCollection(){const f=document.getElementById('filters');f.innerHTML='';const all=document.createElement('button');all.className='tiny '+(currentFilter==='all'?'active':'');all.textContent='All';all.onclick=()=>{currentFilter='all';renderCollection()};f.appendChild(all);rarities.forEach(r=>{const b=document.createElement('button');b.className='tiny '+(currentFilter===r.id?'active':'');b.textContent=r.name;b.style.border=`1px solid ${r.color}`;b.onclick=()=>{currentFilter=r.id;renderCollection()};f.appendChild(b)});const w=document.getElementById('collectionCards');w.innerHTML='';cards.filter(c=>currentFilter==='all'||c.rarity===currentFilter).forEach(c=>w.appendChild(cardElement(c,'collection')))}
+function renderLegend(){const el=document.getElementById('rarityLegend');if(!el||el.dataset.done)return;rarities.forEach(r=>{const d=document.createElement('div');d.className='stat';d.innerHTML=`<b style="color:${r.color}">${r.name}</b><span>${r.rMin}-${r.rMax} OVR</span>`;el.appendChild(d)});el.dataset.done=1}
+function updateTop(){const p=getPower();document.getElementById('moneyText').textContent=money(state.money);document.getElementById('incomeText').textContent=money(getIncome())+'/s';document.getElementById('powerText').textContent=p;document.getElementById('homePower').textContent=p;document.getElementById('cardsText').textContent=getOwnedCount()}
+function renderAll(){updateTop();renderLegend();renderPacks();renderEquip();renderCollection()}
+function saveGame(manual){state.lastSave=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(state));if(manual)toast('Game saved.')}
+function loadGame(manual){let raw=localStorage.getItem(SAVE_KEY);if(!raw){for(const k of OLD_KEYS){raw=localStorage.getItem(k);if(raw)break}}if(!raw){if(manual)toast('No save found.');return}try{const d=JSON.parse(raw);state={money:+d.money||0,owned:d.owned||{},sellBank:d.sellBank||{},equipped:Array.isArray(d.equipped)?d.equipped.slice(0,MAX_EQUIP):[],lastSave:d.lastSave||Date.now()};state.equipped=state.equipped.filter(id=>cards.some(c=>c.id===id)&&(state.owned[id]||0)>0);renderAll();if(manual)toast('Game loaded.')}catch(e){toast('Save was broken.')}}
+function openResetConfirm(){document.getElementById('resetModal').classList.add('active')}
+function resetGame(){state={money:0,owned:{},sellBank:{},equipped:[],lastSave:Date.now()};localStorage.removeItem(SAVE_KEY);OLD_KEYS.forEach(k=>localStorage.removeItem(k));document.getElementById('resetModal').classList.remove('active');renderAll();toast('Everything reset.')}
+setInterval(()=>{state.money+=getIncome()/10;updateTop()},100);
+setInterval(()=>saveGame(false),10000);
+loadGame(false);renderAll();
 </script>
 </body>
 </html>
