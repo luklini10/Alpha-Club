@@ -172,6 +172,7 @@ button:disabled{opacity:.4;cursor:not-allowed;transform:none;filter:none}
     <button class="tab" data-screen="packs">🎁 Packs</button>
     <button class="tab" data-screen="equip">⭐ Equip Team</button>
     <button class="tab" data-screen="collection">📚 Collection</button>
+    <button class="tab" data-screen="admin">🛠️ Admin</button>
     <button class="tab" data-screen="save">💾 Save</button>
   </div>
   <div class="sideStats">
@@ -195,6 +196,21 @@ button:disabled{opacity:.4;cursor:not-allowed;transform:none;filter:none}
   <div class="panel" style="margin-top:14px"><h2>Your Owned Cards</h2><div id="equipCards" class="cards"></div></div>
 </section>
 <section id="collection" class="screen"><div class="panel"><div class="sectionTitle"><h2>Collection</h2></div><div id="filters" class="filters"></div><div id="collectionCards" class="cards"></div></div></section>
+<section id="admin" class="screen">
+  <div class="panel">
+    <div class="sectionTitle">
+      <h2>Admin Unlock Panel</h2>
+      <span class="hint">Pick cards to add to your collection</span>
+    </div>
+    <div class="row" style="margin-bottom:12px">
+      <select id="adminRarity" style="flex:1;background:#0b1220;color:white;border:1px solid var(--line);border-radius:14px;padding:11px;font-weight:800"></select>
+      <button class="good" onclick="adminUnlockAllVisible()">Unlock Visible</button>
+      <button class="ghost" onclick="adminUnlockAllCards()">Unlock Every Card</button>
+    </div>
+    <p class="hint">Tip: choose a rarity, then unlock individual cards or everything currently shown.</p>
+    <div id="adminCards" class="cards"></div>
+  </div>
+</section>
 <section id="save" class="screen">
   <div class="grid">
     <div class="panel"><h2>Save</h2><p class="hint">Auto-save is on, but this forces a save.</p><button class="good" onclick="saveGame(true)">Save Game</button></div>
@@ -350,7 +366,56 @@ function renderEquip(){const s=document.getElementById('slots');s.innerHTML='';f
 function renderCollection(){const f=document.getElementById('filters');f.innerHTML='';const all=document.createElement('button');all.className='tiny '+(currentFilter==='all'?'active':'');all.textContent='All';all.onclick=()=>{currentFilter='all';renderCollection()};f.appendChild(all);rarities.forEach(r=>{const b=document.createElement('button');b.className='tiny '+(currentFilter===r.id?'active':'');b.textContent=r.name;b.style.border=`1px solid ${r.color}`;b.onclick=()=>{currentFilter=r.id;renderCollection()};f.appendChild(b)});const w=document.getElementById('collectionCards');w.innerHTML='';cards.filter(c=>currentFilter==='all'||c.rarity===currentFilter).forEach(c=>w.appendChild(cardElement(c,'collection')))}
 function renderLegend(){const el=document.getElementById('rarityLegend');if(!el||el.dataset.done)return;rarities.forEach(r=>{const d=document.createElement('div');d.className='stat';d.innerHTML=`<b style="color:${r.color}">${r.name}</b><span>${r.rMin}-${r.rMax} OVR</span>`;el.appendChild(d)});el.dataset.done=1}
 function updateTop(){const p=getPower();document.getElementById('moneyText').textContent=money(state.money);document.getElementById('incomeText').textContent=money(getIncome())+'/s';document.getElementById('powerText').textContent=p;document.getElementById('homePower').textContent=p;document.getElementById('cardsText').textContent=getOwnedCount()}
-function renderAll(){updateTop();renderLegend();renderPacks();renderEquip();renderCollection()}
+function renderAdmin(){
+  const select=document.getElementById('adminRarity');
+  const wrap=document.getElementById('adminCards');
+  if(!select||!wrap)return;
+  if(!select.dataset.ready){
+    select.innerHTML='<option value="all">All Rarities</option>'+rarities.map(r=>`<option value="${r.id}">${r.name}</option>`).join('');
+    select.value=select.value||'all';
+    select.onchange=renderAdmin;
+    select.dataset.ready='1';
+  }
+  const chosen=select.value||'all';
+  wrap.innerHTML='';
+  cards
+    .filter(c=>chosen==='all'||c.rarity===chosen)
+    .sort((a,b)=>rarityIndex(b.rarity)-rarityIndex(a.rarity)||b.income-a.income||b.rating-a.rating)
+    .forEach(c=>{
+      const el=cardElement(c,'collection');
+      const actions=el.querySelector('.cardActions')||document.createElement('div');
+      actions.className='cardActions';
+      const unlock=document.createElement('button');
+      unlock.className='good tiny';
+      unlock.textContent='Unlock +1';
+      unlock.onclick=()=>adminUnlockCard(c.id);
+      actions.prepend(unlock);
+      if(!el.contains(actions))el.appendChild(actions);
+      el.classList.remove('locked');
+      wrap.appendChild(el);
+    });
+}
+function adminUnlockCard(id){
+  addCard(id,0);
+  saveGame(false);
+  renderAll();
+  toast('Card unlocked.');
+}
+function adminUnlockAllVisible(){
+  const select=document.getElementById('adminRarity');
+  const chosen=select?select.value:'all';
+  cards.filter(c=>chosen==='all'||c.rarity===chosen).forEach(c=>addCard(c.id,0));
+  saveGame(false);
+  renderAll();
+  toast(chosen==='all'?'All cards unlocked.':'Visible rarity unlocked.');
+}
+function adminUnlockAllCards(){
+  cards.forEach(c=>addCard(c.id,0));
+  saveGame(false);
+  renderAll();
+  toast('Every card unlocked.');
+}
+function renderAll(){updateTop();renderLegend();renderPacks();renderEquip();renderCollection();renderAdmin()}
 function saveGame(manual){state.lastSave=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(state));if(manual)toast('Game saved.')}
 function loadGame(manual){let raw=localStorage.getItem(SAVE_KEY);if(!raw){for(const k of OLD_KEYS){raw=localStorage.getItem(k);if(raw)break}}if(!raw){if(manual)toast('No save found.');return}try{const d=JSON.parse(raw);state={money:+d.money||0,owned:d.owned||{},sellBank:d.sellBank||{},equipped:Array.isArray(d.equipped)?d.equipped.slice(0,MAX_EQUIP):[],lastSave:d.lastSave||Date.now()};state.equipped=state.equipped.filter(id=>cards.some(c=>c.id===id)&&(state.owned[id]||0)>0);renderAll();if(manual)toast('Game loaded.')}catch(e){toast('Save was broken.')}}
 function openResetConfirm(){document.getElementById('resetModal').classList.add('active')}
