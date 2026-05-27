@@ -191,7 +191,7 @@ button:disabled{opacity:.4;cursor:not-allowed;transform:none;filter:none}
 </section>
 <section id="packs" class="screen"><div class="sectionTitle"><h2>Pack Shop</h2></div><div id="packGrid" class="grid"></div></section>
 <section id="equip" class="screen">
-  <div class="panel"><div class="sectionTitle"><h2>Equipped Starting Five</h2><span class="hint">Max 5 cards</span></div><div id="slots" class="slots"></div></div>
+  <div class="panel"><div class="sectionTitle"><h2>Equipped Starting Five</h2><div class="row" style="justify-content:flex-end;flex:0 0 auto"><button class="good tiny" onclick="equipBest()">Equip Best</button><span class="hint" style="flex:0 0 auto">Max 5 cards</span></div></div><div id="slots" class="slots"></div></div>
   <div class="panel" style="margin-top:14px"><h2>Your Owned Cards</h2><div id="equipCards" class="cards"></div></div>
 </section>
 <section id="collection" class="screen"><div class="panel"><div class="sectionTitle"><h2>Collection</h2></div><div id="filters" class="filters"></div><div id="collectionCards" class="cards"></div></div></section>
@@ -331,6 +331,18 @@ function cardHTML(c,reveal=false){const r=rarity(c.rarity),count=state.owned[c.i
 function cardElement(c,mode){const wrap=document.createElement('div');wrap.innerHTML=cardHTML(c);const el=wrap.firstElementChild,actions=document.createElement('div');actions.className='cardActions';const count=state.owned[c.id]||0;if(mode==='equip'){const isEq=state.equipped.includes(c.id),b=document.createElement('button');b.className=isEq?'danger tiny':'good tiny';b.textContent=isEq?'Unequip':'Equip';b.disabled=!count&&!isEq;b.addEventListener('click',()=>isEq?unequip(c.id):equip(c.id));actions.appendChild(b)}const sell=document.createElement('button');sell.className='ghost tiny';sell.textContent='Sell';sell.disabled=count<=0;sell.addEventListener('click',()=>sellCard(c.id));actions.appendChild(sell);el.appendChild(actions);if(!count&&mode==='collection')el.classList.add('locked');return el}
 function equip(id){if(state.equipped.includes(id))return;if((state.owned[id]||0)<=0){toast('You do not own this card.');return}if(state.equipped.length>=MAX_EQUIP){toast('You can only equip 5 cards.');return}state.equipped.push(id);saveGame(false);renderAll();toast('Equipped.')}
 function unequip(id){const i=state.equipped.indexOf(id);if(i>-1)state.equipped.splice(i,1);saveGame(false);renderAll();toast('Unequipped.')}
+function equipBest(){
+  const best=cards
+    .filter(c=>(state.owned[c.id]||0)>0)
+    .sort((a,b)=>b.rating-a.rating||b.income-a.income||rarityIndex(b.rarity)-rarityIndex(a.rarity))
+    .slice(0,MAX_EQUIP)
+    .map(c=>c.id);
+  if(!best.length){toast('No cards to equip yet.');return}
+  state.equipped=best;
+  saveGame(false);
+  renderAll();
+  toast('Best squad equipped.');
+}
 function sellCard(id){const owned=state.owned[id]||0;if(owned<=0)return;const eq=state.equipped.filter(x=>x===id).length;if(owned<=eq){toast('Unequip it before selling your last equipped copy.');return}const c=cards.find(x=>x.id===id);state.sellBank=state.sellBank||{};const payout=(state.sellBank[id]||c.sell)/owned;state.owned[id]=owned-1;state.sellBank[id]=Math.max(0,(state.sellBank[id]||payout)-payout);if(state.owned[id]<=0){delete state.owned[id];delete state.sellBank[id]}state.money+=payout;saveGame(false);renderAll();toast('Sold for '+money(payout))}
 function togglePackInfo(btn){const odds=btn.parentElement.querySelector('.odds');odds.style.display=odds.style.display==='none'?'block':'none';btn.textContent=odds.style.display==='none'?'Info':'Hide Info'}
 function renderPacks(){const g=document.getElementById('packGrid');g.innerHTML='';packs.forEach(p=>{const odds=packOdds(p),can=state.money>=p.price,d=document.createElement('div');d.className='panel pack';const visibleOdds=Object.entries(odds).filter(([id,v])=>v*100>=0.01).map(([id,v])=>`${rarity(id).name}: ${(v*100).toFixed(v*100<1?2:1)}%`).join('<br>');d.innerHTML=`<div class="packInner"><div class="packArt" style="background:${p.gradient}">${p.name.toUpperCase()}</div><h3>${p.name}</h3><div class="price">${p.price===0?'FREE':money(p.price)}</div><button ${can?'':'disabled'}>${p.price===0?'Open Pack':'Buy Pack'}</button><button class="ghost infoBtn" type="button">Info</button><div class="odds" style="display:none;margin-top:8px">${visibleOdds}<br><br><span class="smallText">All rarities are possible. Some odds are too low to be shown.</span></div></div>`;d.querySelector('button').onclick=()=>buyPack(p.id);d.querySelector('.infoBtn').onclick=(e)=>togglePackInfo(e.target);g.appendChild(d)})}
