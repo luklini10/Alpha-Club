@@ -1,1 +1,266 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Neon Casino Arcade</title>
+<style>
+:root{
+  --bg:#070712;--panel:#111225;--panel2:#171833;--text:#f7f7ff;--muted:#9ca0c4;
+  --gold:#ffd166;--pink:#ff3bd4;--cyan:#19e6ff;--green:#52ff9a;--red:#ff4d6d;
+  --line:rgba(255,255,255,.11);--shadow:0 22px 60px rgba(0,0,0,.42);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;color:var(--text);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 10% 5%,rgba(255,59,212,.18),transparent 30%),
+    radial-gradient(circle at 85% 20%,rgba(25,230,255,.16),transparent 28%),
+    radial-gradient(circle at 50% 95%,rgba(255,209,102,.12),transparent 35%),
+    linear-gradient(135deg,#070712,#0d1022 58%,#05050c);
+  min-height:100vh;
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:44px 44px;mask-image:linear-gradient(to bottom,black,transparent 85%);
+}
+.app{max-width:1250px;margin:auto;padding:18px}
+.top{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;z-index:5;
+  padding:12px 0;background:rgba(7,7,18,.78);backdrop-filter:blur(14px)
+}
+.logo{font-size:26px;font-weight:1000;letter-spacing:-1px}
+.logo span{background:linear-gradient(90deg,var(--gold),var(--pink),var(--cyan));-webkit-background-clip:text;color:transparent}
+.wallet{
+  display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.06);border:1px solid var(--line);
+  border-radius:999px;padding:8px 12px;box-shadow:var(--shadow)
+}
+.coin{color:var(--gold);font-weight:1000;font-size:20px}
+.btn{
+  border:0;border-radius:12px;padding:11px 14px;font-weight:1000;cursor:pointer;color:#080812;
+  background:linear-gradient(90deg,var(--gold),var(--cyan));transition:.18s;
+}
+.btn:hover{transform:translateY(-2px);filter:saturate(1.15)}
+.btn.secondary{background:rgba(255,255,255,.08);color:white;border:1px solid var(--line)}
+.hero{
+  margin:14px 0 16px;border:1px solid var(--line);border-radius:26px;padding:24px;overflow:hidden;
+  background:linear-gradient(135deg,rgba(23,24,51,.88),rgba(9,10,22,.92));box-shadow:var(--shadow);position:relative
+}
+.hero:after{content:"777";position:absolute;right:12px;top:-35px;font-size:150px;font-weight:1000;color:rgba(255,255,255,.035)}
+.badge{display:inline-flex;padding:7px 10px;border:1px solid rgba(255,209,102,.35);border-radius:999px;color:var(--gold);font-weight:900;background:rgba(255,209,102,.08)}
+h1{font-size:clamp(34px,6vw,72px);letter-spacing:-4px;margin:10px 0 8px;line-height:.94}
+.sub{color:var(--muted);max-width:720px;line-height:1.55}
+.layout{display:grid;grid-template-columns:270px 1fr;gap:16px}
+.sidebar,.game{
+  border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgba(17,18,37,.95),rgba(10,11,24,.95));
+  box-shadow:var(--shadow);padding:14px
+}
+.gameList{display:grid;gap:9px}
+.gameTab{
+  border:1px solid var(--line);border-radius:16px;padding:13px;background:rgba(255,255,255,.045);
+  cursor:pointer;transition:.18s;display:flex;align-items:center;gap:10px;font-weight:900
+}
+.gameTab:hover{transform:translateX(3px);border-color:rgba(25,230,255,.45)}
+.gameTab.active{background:linear-gradient(90deg,rgba(255,209,102,.18),rgba(25,230,255,.09));border-color:rgba(255,209,102,.45)}
+.icon{font-size:24px}.small{font-size:12px;color:var(--muted);font-weight:700;margin-top:3px}
+.gameHead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.title{font-size:30px;font-weight:1000;letter-spacing:-1px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:14px 0}
+.field{min-width:130px}
+label{display:block;color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;margin-bottom:6px}
+input,select{
+  width:100%;padding:12px;background:#090a16;border:1px solid var(--line);border-radius:12px;color:white;font-weight:800;outline:none
+}
+.result{
+  margin-top:12px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.045);padding:13px;color:var(--muted)
+}
+.win{color:var(--green)!important}.lose{color:var(--red)!important}
+.reels{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.reel{
+  min-height:120px;border-radius:18px;display:grid;place-items:center;font-size:58px;background:linear-gradient(180deg,#23264b,#0b0c1a);
+  border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 0 25px rgba(0,0,0,.35)
+}
+.spin{animation:pop .35s ease}
+@keyframes pop{50%{transform:scale(1.08) rotate(1deg)}}
+.grid{display:grid;gap:8px}
+.mines{grid-template-columns:repeat(5,1fr);max-width:430px}
+.tile{
+  aspect-ratio:1;border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,#22264a,#101225);
+  display:grid;place-items:center;font-size:25px;cursor:pointer;transition:.15s;font-weight:1000
+}
+.tile:hover{transform:translateY(-2px);border-color:var(--cyan)}
+.tile.safe{background:rgba(82,255,154,.18);border-color:rgba(82,255,154,.35)}
+.tile.bomb{background:rgba(255,77,109,.18);border-color:rgba(255,77,109,.35)}
+.cards{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.card{
+  width:76px;height:108px;border-radius:12px;background:white;color:#111;display:grid;place-items:center;font-size:26px;font-weight:1000;
+  box-shadow:0 8px 20px rgba(0,0,0,.28)
+}
+.redCard{color:#d90429}
+.rouletteWheel{
+  width:230px;height:230px;border-radius:50%;margin:12px auto;display:grid;place-items:center;font-size:54px;font-weight:1000;
+  background:conic-gradient(#ff4d6d 0 10deg,#111 10deg 20deg,#52ff9a 20deg 30deg,#111 30deg 40deg,#ff4d6d 40deg 50deg,#111 50deg 60deg,#ffd166 60deg 70deg,#111 70deg 80deg,#19e6ff 80deg 90deg,#111 90deg 100deg,#ff4d6d 100deg 110deg,#111 110deg 120deg,#52ff9a 120deg 130deg,#111 130deg 140deg,#ffd166 140deg 150deg,#111 150deg 160deg,#ff4d6d 160deg 170deg,#111 170deg 180deg,#19e6ff 180deg 190deg,#111 190deg 200deg,#52ff9a 200deg 210deg,#111 210deg 220deg,#ff4d6d 220deg 230deg,#111 230deg 240deg,#ffd166 240deg 250deg,#111 250deg 260deg,#19e6ff 260deg 270deg,#111 270deg 280deg,#ff4d6d 280deg 290deg,#111 290deg 300deg,#52ff9a 300deg 310deg,#111 310deg 320deg,#ffd166 320deg 330deg,#111 330deg 340deg,#19e6ff 340deg 350deg,#111 350deg 360deg);
+  border:8px solid rgba(255,255,255,.08);box-shadow:0 18px 40px rgba(0,0,0,.35);transition:1.2s cubic-bezier(.12,.7,.18,1.02)
+}
+.diceBox{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+.die{width:82px;height:82px;border-radius:18px;background:white;color:#111;display:grid;place-items:center;font-size:42px;font-weight:1000}
+.hiloCard{width:130px;height:180px;border-radius:18px;background:linear-gradient(180deg,#fff,#dbe6ff);color:#111;display:grid;place-items:center;font-size:48px;font-weight:1000;margin:12px 0}
+.history{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.hist{padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.06);font-size:12px;color:var(--muted)}
+.notice{color:var(--muted);font-size:12px;line-height:1.45;margin-top:12px}
+@media(max-width:850px){
+  .layout{grid-template-columns:1fr}.top{position:relative;align-items:flex-start;flex-direction:column}
+  .gameHead{flex-direction:column;align-items:flex-start}.controls{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .field{min-width:0}.mines{max-width:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="logo">NEON <span>CASINO ARCADE</span></div>
+    <div class="wallet"><span>Balance:</span><span class="coin" id="balance">10,000</span><button class="btn secondary" onclick="resetBalance()">Reset</button></div>
+  </div>
+
+  <section class="hero">
+    <div class="badge">For-fun digital coins only · No real money</div>
+    <h1>Arcade Casino Hub</h1>
+    <p class="sub">A smooth multi-game casino-style app with fake coins, clean controls, quick results, and a practical layout. Pick a game, set your bet, and play.</p>
+  </section>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="gameList" id="gameList"></div>
+      <div class="notice">This is a social arcade game. Coins have no real-world value and cannot be bought, sold, or withdrawn.</div>
+    </aside>
+    <section class="game" id="gameArea"></section>
+  </main>
+</div>
+
+<script>
+let balance = Number(localStorage.getItem("neonBalance")) || 10000;
+let active = "slots";
+let minesState = null;
+let hiloCurrent = null;
+let history = [];
+
+const games = [
+  ["slots","🎰","Neon Slots","Spin 3 reels"],
+  ["mines","💣","Mines","Pick safe tiles"],
+  ["blackjack","🃏","Blackjack","Beat the dealer"],
+  ["roulette","🎡","Roulette","Red, black, green"],
+  ["dice","🎲","Dice Roll","Roll over target"],
+  ["hilo","⬆️","Hi-Lo","Guess next card"],
+  ["coinflip","🪙","Coin Flip","Heads or tails"]
+];
+
+function save(){localStorage.setItem("neonBalance", balance);document.getElementById("balance").textContent=balance.toLocaleString();}
+function resetBalance(){balance=10000;save();render();}
+function betVal(){return Math.max(1, Math.floor(Number(document.getElementById("bet")?.value)||100));}
+function canBet(b){if(b>balance){msg("Not enough coins.",false);return false} return true;}
+function msg(t,good=null){const r=document.getElementById("result"); if(r){r.textContent=t;r.className="result "+(good===true?"win":good===false?"lose":"");}}
+function addHist(t){history.unshift(t);history=history.slice(0,10);}
+function historyHTML(){return `<div class="history">${history.map(x=>`<div class="hist">${x}</div>`).join("")}</div>`}
+function gameTabs(){
+ document.getElementById("gameList").innerHTML = games.map(g=>`
+  <div class="gameTab ${active===g[0]?'active':''}" onclick="active='${g[0]}';render()">
+    <div class="icon">${g[1]}</div><div>${g[2]}<div class="small">${g[3]}</div></div>
+  </div>`).join("");
+}
+function common(title, extra=""){
+ return `<div class="gameHead"><div><div class="title">${title}</div><div class="small">Fake coins only</div></div></div>
+ <div class="controls"><div class="field"><label>Bet</label><input id="bet" type="number" value="100" min="1"></div>${extra}</div>`;
+}
+function render(){
+ save(); gameTabs();
+ const area=document.getElementById("gameArea");
+ if(active==="slots") area.innerHTML = common("Neon Slots") + `<div class="reels"><div class="reel" id="r1">🍒</div><div class="reel" id="r2">🍋</div><div class="reel" id="r3">💎</div></div><button class="btn" onclick="playSlots()">Spin</button><div id="result" class="result">Match 2 symbols to win small. Match 3 to win big.</div>${historyHTML()}`;
+ if(active==="mines") renderMines();
+ if(active==="blackjack") area.innerHTML = common("Blackjack") + `<button class="btn" onclick="dealBlackjack()">Deal Hand</button><div class="cards" id="playerCards"></div><div class="cards" id="dealerCards"></div><div id="bjBtns"></div><div id="result" class="result">Get closer to 21 than the dealer.</div>${historyHTML()}`;
+ if(active==="roulette") area.innerHTML = common("Roulette",`<div class="field"><label>Pick</label><select id="rouPick"><option>Red</option><option>Black</option><option>Green</option></select></div>`) + `<div class="rouletteWheel" id="wheel">?</div><button class="btn" onclick="playRoulette()">Spin Wheel</button><div id="result" class="result">Green pays 14x. Red/Black pays 2x.</div>${historyHTML()}`;
+ if(active==="dice") area.innerHTML = common("Dice Roll",`<div class="field"><label>Roll Over</label><select id="target"><option>30</option><option>50</option><option>70</option></select></div>`) + `<div class="diceBox"><div class="die" id="die">🎲</div></div><button class="btn" onclick="playDice()">Roll</button><div id="result" class="result">Higher target is harder but pays more.</div>${historyHTML()}`;
+ if(active==="hilo") renderHilo();
+ if(active==="coinflip") area.innerHTML = common("Coin Flip",`<div class="field"><label>Pick</label><select id="flipPick"><option>Heads</option><option>Tails</option></select></div>`) + `<div class="hiloCard" id="coin">🪙</div><button class="btn" onclick="playCoin()">Flip</button><div id="result" class="result">Correct guess pays 2x.</div>${historyHTML()}`;
+}
+function playSlots(){
+ const b=betVal(); if(!canBet(b))return; balance-=b;
+ const sy=["🍒","🍋","🔔","💎","7️⃣","⭐"]; const a=[0,0,0].map(()=>sy[Math.floor(Math.random()*sy.length)]);
+ ["r1","r2","r3"].forEach((id,i)=>{const e=document.getElementById(id);e.textContent=a[i];e.classList.remove("spin");void e.offsetWidth;e.classList.add("spin");});
+ let win=0; if(a[0]===a[1]&&a[1]===a[2]) win=b*(a[0]==="7️⃣"?12:a[0]==="💎"?8:5); else if(a[0]===a[1]||a[1]===a[2]||a[0]===a[2]) win=b*2;
+ balance+=win; save(); addHist(win?`Slots +${win}`:`Slots -${b}`); msg(win?`You won ${win} coins!`:`No match. Lost ${b}.`,!!win);
+}
+function renderMines(){
+ document.getElementById("gameArea").innerHTML = common("Mines",`<div class="field"><label>Difficulty</label><select id="minesDiff"><option value="1">Easy - 1 bomb</option><option value="3">Medium - 3 bombs</option><option value="5">Hard - 5 bombs</option></select></div>`) + `<button class="btn" onclick="startMines()">Start Mines</button><div class="grid mines" id="minesGrid"></div><button class="btn secondary" onclick="cashoutMines()">Cash Out</button><div id="result" class="result">Start a round, reveal safe tiles, cash out before hitting a bomb.</div>${historyHTML()}`;
+}
+function startMines(){
+ const b=betVal(); if(!canBet(b))return; balance-=b; save();
+ const bombs=Number(document.getElementById("minesDiff").value); const bombSet=new Set();
+ while(bombSet.size<bombs) bombSet.add(Math.floor(Math.random()*25));
+ minesState={bet:b,bombs,found:0,bombSet,live:true};
+ drawMines(); msg("Round started. Pick a tile.",null);
+}
+function drawMines(){
+ const g=document.getElementById("minesGrid"); if(!g)return;
+ g.innerHTML = Array.from({length:25},(_,i)=>`<div class="tile" onclick="pickMine(${i})">?</div>`).join("");
+}
+function pickMine(i){
+ if(!minesState||!minesState.live){msg("Start a round first.",false);return}
+ const tiles=[...document.querySelectorAll(".tile")]; const t=tiles[i];
+ if(t.classList.contains("safe"))return;
+ if(minesState.bombSet.has(i)){t.textContent="💣";t.classList.add("bomb");minesState.live=false;addHist(`Mines -${minesState.bet}`);msg("Boom! You hit a bomb.",false);return}
+ minesState.found++; t.textContent="💎";t.classList.add("safe");
+ const mult=(1+(minesState.found*(0.18+minesState.bombs*0.04))).toFixed(2);
+ msg(`Safe! Current cashout: ${Math.floor(minesState.bet*mult)} coins.`,true);
+}
+function cashoutMines(){
+ if(!minesState||!minesState.live){msg("No live mines round.",false);return}
+ const mult=1+(minesState.found*(0.18+minesState.bombs*0.04)); const win=Math.floor(minesState.bet*mult);
+ balance+=win; save(); minesState.live=false; addHist(`Mines +${win}`); msg(`Cashed out ${win} coins!`,true);
+}
+let deck=[],player=[],dealer=[];
+function newDeck(){const vals=[2,3,4,5,6,7,8,9,10,10,10,10,11];deck=[];for(let s=0;s<4;s++) vals.forEach(v=>deck.push(v));deck.sort(()=>Math.random()-.5)}
+function handVal(h){let sum=h.reduce((a,b)=>a+b,0), aces=h.filter(x=>x===11).length;while(sum>21&&aces){sum-=10;aces--}return sum}
+function cardHTML(v){return `<div class="card ${v===11?'redCard':''}">${v===11?'A':v}</div>`}
+function updateBJ(){
+ document.getElementById("playerCards").innerHTML=`<b>Your hand (${handVal(player)})</b>`+player.map(cardHTML).join("");
+ document.getElementById("dealerCards").innerHTML=`<b>Dealer (${handVal(dealer)})</b>`+dealer.map(cardHTML).join("");
+}
+function dealBlackjack(){
+ const b=betVal(); if(!canBet(b))return; balance-=b; save(); newDeck(); player=[deck.pop(),deck.pop()]; dealer=[deck.pop(),deck.pop()]; updateBJ();
+ document.getElementById("bjBtns").innerHTML=`<button class="btn" onclick="bjHit()">Hit</button> <button class="btn secondary" onclick="bjStand()">Stand</button>`; msg("Hit or stand.",null);
+}
+function bjHit(){player.push(deck.pop());updateBJ(); if(handVal(player)>21){addHist(`Blackjack lost`);msg("Bust! You lost.",false);document.getElementById("bjBtns").innerHTML=""}}
+function bjStand(){
+ while(handVal(dealer)<17)dealer.push(deck.pop()); updateBJ(); const p=handVal(player),d=handVal(dealer); const b=betVal(); let win=0;
+ if(d>21||p>d)win=b*2; else if(p===d)win=b; balance+=win; save(); addHist(win>b?`Blackjack +${win}`:win===b?`Blackjack push`:`Blackjack lost`);
+ msg(win>b?`You win ${win}!`:win===b?`Push. Bet returned.`:`Dealer wins.`,win>b); document.getElementById("bjBtns").innerHTML="";
+}
+function playRoulette(){
+ const b=betVal(); if(!canBet(b))return; balance-=b;
+ const pick=document.getElementById("rouPick").value; const roll=Math.floor(Math.random()*37); let color=roll===0?"Green":roll%2?"Red":"Black";
+ const wheel=document.getElementById("wheel"); wheel.style.transform=`rotate(${720+roll*37}deg)`; wheel.textContent=roll;
+ let win=0; if(pick===color) win=b*(color==="Green"?14:2); balance+=win; save(); addHist(win?`Roulette +${win}`:`Roulette -${b}`); msg(`${roll} ${color}. ${win?`You won ${win}!`:`You lost ${b}.`}`,!!win);
+}
+function playDice(){
+ const b=betVal(); if(!canBet(b))return; balance-=b; const target=Number(document.getElementById("target").value); const roll=Math.floor(Math.random()*100)+1;
+ document.getElementById("die").textContent=roll; const mult=target===30?1.45:target===50?2:3.25; let win=roll>target?Math.floor(b*mult):0;
+ balance+=win; save(); addHist(win?`Dice +${win}`:`Dice -${b}`); msg(`Rolled ${roll}. ${win?`Won ${win}!`:`Lost ${b}.`}`,!!win);
+}
+function renderHilo(){
+ hiloCurrent=Math.floor(Math.random()*13)+1;
+ document.getElementById("gameArea").innerHTML = common("Hi-Lo") + `<div class="hiloCard" id="hiloCard">${hiloCurrent}</div><button class="btn" onclick="playHilo('high')">Higher</button> <button class="btn secondary" onclick="playHilo('low')">Lower</button><div id="result" class="result">Guess if the next card is higher or lower. Correct pays 1.9x.</div>${historyHTML()}`;
+}
+function playHilo(choice){
+ const b=betVal(); if(!canBet(b))return; balance-=b; const next=Math.floor(Math.random()*13)+1; const correct=(choice==="high"&&next>hiloCurrent)||(choice==="low"&&next<hiloCurrent);
+ document.getElementById("hiloCard").textContent=next; let win=correct?Math.floor(b*1.9):0; balance+=win; save(); addHist(win?`Hi-Lo +${win}`:`Hi-Lo -${b}`); msg(`Next card was ${next}. ${win?`Won ${win}!`:`Lost ${b}.`}`,!!win); hiloCurrent=next;
+}
+function playCoin(){
+ const b=betVal(); if(!canBet(b))return; balance-=b; const pick=document.getElementById("flipPick").value; const res=Math.random()<.5?"Heads":"Tails";
+ document.getElementById("coin").textContent=res==="Heads"?"🙂":"⭐"; const win=pick===res?b*2:0; balance+=win; save(); addHist(win?`Coin +${win}`:`Coin -${b}`); msg(`${res}. ${win?`Won ${win}!`:`Lost ${b}.`}`,!!win);
+}
+render();
+</script>
+</body>
+</html>
